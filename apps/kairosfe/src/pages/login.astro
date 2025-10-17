@@ -1,0 +1,57 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import LoginFormNew from '@/components/forms/LoginFormNew';
+
+export const prerender = false;
+---
+
+<BaseLayout title="Kairos - Sign In">
+  <div class="relative flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900">
+    <div class="w-full max-w-md">
+      <!-- Logo and Header -->
+      <div class="text-center mb-8">
+        <svg class="h-12 w-auto mx-auto text-primary" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4ZM24 42C14.0589 42 6 33.9411 6 24C6 14.0589 14.0589 6 24 6C33.9411 6 42 14.0589 42 24C42 33.9411 33.9411 42 24 42Z" fill="currentColor"></path>
+          <path d="M25 12H23V25H36V23H25V12Z" fill="currentColor"></path>
+        </svg>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-4">Welcome back to Kairos</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">Sign in to manage your team.</p>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md">
+        <!-- Login Form -->
+        <LoginFormNew client:load />
+
+        <!-- Divider -->
+        <div class="relative my-6">
+          <div aria-hidden="true" class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400">or sign in with</span>
+          </div>
+        </div>
+
+        <!-- Social Logins -->
+        <div class="grid grid-cols-2 gap-4">
+          <button class="w-full h-12 flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+            <img alt="Google logo" class="h-5 w-5 mr-2" src="https://www.google.com/favicon.ico" />
+            <span class="text-sm font-medium text-gray-900 dark:text-gray-100">Google</span>
+          </button>
+          <button class="w-full h-12 flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+            <img alt="Microsoft logo" class="h-5 w-5 mr-2" src="https://www.microsoft.com/favicon.ico" />
+            <span class="text-sm font-medium text-gray-900 dark:text-gray-100">Microsoft</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer Link -->
+      <div class="mt-8 text-center">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          Don't have an account?
+          <a class="font-medium text-primary hover:underline" href="#">Sign up</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,16 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header from '@/components/layout/Header';
+import TeamManagementContentNew from '@/components/data/TeamManagementContentNew';
+
+export const prerender = false;
+---
+
+<BaseLayout title="Team Management - Kairos">
+  <div class="relative flex min-h-screen w-full flex-col">
+    <div class="layout-container flex h-full grow flex-col">
+      <Header client:load />
+      <TeamManagementContentNew client:load />
+    </div>
+  </div>
+</BaseLayout>

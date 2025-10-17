@@ -1,0 +1,79 @@
+{
+  "app": {
+    "name": "Kairos",
+    "tagline": "Sistema de Gestão de RH"
+  },
+  "nav": {
+    "dashboard": "Painel",
+    "profile": "Perfil",
+    "teamManagement": "Gestão de Equipa",
+    "leaveRequests": "Pedidos de Ausência",
+    "settings": "Definições",
+    "logout": "Sair"
+  },
+  "auth": {
+    "login": "Entrar",
+    "email": "E-mail",
+    "password": "Palavra-passe",
+    "loginButton": "Entrar",
+    "loginSuccess": "Login bem-sucedido!",
+    "loginError": "E-mail ou palavra-passe inválidos",
+    "logout": "Sair",
+    "logoutSuccess": "Sessão encerrada com sucesso"
+  },
+  "dashboard": {
+    "welcome": "Bem-vindo de volta, {{name}}!",
+    "recentActivity": "Atividade Recente",
+    "quickActions": "Ações Rápidas"
+  },
+  "profile": {
+    "title": "Perfil",
+    "editProfile": "Editar Perfil",
+    "name": "Nome",
+    "email": "E-mail",
+    "role": "Função",
+    "language": "Idioma",
+    "saveChanges": "Guardar Alterações"
+  },
+  "team": {
+    "title": "Gestão de Equipa",
+    "search": "Procurar membros da equipa...",
+    "department": "Departamento",
+    "noMembers": "Nenhum membro da equipa encontrado"
+  },
+  "leaveRequests": {
+    "title": "Pedidos de Ausência",
+    "createRequest": "Solicitar Ausência",
+    "type": "Tipo",
+    "startDate": "Data de Início",
+    "endDate": "Data de Fim",
+    "reason": "Motivo",
+    "status": "Estado",
+    "pending": "Pendente",
+    "approved": "Aprovado",
+    "rejected": "Rejeitado",
+    "submit": "Enviar Pedido",
+    "noRequests": "Ainda não há pedidos de ausência"
+  },
+  "settings": {
+    "title": "Definições",
+    "theme": "Tema",
+    "themeAuto": "Automático",
+    "themeLight": "Claro",
+    "themeDark": "Escuro",
+    "notifications": "Notificações",
+    "apiBaseUrl": "URL Base da API",
+    "testError": "Testar Relatório de Erros"
+  },
+  "common": {
+    "loading": "A carregar...",
+    "error": "Algo correu mal",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Voltar",
+    "next": "Seguinte",
+    "previous": "Anterior"
+  }
+}

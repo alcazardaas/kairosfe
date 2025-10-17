@@ -1,0 +1,159 @@
+@use '@kairos/design-tokens' as *;
+
+// CSS Reset
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+// Base styles
+html {
+  font-family: var(--font-family-primary);
+  @include theme-color('background-color', 'background');
+  @include theme-color('color', 'onBackground');
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+  @include theme-color('background-color', 'background');
+  @include theme-color('color', 'onSurface');
+}
+
+// Typography
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+}
+
+h1 {
+  @include font-h1;
+}
+
+h2 {
+  @include font-h2;
+}
+
+h3 {
+  @include font-h3;
+}
+
+p {
+  @include font-body;
+}
+
+// Links
+a {
+  @include theme-color('color', 'link');
+  text-decoration: none;
+  transition: opacity var(--duration-fast) var(--easing-standard);
+
+  &:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+// Buttons
+.btn {
+  @include button-base;
+  font-size: 16px;
+  padding: 10px 16px;
+
+  &-primary {
+    @include button-primary;
+  }
+
+  &-secondary {
+    @include button-secondary;
+  }
+
+  &-sm {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  &-md {
+    font-size: 16px;
+    padding: 10px 16px;
+  }
+
+  &-lg {
+    font-size: 18px;
+    padding: 12px 20px;
+  }
+}
+
+// Forms
+input,
+textarea,
+select {
+  @include input-base;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  @include margin(1);
+}
+
+// Cards
+.card {
+  @include card;
+}
+
+// Container
+.container {
+  @include container;
+}
+
+// Utility classes
+.flex-center {
+  @include flex-center;
+}
+
+.flex-between {
+  @include flex-between;
+}
+
+.flex-column {
+  @include flex-column;
+}
+
+.sr-only {
+  @include sr-only;
+}
+
+.truncate {
+  @include truncate;
+}
+
+// Loading state
+.loading {
+  @include flex-center;
+  @include padding(4);
+  @include theme-color('color', 'muted');
+}
+
+// Error state
+.error {
+  @include padding(3);
+  @include radius('md');
+  @include theme-color('background-color', 'error');
+  color: white;
+}

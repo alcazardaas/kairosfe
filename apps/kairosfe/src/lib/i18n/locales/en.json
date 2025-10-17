@@ -1,0 +1,79 @@
+{
+  "app": {
+    "name": "Kairos",
+    "tagline": "HR Management System"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "teamManagement": "Team Management",
+    "leaveRequests": "Leave Requests",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Login",
+    "email": "Email",
+    "password": "Password",
+    "loginButton": "Sign In",
+    "loginSuccess": "Login successful!",
+    "loginError": "Invalid email or password",
+    "logout": "Logout",
+    "logoutSuccess": "Logged out successfully"
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {{name}}!",
+    "recentActivity": "Recent Activity",
+    "quickActions": "Quick Actions"
+  },
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "language": "Language",
+    "saveChanges": "Save Changes"
+  },
+  "team": {
+    "title": "Team Management",
+    "search": "Search team members...",
+    "department": "Department",
+    "noMembers": "No team members found"
+  },
+  "leaveRequests": {
+    "title": "Leave Requests",
+    "createRequest": "Request Leave",
+    "type": "Type",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "reason": "Reason",
+    "status": "Status",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "submit": "Submit Request",
+    "noRequests": "No leave requests yet"
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "themeAuto": "Auto",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "notifications": "Notifications",
+    "apiBaseUrl": "API Base URL",
+    "testError": "Test Error Reporting"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous"
+  }
+}

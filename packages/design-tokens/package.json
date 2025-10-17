@@ -1,0 +1,13 @@
+{
+  "name": "@kairos/design-tokens",
+  "version": "1.0.0",
+  "description": "Design tokens and SCSS variables for Kairos",
+  "main": "index.scss",
+  "files": [
+    "*.scss"
+  ],
+  "scripts": {
+    "lint": "echo 'No linting for SCSS tokens'",
+    "format": "prettier --write '*.scss'"
+  }
+}

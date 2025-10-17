@@ -1,0 +1,63 @@
+// Typography Tokens
+
+// Font family
+$font-family-primary: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+  sans-serif;
+
+// Font weights
+$font-weight-light: 300;
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Typography scale
+$typography: (
+  'display': (
+    'size': 56px,
+    'lineHeight': 64px,
+    'tracking': -0.5px,
+  ),
+  'h1': (
+    'size': 40px,
+    'lineHeight': 48px,
+    'tracking': -0.25px,
+  ),
+  'h2': (
+    'size': 28px,
+    'lineHeight': 36px,
+    'tracking': -0.2px,
+  ),
+  'h3': (
+    'size': 20px,
+    'lineHeight': 28px,
+    'tracking': 0,
+  ),
+  'body': (
+    'size': 16px,
+    'lineHeight': 24px,
+    'tracking': 0,
+  ),
+  'caption': (
+    'size': 12px,
+    'lineHeight': 16px,
+    'tracking': 1px,
+  ),
+);
+
+// Generate CSS custom properties
+:root {
+  --font-family-primary: #{$font-family-primary};
+
+  --font-weight-light: #{$font-weight-light};
+  --font-weight-regular: #{$font-weight-regular};
+  --font-weight-medium: #{$font-weight-medium};
+  --font-weight-semibold: #{$font-weight-semibold};
+  --font-weight-bold: #{$font-weight-bold};
+
+  @each $name, $props in $typography {
+    --font-#{$name}-size: #{map-get($props, 'size')};
+    --font-#{$name}-lineHeight: #{map-get($props, 'lineHeight')};
+    --font-#{$name}-tracking: #{map-get($props, 'tracking')};
+  }
+}

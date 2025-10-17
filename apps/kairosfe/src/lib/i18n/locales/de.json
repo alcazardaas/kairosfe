@@ -1,0 +1,79 @@
+{
+  "app": {
+    "name": "Kairos",
+    "tagline": "HR-Management-System"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "profile": "Profil",
+    "teamManagement": "Teamverwaltung",
+    "leaveRequests": "Urlaubsanträge",
+    "settings": "Einstellungen",
+    "logout": "Abmelden"
+  },
+  "auth": {
+    "login": "Anmelden",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "loginButton": "Anmelden",
+    "loginSuccess": "Anmeldung erfolgreich!",
+    "loginError": "Ungültige E-Mail oder Passwort",
+    "logout": "Abmelden",
+    "logoutSuccess": "Erfolgreich abgemeldet"
+  },
+  "dashboard": {
+    "welcome": "Willkommen zurück, {{name}}!",
+    "recentActivity": "Letzte Aktivität",
+    "quickActions": "Schnellaktionen"
+  },
+  "profile": {
+    "title": "Profil",
+    "editProfile": "Profil bearbeiten",
+    "name": "Name",
+    "email": "E-Mail",
+    "role": "Rolle",
+    "language": "Sprache",
+    "saveChanges": "Änderungen speichern"
+  },
+  "team": {
+    "title": "Teamverwaltung",
+    "search": "Teammitglieder suchen...",
+    "department": "Abteilung",
+    "noMembers": "Keine Teammitglieder gefunden"
+  },
+  "leaveRequests": {
+    "title": "Urlaubsanträge",
+    "createRequest": "Urlaub beantragen",
+    "type": "Typ",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum",
+    "reason": "Grund",
+    "status": "Status",
+    "pending": "Ausstehend",
+    "approved": "Genehmigt",
+    "rejected": "Abgelehnt",
+    "submit": "Antrag einreichen",
+    "noRequests": "Noch keine Urlaubsanträge"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "theme": "Design",
+    "themeAuto": "Automatisch",
+    "themeLight": "Hell",
+    "themeDark": "Dunkel",
+    "notifications": "Benachrichtigungen",
+    "apiBaseUrl": "API-Basis-URL",
+    "testError": "Fehlerberichterstattung testen"
+  },
+  "common": {
+    "loading": "Wird geladen...",
+    "error": "Etwas ist schief gelaufen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Vorherige"
+  }
+}

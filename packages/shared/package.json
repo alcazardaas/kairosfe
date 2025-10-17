@@ -1,0 +1,17 @@
+{
+  "name": "@kairos/shared",
+  "version": "1.0.0",
+  "description": "Shared utilities and types for Kairos",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.2"
+  }
+}

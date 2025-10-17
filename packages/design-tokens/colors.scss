@@ -1,0 +1,70 @@
+// Color Tokens for Light and Dark modes
+
+// Light mode colors
+$colors-light: (
+  'background': #ffffff,
+  'surface': #ffffff,
+  'surfaceRaised': #f8fafc,
+  'onBackground': #111827,
+  'onSurface': #111827,
+  'primary': #1e3a8a,
+  'onPrimary': #ffffff,
+  'primaryAlt': #3b82f6,
+  'accent': #10b981,
+  'border': #e5e7eb,
+  'muted': #6b7280,
+  'link': #3b82f6,
+  'focusRing': #60a5fa,
+  'info': #3b82f6,
+  'success': #10b981,
+  'warning': #f59e0b,
+  'error': #ef4444,
+);
+
+// Dark mode colors
+$colors-dark: (
+  'background': #0f172a,
+  'surface': #1e293b,
+  'surfaceRaised': #111827,
+  'onBackground': #f8fafc,
+  'onSurface': #e5e7eb,
+  'primary': #3b82f6,
+  'onPrimary': #0b1220,
+  'primaryAlt': #38bdf8,
+  'accent': #34d399,
+  'border': #334155,
+  'muted': #94a3b8,
+  'link': #38bdf8,
+  'focusRing': #38bdf8,
+  'info': #60a5fa,
+  'success': #22c55e,
+  'warning': #fbbf24,
+  'error': #f87171,
+);
+
+// Generate CSS custom properties for light mode
+:root {
+  @each $name, $value in $colors-light {
+    --color-#{$name}: #{$value};
+  }
+}
+
+// Generate CSS custom properties for dark mode
+:root[data-theme='dark'],
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    @each $name, $value in $colors-dark {
+      --color-#{$name}: #{$value};
+    }
+  }
+}
+
+// Export maps for use in other SCSS files
+:export {
+  @each $name, $value in $colors-light {
+    light-#{$name}: $value;
+  }
+  @each $name, $value in $colors-dark {
+    dark-#{$name}: $value;
+  }
+}

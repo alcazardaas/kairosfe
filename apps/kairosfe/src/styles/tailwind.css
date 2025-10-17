@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .transition-base {
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.2, 0.0, 0.2, 1);
+  }
+
+  .transition-emphasized {
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}

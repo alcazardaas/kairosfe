@@ -1,0 +1,57 @@
+---
+import LanguageSwitcher from '../ui/LanguageSwitcher';
+import UserMenu from './UserMenu';
+---
+
+<nav class="navbar">
+  <div class="navbar__container">
+    <div class="navbar__brand">
+      <h1>Kairos</h1>
+    </div>
+    <div class="navbar__actions">
+      <LanguageSwitcher client:load />
+      <UserMenu client:load />
+    </div>
+  </div>
+</nav>
+
+<style lang="scss">
+  @use '@kairos/design-tokens' as *;
+
+  .navbar {
+    height: 64px;
+    @include bg-surface;
+    @include shadow('sm');
+    border-bottom: 1px solid var(--color-border);
+
+    &__container {
+      @include container;
+      @include flex-between;
+      height: 100%;
+    }
+
+    &__brand {
+      h1 {
+        font-size: 24px;
+        font-weight: var(--font-weight-bold);
+        @include theme-color('color', 'primary');
+      }
+    }
+
+    &__actions {
+      @include flex-center;
+      @include gap(3);
+    }
+
+    &__logout {
+      padding: 8px 16px;
+      @include radius('md');
+      @include theme-color('color', 'onSurface');
+      transition: all var(--duration-fast) var(--easing-standard);
+
+      &:hover {
+        @include theme-color('background-color', 'surfaceRaised');
+      }
+    }
+  }
+</style>

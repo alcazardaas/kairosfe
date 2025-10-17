@@ -1,0 +1,10 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProfileContentNew from '@/components/data/ProfileContentNew';
+
+export const prerender = false;
+---
+
+<BaseLayout title="Profile - Kairos">
+  <ProfileContentNew client:load />
+</BaseLayout>

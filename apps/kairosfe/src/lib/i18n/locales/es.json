@@ -1,0 +1,79 @@
+{
+  "app": {
+    "name": "Kairos",
+    "tagline": "Sistema de Gestión de RRHH"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "profile": "Perfil",
+    "teamManagement": "Gestión de Equipo",
+    "leaveRequests": "Solicitudes de Ausencia",
+    "settings": "Configuración",
+    "logout": "Cerrar Sesión"
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "loginButton": "Iniciar Sesión",
+    "loginSuccess": "¡Inicio de sesión exitoso!",
+    "loginError": "Correo o contraseña inválidos",
+    "logout": "Cerrar Sesión",
+    "logoutSuccess": "Sesión cerrada exitosamente"
+  },
+  "dashboard": {
+    "welcome": "¡Bienvenido de nuevo, {{name}}!",
+    "recentActivity": "Actividad Reciente",
+    "quickActions": "Acciones Rápidas"
+  },
+  "profile": {
+    "title": "Perfil",
+    "editProfile": "Editar Perfil",
+    "name": "Nombre",
+    "email": "Correo",
+    "role": "Rol",
+    "language": "Idioma",
+    "saveChanges": "Guardar Cambios"
+  },
+  "team": {
+    "title": "Gestión de Equipo",
+    "search": "Buscar miembros del equipo...",
+    "department": "Departamento",
+    "noMembers": "No se encontraron miembros del equipo"
+  },
+  "leaveRequests": {
+    "title": "Solicitudes de Ausencia",
+    "createRequest": "Solicitar Ausencia",
+    "type": "Tipo",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Fin",
+    "reason": "Motivo",
+    "status": "Estado",
+    "pending": "Pendiente",
+    "approved": "Aprobado",
+    "rejected": "Rechazado",
+    "submit": "Enviar Solicitud",
+    "noRequests": "Aún no hay solicitudes de ausencia"
+  },
+  "settings": {
+    "title": "Configuración",
+    "theme": "Tema",
+    "themeAuto": "Automático",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro",
+    "notifications": "Notificaciones",
+    "apiBaseUrl": "URL Base de API",
+    "testError": "Probar Reporte de Errores"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Algo salió mal",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior"
+  }
+}

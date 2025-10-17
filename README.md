@@ -1,0 +1,912 @@
+# Kairos Frontend
+
+Modern HR Management System built with Astro, React, TypeScript, and Tailwind CSS.
+
+## Tech Stack
+
+- **Framework**: Astro 4 (Hybrid SSR + SSG)
+- **UI Library**: React 18
+- **Styling**: Tailwind CSS 3 + @tailwindcss/forms
+- **State Management**: Zustand
+- **Forms**: React Hook Form + Zod
+- **i18n**: i18next (en, es, pt-PT, de)
+- **API Mocking**: MSW
+- **Testing**: Vitest + Playwright
+- **Analytics**: PostHog
+- **Error Tracking**: Sentry
+- **Deployment**: Vercel
+- **Package Manager**: pnpm (workspaces)
+- **Fonts**: Manrope + Inter (Google Fonts)
+- **Icons**: Material Symbols (Google)
+
+## Project Structure
+
+```
+kairosfe/
+├── apps/
+│   └── kairosfe/               # Main Astro application
+│       ├── src/
+│       │   ├── pages/          # Astro pages (routing)
+│       │   ├── layouts/        # Layout components
+│       │   ├── components/     # React components
+│       │   │   ├── ui/         # UI components
+│       │   │   ├── forms/      # Form components
+│       │   │   ├── layout/     # Layout components
+│       │   │   ├── data/       # Data-driven components
+│       │   │   └── charts/     # Chart components
+│       │   ├── lib/
+│       │   │   ├── auth/       # Auth utilities
+│       │   │   ├── api/        # API client & mocks
+│       │   │   ├── i18n/       # Internationalization
+│       │   │   ├── store/      # Zustand stores
+│       │   │   └── test/       # Test utilities
+│       │   ├── styles/         # Global styles
+│       │   └── middleware.ts   # Astro middleware
+│       └── tests/              # E2E tests
+├── packages/
+│   ├── design-tokens/          # SCSS design tokens
+│   ├── ui/                     # Shared UI components
+│   └── shared/                 # Shared utilities & types
+└── referenceFE/                # Reference materials (ignored by git)
+
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 22+
+- pnpm 9+
+
+### Installation
+
+```bash
+# Install dependencies
+pnpm install
+
+# Set up environment variables
+cp apps/kairosfe/.env.example apps/kairosfe/.env
+
+# Edit .env and set your API URL (default is http://localhost:3000)
+# VITE_API_BASE_URL=http://localhost:3000
+
+# Start development server
+pnpm dev
+```
+
+The application will be available at [http://localhost:4321](http://localhost:4321)
+
+### ⚠️ Authentication Status
+
+**Authentication is currently DISABLED**
+
+- All routes are publicly accessible
+- No login required to access any page
+- API client does not send Authorization headers
+- This is intentional until BTM backend authentication is implemented
+
+When you're ready to enable authentication, you'll need to:
+1. Update [src/middleware.ts](apps/kairosfe/src/middleware.ts) to re-enable route protection
+2. Update [src/lib/api/client.ts](apps/kairosfe/src/lib/api/client.ts) to send auth tokens
+3. Implement the BTM authentication flow
+
+## Available Scripts
+
+### Root Level
+
+```bash
+pnpm dev          # Start dev server
+pnpm build        # Build for production
+pnpm lint         # Lint all packages
+pnpm format       # Format code with Prettier
+pnpm test         # Run all tests
+pnpm test:e2e     # Run E2E tests
+```
+
+### App Level (apps/kairosfe)
+
+```bash
+pnpm dev          # Start Astro dev server
+pnpm build        # Build Astro app
+pnpm preview      # Preview production build
+pnpm test         # Run unit tests
+pnpm test:ui      # Run tests with UI
+pnpm test:e2e     # Run E2E tests
+```
+
+## Features
+
+### Authentication
+- **Currently DISABLED** - All routes are public
+- Authentication placeholder code exists but is commented out
+- Ready for BTM backend integration when available
+- See middleware.ts and api/client.ts for auth implementation
+
+### Pages
+
+1. **Login** (`/login`)
+   - Currently optional (auth disabled)
+   - Email + password form ready for integration
+   - Event tracking (PostHog)
+
+2. **Dashboard** (`/dashboard`)
+   - Public (auth disabled)
+   - Welcome message with user name
+   - Quick actions and recent activity
+
+3. **Profile** (`/profile`)
+   - Public (auth disabled)
+   - View/edit user information
+   - Language switcher
+
+4. **Team Management** (`/team-management`)
+   - Public (auth disabled)
+   - List of team members
+   - Search and filters
+
+5. **Leave Requests** (`/leave-requests`)
+   - Public (auth disabled)
+   - View existing requests
+   - Create new leave requests
+   - Status tracking
+
+6. **Settings** (`/settings`)
+   - Public (auth disabled)
+   - Theme toggle (auto/light/dark)
+   - API configuration
+   - Error reporting test
+
+### Internationalization
+
+Supported languages:
+- English (en)
+- Spanish (es)
+- Portuguese (pt-PT)
+- German (de)
+
+Language can be changed via the language switcher in the navbar.
+
+### Design System
+
+The design system uses **Tailwind CSS** configured with custom colors from `libromarca.json`:
+
+- **Colors**: Custom color palette for light and dark modes
+  - Primary: `#1E3A8A` (blue)
+  - Accent: `#10B981` (green)
+  - Full palette defined in `tailwind.config.mjs`
+- **Typography**: Manrope and Inter font families with responsive scales
+- **Spacing**: Tailwind's default spacing scale (4px base)
+- **Components**: Utility-first approach with custom component classes
+- **Dark Mode**: Class-based (`class="dark"`)
+
+Theme can be switched between:
+- Light (default)
+- Dark (toggle via theme switcher)
+
+### Tailwind Configuration
+
+Custom Tailwind config located at `apps/kairosfe/tailwind.config.mjs`:
+- Extended color palette matching libromarca.json
+- Custom font families (Manrope, Inter)
+- Custom spacing, border radius, and shadows
+- Form plugin for better form styling
+
+### API & Mocking
+
+- **API Base URL**: `http://localhost:3000` (configurable via .env)
+- MSW (Mock Service Worker) for API mocking in development (optional)
+- API client ready for real backend integration
+- No authentication headers sent (until BTM is implemented)
+- Supports GET, POST, PUT, PATCH, DELETE methods
+
+### Testing
+
+**Unit Tests** (Vitest):
+- Store tests
+- Component tests
+- Utility function tests
+
+**E2E Tests** (Playwright):
+- Login flow
+- Page navigation
+- Form submissions
+
+### Analytics & Monitoring
+
+**PostHog** (Event Tracking):
+- Page views
+- Login success/failure
+- User interactions
+
+**Sentry** (Error Monitoring):
+- Automatic error capture
+- Manual error testing from settings page
+
+## Implementation Roadmap
+
+This section tracks the implementation status of all features and provides manual testing instructions.
+
+---
+
+### **Story 1: Login & Session Boot** ✅ COMPLETE
+
+**Status**: Fully implemented and tested
+
+**User Story**: As a user, I want to log in and stay authenticated so that I can access protected pages.
+
+**API Endpoints**:
+- `POST /auth/login` - Authenticate user
+- `POST /auth/refresh` - Refresh expired token
+- `GET /me` - Get current user info (role, permissions, policy)
+
+**Implementation Checklist**:
+- [x] Create `authStore` (Zustand) with: `{ token, user, role, permissions, policy, hydrate(), logout() }`
+- [x] Update API client with `Authorization: Bearer <token>` interceptor
+- [x] Implement 401 response → auto-refresh flow
+- [x] Build `/login` page with React Hook Form + Zod validation
+- [x] On login success: save token → call `hydrate()` → redirect to `/dashboard`
+- [x] Update `middleware.ts` to protect routes (redirect to `/login` if no token)
+- [x] Implement role-based menu filtering (read from `authStore.role/permissions`)
+- [x] Add PostHog events: `login_success`, `login_failure`
+- [x] Add Sentry error capture for login/refresh failures
+- [x] Write Playwright tests: redirect guards, valid/invalid login
+
+**Manual Testing**:
+1. **Login Flow**:
+   - Navigate to `/login`
+   - Enter valid credentials (email: `demo@kairos.com`, password: `demo123`)
+   - Click "Sign In"
+   - ✅ Should redirect to `/dashboard`
+   - ✅ Dashboard should display user name (Demo User)
+
+2. **Session Persistence**:
+   - After logging in, refresh the page
+   - ✅ Should remain logged in
+   - ✅ Menu items should reflect user role
+
+3. **Invalid Login**:
+   - Try logging in with wrong password
+   - ✅ Should show error message
+   - ✅ PostHog should track `login_failure` event
+
+4. **Route Protection**:
+   - Log out (clear token)
+   - Try accessing `/dashboard`
+   - ✅ Should redirect to `/login`
+
+5. **Token Refresh**:
+   - Login and wait for token to expire (or manually expire it)
+   - Make an API call
+   - ✅ Should auto-refresh token and retry request
+
+**Acceptance Criteria**:
+- ✅ Successful login redirects to `/dashboard` and shows user name
+- ✅ Page reload persists session and menu
+- ✅ Unauthorized route access redirects to `/login`
+
+---
+
+### **Story 2: Timesheet - Employee Weekly Flow** ⏸️ NOT STARTED
+
+**Status**: Pending
+
+**User Story**: As an employee, I want to view/edit my weekly timesheet and submit it so that my time can be approved.
+
+**API Endpoints**:
+- `GET /timesheets?user_id=me&week_start=YYYY-MM-DD` - Get timesheet for week
+- `POST /timesheets` - Create new timesheet
+- `GET /time-entries` - List time entries
+- `POST /time-entries` - Create entry
+- `PATCH /time-entries/:id` - Update entry
+- `DELETE /time-entries/:id` - Delete entry
+- `GET /time-entries/stats/weekly?user_id=me` - Weekly stats
+- `POST /timesheets/:id/submit` - Submit for approval
+
+**Implementation Checklist**:
+- [ ] Add "My Week" card to `/dashboard` with week picker (Monday start)
+- [ ] If no timesheet exists: show "Create timesheet" CTA → `POST /timesheets`
+- [ ] Build timesheet table component (7 day columns: Mon-Sun)
+- [ ] CRUD operations for time entries (project, task, hours, notes per day)
+- [ ] Calculate and display weekly total hours (client-side)
+- [ ] Validate against policy limits from `/me.policy` (e.g., max hours/day)
+- [ ] "Submit for approval" button → `POST /timesheets/:id/submit` → success toast
+- [ ] Add PostHog events: `timesheet_created`, `timeentry_added`, `timesheet_submitted`
+- [ ] Write E2E test: create draft, add/edit/delete entry, submit
+
+**Manual Testing**:
+1. **Create Timesheet**:
+   - Navigate to `/dashboard`
+   - Click "My Week" → select current week
+   - If no timesheet: click "Create timesheet"
+   - ✅ Empty timesheet grid should appear
+
+2. **Add Time Entry**:
+   - Click "Add entry" or click a cell
+   - Select project, task, enter hours, add notes
+   - ✅ Entry should appear in table
+   - ✅ Weekly total should update
+
+3. **Edit/Delete Entry**:
+   - Click existing entry → modify hours
+   - ✅ Total should recalculate
+   - Delete entry → ✅ Should be removed
+
+4. **Policy Validation**:
+   - Try entering >24 hours in one day
+   - ✅ Should show validation error
+   - ✅ Submit button should be disabled
+
+5. **Submit Timesheet**:
+   - Fill valid entries
+   - Click "Submit for approval"
+   - ✅ Success toast should appear
+   - ✅ Timesheet status should change to "Pending"
+
+**Acceptance Criteria**:
+- ✅ Can create draft, add/edit/remove entries, see totals, and submit
+- ✅ Policy limits (e.g., max/day) block submission with clear message
+
+---
+
+### **Story 3: Timesheet - Manager Queue** ⏸️ NOT STARTED
+
+**Status**: Pending
+
+**User Story**: As a manager, I want to see pending team timesheets so that I can approve/reject them.
+
+**API Endpoints**:
+- `GET /timesheets?team=true&status=pending` - Pending team timesheets
+- `GET /timesheets/:id` - Get timesheet details
+- `POST /timesheets/:id/approve` - Approve timesheet
+- `POST /timesheets/:id/reject` - Reject with note
+
+**Implementation Checklist**:
+- [ ] Create new page: `/team-management/timesheets`
+- [ ] Add permission check (manager only)
+- [ ] Build pending timesheets table: employee, week, total hours, submitted_at
+- [ ] Row actions: "View" (modal with details), "Approve", "Reject (with note)"
+- [ ] Implement optimistic UI updates (revert on error)
+- [ ] Add PostHog events: `timesheet_approved`, `timesheet_rejected`
+- [ ] Write E2E test: load queue, approve, reject with note
+
+**Manual Testing**:
+1. **Access Control**:
+   - Login as employee → ✅ Menu should NOT show "Team Timesheets"
+   - Login as manager → ✅ Menu SHOULD show "Team Timesheets"
+
+2. **View Pending Queue**:
+   - Navigate to `/team-management/timesheets`
+   - ✅ Should show list of pending timesheets
+   - ✅ Each row shows: employee name, week dates, total hours, submitted date
+
+3. **View Details**:
+   - Click "View" on a timesheet
+   - ✅ Modal should open with all time entries
+
+4. **Approve Timesheet**:
+   - Click "Approve"
+   - ✅ Timesheet should disappear from queue (optimistic update)
+   - ✅ Success toast should appear
+
+5. **Reject Timesheet**:
+   - Click "Reject" → enter reason
+   - ✅ Timesheet should disappear
+   - ✅ Employee should see rejection note
+
+**Acceptance Criteria**:
+- ✅ Only manager roles see the page
+- ✅ Approve/reject updates list without reload
+
+---
+
+### **Story 4: Leave - Employee Requests** ⏸️ NOT STARTED
+
+**Status**: Pending
+
+**User Story**: As an employee, I want to request leave and track statuses so that I can plan time off.
+
+**API Endpoints**:
+- `GET /leave-requests?mine=true` - My leave requests
+- `POST /leave-requests` - Create request
+- `PATCH /leave-requests/:id` - Update request
+- `GET /users/:id/benefits` - Get leave balances
+
+**Implementation Checklist**:
+- [ ] Build `/leave-requests` page with table (date range, type, status)
+- [ ] "New request" drawer with React Hook Form: type, start date, end date, reason
+- [ ] Fetch and display "Remaining balance" from `/users/:id/benefits` for selected type
+- [ ] Zod validation: prevent negative balances, invalid date ranges
+- [ ] Save → optimistic insert; edit/cancel via `PATCH`
+- [ ] Add PostHog events: `leave_requested`, `leave_cancelled`
+- [ ] Write E2E test: create pending request, edit, cancel
+
+**Manual Testing**:
+1. **View Requests**:
+   - Navigate to `/leave-requests`
+   - ✅ Should show table of all my requests (pending, approved, rejected)
+
+2. **Check Balances**:
+   - ✅ Page should display leave balances per type (Annual, Sick, etc.)
+
+3. **Create Request**:
+   - Click "New request"
+   - Select type (e.g., Annual Leave)
+   - Choose start/end dates
+   - Enter reason
+   - ✅ Should show remaining balance after this request
+   - Click "Submit"
+   - ✅ Request should appear in table with "Pending" status
+
+4. **Validation**:
+   - Try requesting more days than available balance
+   - ✅ Should show error: "Insufficient balance"
+   - Try end date before start date
+   - ✅ Should show error: "Invalid date range"
+
+5. **Edit/Cancel**:
+   - Click "Edit" on pending request → change dates
+   - ✅ Should update
+   - Click "Cancel" → ✅ Status should change to "Cancelled"
+
+**Acceptance Criteria**:
+- ✅ Create/edit/cancel works; balances render correctly
+- ✅ Validation prevents negative balances if policy demands
+
+---
+
+### **Story 5: Leave - Manager Queue** ⏸️ NOT STARTED
+
+**Status**: Pending
+
+**User Story**: As a manager, I want a list of pending team leave requests so that I can approve/reject quickly.
+
+**API Endpoints**:
+- `GET /leave-requests?team=true&status=pending` - Pending team requests
+- `POST /leave-requests/:id/approve` - Approve request
+- `POST /leave-requests/:id/reject` - Reject with note
+
+**Implementation Checklist**:
+- [ ] Create page: `/team-management/leave`
+- [ ] Pending requests table: employee, type, dates, reason, requested_at
+- [ ] Row actions: "Approve", "Reject (with note)"
+- [ ] Optional: quick preview tooltip on hover
+- [ ] Add PostHog events: `leave_approved`, `leave_rejected`
+- [ ] Write E2E test: approve/reject flow
+
+**Manual Testing**:
+1. **Access Control**:
+   - Login as manager → ✅ Menu shows "Team Leave"
+
+2. **View Queue**:
+   - Navigate to `/team-management/leave`
+   - ✅ Should show pending requests only
+
+3. **Approve**:
+   - Click "Approve"
+   - ✅ Request disappears from queue
+   - ✅ Success toast
+
+4. **Reject**:
+   - Click "Reject" → enter reason
+   - ✅ Request disappears
+   - ✅ Employee sees rejection reason
+
+**Acceptance Criteria**:
+- ✅ Manager-only access
+- ✅ Actions update list immediately
+
+---
+
+### **Story 6: Unified Calendar & PTO Conflict Hint** ⏸️ NOT STARTED
+
+**Status**: Pending
+
+**User Story**: As a user, I want a calendar view merging holidays and approved leaves so that I can plan better and avoid conflicts.
+
+**API Endpoints**:
+- `GET /calendar?user_id=me&from=YYYY-MM-DD&to=YYYY-MM-DD&include=holidays,leave` - Calendar data
+
+**Implementation Checklist**:
+- [ ] Create calendar component (month view)
+- [ ] Add to `/leave-requests` page sidebar
+- [ ] Fetch holidays + approved leaves for visible month
+- [ ] Render distinct badges for holidays vs. leaves
+- [ ] In PTO form: on date change, check for overlaps → show warning (non-blocking)
+- [ ] Optional (manager): show team overlap hints
+- [ ] Add PostHog events: `calendar_viewed`, `pto_overlap_warned`
+- [ ] Write unit tests for date range calculations
+- [ ] Write E2E test: calendar fetch and navigation
+
+**Manual Testing**:
+1. **View Calendar**:
+   - Navigate to `/leave-requests`
+   - ✅ Sidebar shows current month calendar
+   - ✅ Holidays marked with one color
+   - ✅ Approved leaves marked with another color
+
+2. **Navigate Months**:
+   - Click next/previous month
+   - ✅ Calendar updates
+   - ✅ New data fetched
+
+3. **Overlap Warning**:
+   - Click "New request"
+   - Select dates that overlap a holiday
+   - ✅ Should show warning: "Overlaps with [Holiday Name]"
+   - ✅ Should still allow submission (non-blocking)
+
+4. **Team Overlap (Manager)**:
+   - Login as manager
+   - Select dates when team member has approved leave
+   - ✅ Should show hint: "2 team members out"
+
+**Acceptance Criteria**:
+- ✅ Calendar updates per month; holidays and leaves show distinct badges
+- ✅ Overlap warnings are shown but non-blocking
+
+---
+
+### **Story 7: Projects & Tasks Pickers** ⏸️ NOT STARTED
+
+**Status**: Pending
+
+**User Story**: As an employee, I want fast project/task selection so that logging time is quick.
+
+**API Endpoints**:
+- `GET /search/projects?q=query` - Search projects
+- `GET /search/tasks?q=query&project_id=id` - Search tasks
+
+**Implementation Checklist**:
+- [ ] Replace `<select>` with async typeahead/combobox components
+- [ ] Implement debounced search (300ms)
+- [ ] Cache last N results in Zustand or memory
+- [ ] Task picker: scope by selected project
+- [ ] Add PostHog events: `project_search`, `task_search`
+- [ ] Write unit tests for debounce logic
+- [ ] Write E2E test: search and select project/task
+
+**Manual Testing**:
+1. **Project Search**:
+   - In timesheet form, click project field
+   - Type "kairos"
+   - ✅ Should show matching projects
+   - ✅ Results appear in <300ms
+
+2. **Task Search**:
+   - Select a project
+   - Click task field
+   - ✅ Only tasks for selected project should appear
+   - Type to filter
+   - ✅ Should narrow results
+
+3. **Cache**:
+   - Search "kairos" → select → clear → search "kairos" again
+   - ✅ Should load from cache (instant)
+
+**Acceptance Criteria**:
+- ✅ Typeahead returns results <300ms
+- ✅ Task list scoped by selected project
+
+---
+
+### **Story 8: Dashboard Data & Widgets** ⏸️ NOT STARTED
+
+**Status**: Pending
+
+**User Story**: As a user, I want a dashboard with my key info so that I see what needs attention.
+
+**API Endpoints**:
+- `GET /time-entries/stats/weekly?user_id=me` - Weekly hours
+- `GET /time-entries/stats/project?user_id=me` - Hours by project
+- `GET /timesheets?team=true&status=pending` - Pending timesheets (manager)
+- `GET /leave-requests?team=true&status=pending` - Pending leave (manager)
+- `GET /holidays?year=YYYY` - Holidays
+
+**Implementation Checklist**:
+- [ ] Build dashboard widgets (cards):
+  - "This week hours" (bar/line chart)
+  - "By project" (pie/donut chart)
+  - "Upcoming holidays" (list)
+- [ ] Manager-only widgets:
+  - "Pending timesheets (N)" (count + link)
+  - "Pending leave (M)" (count + link)
+- [ ] Empty states for zero data
+- [ ] Add PostHog event: `dashboard_viewed`
+- [ ] Write unit tests for data formatters
+- [ ] Write E2E test: verify widgets load
+
+**Manual Testing**:
+1. **Employee Dashboard**:
+   - Login as employee
+   - Navigate to `/dashboard`
+   - ✅ Should see: "This week hours", "By project", "Upcoming holidays"
+   - ✅ Should NOT see manager widgets
+
+2. **Manager Dashboard**:
+   - Login as manager
+   - ✅ Should see all employee widgets PLUS:
+     - "Pending timesheets (N)"
+     - "Pending leave (M)"
+
+3. **Empty States**:
+   - New user with no data
+   - ✅ Each widget shows empty state message
+
+4. **Data Updates**:
+   - Log some hours
+   - Return to dashboard
+   - ✅ "This week hours" updates
+
+**Acceptance Criteria**:
+- ✅ Cards reflect API data
+- ✅ Empty states shown when no data
+
+---
+
+### **Story 9: Error, Empty, Loading States + i18n** ⏸️ NOT STARTED
+
+**Status**: Pending
+
+**User Story**: As a user, I want clear states in every view so that I understand what's happening.
+
+**Implementation Checklist**:
+- [ ] Create `<DataState>` component with modes:
+  - Loading (skeleton)
+  - Empty (message + optional CTA)
+  - Error (message + retry button)
+  - Success (children)
+- [ ] Wrap all data-driven pages in `<DataState>`
+- [ ] Add i18n keys for all states (en, es, pt-PT, de)
+- [ ] Write snapshot tests for all 4 languages
+- [ ] Configure Sentry to capture API errors with `user.id`
+
+**Manual Testing**:
+1. **Loading State**:
+   - Navigate to `/dashboard`
+   - Slow down network (DevTools → throttle)
+   - ✅ Should show skeleton loaders
+
+2. **Empty State**:
+   - New user with no timesheets
+   - Navigate to timesheet page
+   - ✅ Should show: "No timesheets yet. Create your first one!"
+
+3. **Error State**:
+   - Stop backend API
+   - Navigate to any page
+   - ✅ Should show error message + "Retry" button
+   - Click retry → ✅ Should refetch
+
+4. **i18n**:
+   - Switch language to Spanish
+   - Trigger error state
+   - ✅ Error message should be in Spanish
+
+5. **Sentry**:
+   - Trigger an error
+   - Check Sentry dashboard
+   - ✅ Should see error with user context
+
+**Acceptance Criteria**:
+- ✅ Every list/form shows proper loading/error/empty messages (translated)
+
+---
+
+### **Story 10: Wiring MSW → API** ⏸️ NOT STARTED
+
+**Status**: Pending
+
+**User Story**: As a developer, I want a smooth switch from mocks to real API so that I can ship incrementally.
+
+**Implementation Checklist**:
+- [ ] Update `VITE_API_BASE_URL` to point to real backend
+- [ ] Configure MSW to only mock missing/incomplete endpoints
+- [ ] Create `useApiReady()` hook to detect backend availability
+- [ ] Show banner when API is unreachable
+- [ ] Add PostHog event: `api_unavailable_banner_shown`
+- [ ] Write unit tests: client base URL selection
+- [ ] Write E2E tests: real vs mocked paths
+
+**Manual Testing**:
+1. **Real API**:
+   - Set `VITE_API_BASE_URL=http://localhost:8080`
+   - Start backend
+   - ✅ All requests should hit real API
+
+2. **Partial Mocking**:
+   - Backend doesn't have `/holidays` endpoint yet
+   - ✅ MSW should intercept `/holidays` only
+   - ✅ Other endpoints go to real API
+
+3. **API Down Banner**:
+   - Stop backend
+   - Refresh app
+   - ✅ Should show banner: "API unavailable. Some features limited."
+   - Start backend
+   - ✅ Banner should disappear
+
+**Acceptance Criteria**:
+- ✅ Real endpoints hit in dev/preview; mock only for gaps
+- ✅ Clear banner when API is down (no silent failures)
+
+---
+
+## Definition of Done (All Stories)
+
+Each story is considered complete when:
+- ✅ UI matches all states (loading/empty/error/success)
+- ✅ i18n keys added for all new strings (en, es, pt-PT, de)
+- ✅ Telemetry events added (PostHog + Sentry)
+- ✅ Tests pass (Vitest + Playwright)
+- ✅ No console errors
+- ✅ ESLint/Prettier clean
+- ✅ Manual testing checklist completed
+- ✅ PR reviewed and merged
+
+---
+
+## Legend
+
+- ✅ **COMPLETE** - Fully implemented and tested
+- 🚧 **IN PROGRESS** - Currently being worked on
+- ⏸️ **NOT STARTED** - Queued for future implementation
+- ⚠️ **BLOCKED** - Waiting on dependencies
+
+---
+
+## Quick Reference: API Endpoints
+
+All endpoints assume base URL from `VITE_API_BASE_URL` (default: `http://localhost:8080`)
+
+**Auth**:
+- `POST /auth/login` - Login
+- `POST /auth/refresh` - Refresh token
+- `GET /me` - Current user info
+
+**Timesheets**:
+- `GET /timesheets` - List timesheets
+- `POST /timesheets` - Create timesheet
+- `GET /timesheets/:id` - Get details
+- `POST /timesheets/:id/submit` - Submit
+- `POST /timesheets/:id/approve` - Approve (manager)
+- `POST /timesheets/:id/reject` - Reject (manager)
+
+**Time Entries**:
+- `GET /time-entries` - List entries
+- `POST /time-entries` - Create entry
+- `PATCH /time-entries/:id` - Update entry
+- `DELETE /time-entries/:id` - Delete entry
+- `GET /time-entries/stats/weekly` - Weekly stats
+- `GET /time-entries/stats/project` - Project stats
+
+**Leave**:
+- `GET /leave-requests` - List requests
+- `POST /leave-requests` - Create request
+- `PATCH /leave-requests/:id` - Update request
+- `POST /leave-requests/:id/approve` - Approve (manager)
+- `POST /leave-requests/:id/reject` - Reject (manager)
+- `GET /users/:id/benefits` - Leave balances
+
+**Calendar & Search**:
+- `GET /calendar` - Calendar data (holidays + leaves)
+- `GET /holidays` - Public holidays
+- `GET /search/projects` - Search projects
+- `GET /search/tasks` - Search tasks
+
+## Development Guidelines
+
+### Code Style
+
+- Use TypeScript for all new files
+- Follow the Airbnb style guide
+- Use functional components with hooks
+- Keep components small and focused
+- Write tests for new features
+
+### Component Structure
+
+```tsx
+// 1. Imports
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+
+// 2. Types
+interface Props {
+  // ...
+}
+
+// 3. Component
+export default function Component({ prop }: Props) {
+  // 4. Hooks
+  const { t } = useTranslation();
+
+  // 5. State & effects
+
+  // 6. Handlers
+
+  // 7. Render
+  return <div>...</div>;
+}
+```
+
+### Commit Messages
+
+Follow conventional commits:
+- `feat:` New feature
+- `fix:` Bug fix
+- `docs:` Documentation
+- `style:` Formatting
+- `refactor:` Code restructuring
+- `test:` Tests
+- `chore:` Maintenance
+
+## Deployment
+
+The application is configured for deployment on Vercel:
+
+```bash
+# Build for production
+pnpm build
+
+# Preview production build locally
+pnpm preview
+```
+
+Vercel will automatically build and deploy when pushing to the main branch.
+
+## Environment Variables
+
+Required environment variables:
+
+```env
+# API Configuration (REQUIRED)
+VITE_API_BASE_URL=http://localhost:3000
+
+# i18n (REQUIRED)
+VITE_DEFAULT_LOCALE=en
+VITE_SUPPORTED_LOCALES=en,es,pt-PT,de
+
+# Analytics (OPTIONAL - can be left empty)
+VITE_POSTHOG_KEY=
+VITE_SENTRY_DSN=
+```
+
+**Important**: Make sure your backend API is running on the configured port (default: 3000)
+
+## Troubleshooting
+
+### Build Errors
+
+If you encounter build errors:
+
+```bash
+# Clear cache and rebuild
+rm -rf node_modules .astro dist
+pnpm install
+pnpm build
+```
+
+### Type Errors
+
+```bash
+# Run type check
+pnpm exec astro check
+```
+
+### Test Failures
+
+```bash
+# Run tests in watch mode
+pnpm test:ui
+
+# Run E2E tests in debug mode
+pnpm exec playwright test --debug
+```
+
+## License
+
+Internal use only.
+
+## Support
+
+For questions or issues, please contact the development team.

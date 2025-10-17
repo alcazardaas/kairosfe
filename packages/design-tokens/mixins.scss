@@ -1,0 +1,235 @@
+// SCSS Mixins for Kairos Design System
+
+// Typography mixins
+@mixin typography($variant) {
+  font-size: var(--font-#{$variant}-size);
+  line-height: var(--font-#{$variant}-lineHeight);
+  letter-spacing: var(--font-#{$variant}-tracking);
+}
+
+@mixin font-display {
+  @include typography('display');
+}
+
+@mixin font-h1 {
+  @include typography('h1');
+}
+
+@mixin font-h2 {
+  @include typography('h2');
+}
+
+@mixin font-h3 {
+  @include typography('h3');
+}
+
+@mixin font-body {
+  @include typography('body');
+}
+
+@mixin font-caption {
+  @include typography('caption');
+}
+
+// Color mixins
+@mixin theme-color($property, $color-name) {
+  #{$property}: var(--color-#{$color-name});
+}
+
+@mixin bg-primary {
+  @include theme-color('background-color', 'primary');
+  @include theme-color('color', 'onPrimary');
+}
+
+@mixin bg-surface {
+  @include theme-color('background-color', 'surface');
+  @include theme-color('color', 'onSurface');
+}
+
+// Spacing mixins
+@mixin spacing($property, $index) {
+  #{$property}: var(--space-#{$index});
+}
+
+@mixin padding($index) {
+  padding: var(--space-#{$index});
+}
+
+@mixin margin($index) {
+  margin: var(--space-#{$index});
+}
+
+@mixin gap($index) {
+  gap: var(--space-#{$index});
+}
+
+// Border radius mixins
+@mixin radius($size) {
+  border-radius: var(--radius-#{$size});
+}
+
+// Shadow mixins
+@mixin shadow($size) {
+  box-shadow: var(--shadow-#{$size});
+}
+
+// Focus ring mixin
+@mixin focus-ring {
+  outline: 3px solid var(--color-focusRing);
+  outline-offset: 2px;
+}
+
+// Button base mixin
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  border: none;
+  transition: all var(--duration-fast) var(--easing-standard);
+  @include radius('lg');
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+// Button variant mixins
+@mixin button-primary {
+  @include button-base;
+  @include bg-primary;
+  @include shadow('sm');
+
+  &:hover:not(:disabled) {
+    transform: scale(1.02);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+
+@mixin button-secondary {
+  @include button-base;
+  background-color: transparent;
+  @include theme-color('color', 'primary');
+  border: 1px solid var(--color-primary);
+
+  &:hover:not(:disabled) {
+    background-color: rgba(var(--color-primary), 0.06);
+  }
+}
+
+// Card mixin
+@mixin card {
+  @include bg-surface;
+  @include radius('xl');
+  @include shadow('md');
+  @include padding(4);
+}
+
+// Input mixin
+@mixin input-base {
+  @include bg-surface;
+  @include theme-color('color', 'onSurface');
+  @include radius('sm');
+  border: 1px solid var(--color-border);
+  padding: 10px 12px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-body-size);
+  transition: all var(--duration-fast) var(--easing-standard);
+
+  &::placeholder {
+    @include theme-color('color', 'muted');
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-focusRing);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Container mixin
+@mixin container {
+  width: 100%;
+  max-width: var(--grid-container-max);
+  min-width: var(--grid-container-min);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--grid-gutter);
+  padding-right: var(--grid-gutter);
+}
+
+// Flexbox utilities
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+// Responsive breakpoints
+$breakpoints: (
+  'sm': 640px,
+  'md': 768px,
+  'lg': 1024px,
+  'xl': 1280px,
+);
+
+@mixin breakpoint($size) {
+  @media (min-width: map-get($breakpoints, $size)) {
+    @content;
+  }
+}
+
+// Accessibility
+@mixin sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// Truncate text
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Line clamp
+@mixin line-clamp($lines) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

@@ -1,0 +1,45 @@
+// Spacing Tokens
+
+// Spacing scale (in pixels)
+$spacing-scale: (
+  0: 4px,
+  1: 8px,
+  2: 12px,
+  3: 16px,
+  4: 24px,
+  5: 32px,
+  6: 48px,
+  7: 64px,
+);
+
+// Grid system
+$grid-columns: 12;
+$grid-container-min: 320px;
+$grid-container-max: 1200px;
+$grid-gutter: 24px;
+
+// Border radius
+$radii: (
+  'xs': 4px,
+  'sm': 8px,
+  'md': 12px,
+  'lg': 16px,
+  'xl': 24px,
+  'pill': 999px,
+);
+
+// Generate CSS custom properties
+:root {
+  @each $name, $value in $spacing-scale {
+    --space-#{$name}: #{$value};
+  }
+
+  --grid-columns: #{$grid-columns};
+  --grid-container-min: #{$grid-container-min};
+  --grid-container-max: #{$grid-container-max};
+  --grid-gutter: #{$grid-gutter};
+
+  @each $name, $value in $radii {
+    --radius-#{$name}: #{$value};
+  }
+}

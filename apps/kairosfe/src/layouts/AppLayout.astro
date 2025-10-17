@@ -1,0 +1,44 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Navbar from '@/components/layout/Navbar.astro';
+import Sidebar from '@/components/layout/Sidebar.astro';
+
+interface Props {
+  title?: string;
+}
+
+const { title } = Astro.props;
+---
+
+<BaseLayout title={title}>
+  <div class="app-layout">
+    <Navbar />
+    <div class="app-layout__content">
+      <Sidebar />
+      <main class="app-layout__main">
+        <slot />
+      </main>
+    </div>
+  </div>
+</BaseLayout>
+
+<style lang="scss">
+  @use '@kairos/design-tokens' as *;
+
+  .app-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+
+    &__content {
+      display: flex;
+      flex: 1;
+    }
+
+    &__main {
+      flex: 1;
+      @include padding(4);
+      overflow-y: auto;
+    }
+  }
+</style>

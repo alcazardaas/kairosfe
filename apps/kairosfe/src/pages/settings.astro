@@ -1,0 +1,10 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SettingsContentNew from '@/components/data/SettingsContentNew';
+
+export const prerender = false;
+---
+
+<BaseLayout title="Settings - Kairos">
+  <SettingsContentNew client:load />
+</BaseLayout>

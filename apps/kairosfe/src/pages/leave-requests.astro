@@ -1,0 +1,14 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header from '@/components/layout/Header';
+import LeaveRequestsContentNew from '@/components/data/LeaveRequestsContentNew';
+
+export const prerender = false;
+---
+
+<BaseLayout title="Leave Requests - Kairos">
+  <div class="relative flex min-h-screen w-full flex-col">
+    <Header client:load />
+    <LeaveRequestsContentNew client:load />
+  </div>
+</BaseLayout>
