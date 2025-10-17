@@ -8,6 +8,12 @@ export const menuItems: MenuItem[] = [
     roles: ['admin', 'manager', 'employee'],
   },
   {
+    path: '/timesheet',
+    labelKey: 'nav.timesheet',
+    icon: 'schedule',
+    roles: ['admin', 'manager', 'employee'],
+  },
+  {
     path: '/profile',
     labelKey: 'nav.profile',
     icon: 'person',
@@ -17,6 +23,12 @@ export const menuItems: MenuItem[] = [
     path: '/team-management',
     labelKey: 'nav.teamManagement',
     icon: 'group',
+    roles: ['admin', 'manager'],
+  },
+  {
+    path: '/team-timesheets',
+    labelKey: 'nav.teamTimesheets',
+    icon: 'fact_check',
     roles: ['admin', 'manager'],
   },
   {

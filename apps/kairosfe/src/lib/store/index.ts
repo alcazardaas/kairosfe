@@ -1,6 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { User, LeaveRequest, Permission, UserPolicy, UserRole } from '@kairos/shared';
+import type {
+  User,
+  LeaveRequest,
+  Permission,
+  UserPolicy,
+  UserRole,
+  Timesheet,
+  TimeEntry
+} from '@kairos/shared';
 
 interface AuthState {
   user: User | null;
@@ -145,4 +153,59 @@ export const useLeaveRequestsStore = create<LeaveRequestsState>((set) => ({
   setRequests: (requests) => set({ requests }),
   addRequest: (request) =>
     set((state) => ({ requests: [...state.requests, request] })),
+}));
+
+// Timesheet Store
+interface TimesheetState {
+  currentTimesheet: Timesheet | null;
+  timeEntries: TimeEntry[];
+  selectedWeekStart: Date;
+  isLoading: boolean;
+
+  // Actions
+  setCurrentTimesheet: (timesheet: Timesheet | null) => void;
+  setTimeEntries: (entries: TimeEntry[]) => void;
+  addTimeEntry: (entry: TimeEntry) => void;
+  updateTimeEntry: (id: string, entry: Partial<TimeEntry>) => void;
+  removeTimeEntry: (id: string) => void;
+  setSelectedWeekStart: (date: Date) => void;
+  setIsLoading: (loading: boolean) => void;
+  clearTimesheet: () => void;
+}
+
+export const useTimesheetStore = create<TimesheetState>((set) => ({
+  currentTimesheet: null,
+  timeEntries: [],
+  selectedWeekStart: new Date(),
+  isLoading: false,
+
+  setCurrentTimesheet: (timesheet) => set({ currentTimesheet: timesheet }),
+
+  setTimeEntries: (entries) => set({ timeEntries: entries }),
+
+  addTimeEntry: (entry) =>
+    set((state) => ({ timeEntries: [...state.timeEntries, entry] })),
+
+  updateTimeEntry: (id, updates) =>
+    set((state) => ({
+      timeEntries: state.timeEntries.map((entry) =>
+        entry.id === id ? { ...entry, ...updates } : entry
+      ),
+    })),
+
+  removeTimeEntry: (id) =>
+    set((state) => ({
+      timeEntries: state.timeEntries.filter((entry) => entry.id !== id),
+    })),
+
+  setSelectedWeekStart: (date) => set({ selectedWeekStart: date }),
+
+  setIsLoading: (loading) => set({ isLoading: loading }),
+
+  clearTimesheet: () =>
+    set({
+      currentTimesheet: null,
+      timeEntries: [],
+      isLoading: false,
+    }),
 }));

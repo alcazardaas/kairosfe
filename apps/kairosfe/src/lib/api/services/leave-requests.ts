@@ -1,72 +1,91 @@
 import { apiClient } from '../client';
+import type { LeaveRequest, UserBenefits, LeaveType } from '@kairos/shared';
 
-export interface LeaveRequest {
-  id: string;
-  employeeId: string;
-  employeeName: string;
-  employeeAvatar?: string;
-  leaveType: 'vacation' | 'sick' | 'personal' | 'unpaid';
+export interface CreateLeaveRequestData {
+  type: LeaveType;
   startDate: string;
   endDate: string;
   reason?: string;
-  status: 'pending' | 'approved' | 'rejected';
-  createdAt: string;
-  approvedBy?: string;
-  approvedAt?: string;
 }
 
-export interface LeaveBalance {
-  leaveType: string;
-  used: number;
-  total: number;
+export interface UpdateLeaveRequestData {
+  type?: LeaveType;
+  startDate?: string;
+  endDate?: string;
+  reason?: string;
 }
 
-export interface LeaveRequestsResponse {
-  requests: LeaveRequest[];
-  total: number;
-  page: number;
-  limit: number;
+// Get all leave requests (with optional filters)
+export async function getLeaveRequests(params?: {
+  mine?: boolean;
+  userId?: string;
+  status?: string;
+  team?: boolean;
+}): Promise<LeaveRequest[]> {
+  const queryParams = new URLSearchParams();
+  if (params?.mine) queryParams.append('mine', 'true');
+  if (params?.userId) queryParams.append('user_id', params.userId);
+  if (params?.status) queryParams.append('status', params.status);
+  if (params?.team) queryParams.append('team', 'true');
+
+  const query = queryParams.toString();
+  return apiClient.get<LeaveRequest[]>(`/leave-requests${query ? `?${query}` : ''}`, true);
 }
 
-export interface LeaveBalancesResponse {
-  balances: LeaveBalance[];
+// Get single leave request
+export async function getLeaveRequest(id: string): Promise<LeaveRequest> {
+  return apiClient.get<LeaveRequest>(`/leave-requests/${id}`, true);
 }
 
-export const leaveRequestsService = {
-  async getAll(params?: {
-    page?: number;
-    limit?: number;
-    status?: string;
-    employeeId?: string;
-  }): Promise<LeaveRequestsResponse> {
-    const queryParams = new URLSearchParams();
+// Create new leave request
+export async function createLeaveRequest(data: CreateLeaveRequestData): Promise<LeaveRequest> {
+  return apiClient.post<LeaveRequest>('/leave-requests', data, true);
+}
 
-    if (params?.page) queryParams.append('page', params.page.toString());
-    if (params?.limit) queryParams.append('limit', params.limit.toString());
-    if (params?.status) queryParams.append('status', params.status);
-    if (params?.employeeId) queryParams.append('employeeId', params.employeeId);
+// Update leave request (only for pending requests)
+export async function updateLeaveRequest(
+  id: string,
+  data: UpdateLeaveRequestData
+): Promise<LeaveRequest> {
+  return apiClient.patch<LeaveRequest>(`/leave-requests/${id}`, data, true);
+}
 
-    const endpoint = `/api/leave-requests${queryParams.toString() ? `?${queryParams}` : ''}`;
-    return apiClient.get<LeaveRequestsResponse>(endpoint);
-  },
+// Cancel leave request
+export async function cancelLeaveRequest(id: string): Promise<LeaveRequest> {
+  return apiClient.post<LeaveRequest>(`/leave-requests/${id}/cancel`, {}, true);
+}
 
-  async getById(id: string): Promise<LeaveRequest> {
-    return apiClient.get<LeaveRequest>(`/api/leave-requests/${id}`);
-  },
+// Approve leave request (manager only)
+export async function approveLeaveRequest(id: string): Promise<LeaveRequest> {
+  return apiClient.post<LeaveRequest>(`/leave-requests/${id}/approve`, {}, true);
+}
 
-  async create(data: Omit<LeaveRequest, 'id' | 'createdAt' | 'status'>): Promise<LeaveRequest> {
-    return apiClient.post<LeaveRequest>('/api/leave-requests', data);
-  },
+// Reject leave request (manager only)
+export async function rejectLeaveRequest(id: string, reason: string): Promise<LeaveRequest> {
+  return apiClient.post<LeaveRequest>(`/leave-requests/${id}/reject`, { reason }, true);
+}
 
-  async approve(id: string): Promise<LeaveRequest> {
-    return apiClient.post<LeaveRequest>(`/api/leave-requests/${id}/approve`, {});
-  },
+// Get user benefits (leave balances)
+export async function getUserBenefits(userId: string): Promise<UserBenefits> {
+  return apiClient.get<UserBenefits>(`/users/${userId}/benefits`, true);
+}
 
-  async reject(id: string, reason?: string): Promise<LeaveRequest> {
-    return apiClient.post<LeaveRequest>(`/api/leave-requests/${id}/reject`, { reason });
-  },
+// Calculate business days between two dates
+export function calculateBusinessDays(startDate: string, endDate: string): number {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
 
-  async getBalances(): Promise<LeaveBalancesResponse> {
-    return apiClient.get<LeaveBalancesResponse>('/api/leave-requests/balances');
-  },
-};
+  let count = 0;
+  const current = new Date(start);
+
+  while (current <= end) {
+    const dayOfWeek = current.getDay();
+    // Skip weekends (0 = Sunday, 6 = Saturday)
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      count++;
+    }
+    current.setDate(current.getDate() + 1);
+  }
+
+  return count;
+}

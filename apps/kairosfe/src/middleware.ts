@@ -3,8 +3,10 @@ import { defineMiddleware } from 'astro:middleware';
 const PUBLIC_ROUTES = ['/login', '/'];
 const PROTECTED_ROUTES = [
   '/dashboard',
+  '/timesheet',
   '/profile',
   '/team-management',
+  '/team-timesheets',
   '/leave-requests',
   '/settings',
 ];

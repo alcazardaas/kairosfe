@@ -49,16 +49,40 @@ export interface RefreshTokenResponse {
   expiresIn: number;
 }
 
+export type LeaveType = 'vacation' | 'sick' | 'personal' | 'bereavement' | 'parental' | 'other';
+export type LeaveRequestStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
+
 export interface LeaveRequest {
   id: string;
   userId: string;
-  type: 'vacation' | 'sick' | 'personal' | 'other';
+  userName?: string;
+  type: LeaveType;
   startDate: string;
   endDate: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: LeaveRequestStatus;
   reason?: string;
+  rejectionReason?: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  rejectedBy?: string;
+  rejectedAt?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface LeaveBenefit {
+  type: LeaveType;
+  name: string;
+  totalDays: number;
+  usedDays: number;
+  remainingDays: number;
+  year: number;
+}
+
+export interface UserBenefits {
+  userId: string;
+  year: number;
+  benefits: LeaveBenefit[];
 }
 
 export interface TeamMember {
@@ -75,4 +99,71 @@ export interface MenuItem {
   labelKey: string;
   icon?: string;
   roles: UserRole[];
+}
+
+// Timesheet types
+export type TimesheetStatus = 'draft' | 'pending' | 'approved' | 'rejected';
+
+export interface Timesheet {
+  id: string;
+  userId: string;
+  weekStart: string; // ISO date string (Monday)
+  weekEnd: string; // ISO date string (Sunday)
+  status: TimesheetStatus;
+  totalHours: number;
+  submittedAt?: string;
+  approvedAt?: string;
+  approvedBy?: string;
+  rejectedAt?: string;
+  rejectedBy?: string;
+  rejectionReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TimeEntry {
+  id: string;
+  timesheetId: string;
+  userId: string;
+  projectId: string;
+  projectName?: string;
+  taskId: string;
+  taskName?: string;
+  date: string; // ISO date string
+  hours: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  code: string;
+  description?: string;
+  isActive: boolean;
+}
+
+export interface Task {
+  id: string;
+  projectId: string;
+  name: string;
+  code: string;
+  description?: string;
+  isActive: boolean;
+}
+
+export interface WeeklyStats {
+  weekStart: string;
+  weekEnd: string;
+  totalHours: number;
+  hoursPerDay: Record<string, number>; // date -> hours
+  entriesCount: number;
+}
+
+export interface ProjectStats {
+  projectId: string;
+  projectName: string;
+  totalHours: number;
+  percentage: number;
 }

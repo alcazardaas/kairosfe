@@ -1,0 +1,228 @@
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { getTimesheet, getTimeEntries } from '@/lib/api/services/timesheets';
+import { getWeekDates, formatDate, getDayName } from '@/lib/utils/date';
+import type { Timesheet, TimeEntry } from '@kairos/shared';
+import '@/lib/i18n';
+
+interface TimesheetDetailModalProps {
+  timesheetId: string;
+  onClose: () => void;
+  onApprove?: () => void;
+  onReject?: () => void;
+}
+
+export default function TimesheetDetailModal({
+  timesheetId,
+  onClose,
+  onApprove,
+  onReject,
+}: TimesheetDetailModalProps) {
+  const { t } = useTranslation();
+  const [timesheet, setTimesheet] = useState<Timesheet | null>(null);
+  const [entries, setEntries] = useState<TimeEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [timesheetData, entriesData] = await Promise.all([
+          getTimesheet(timesheetId),
+          getTimeEntries({ timesheetId }),
+        ]);
+        setTimesheet(timesheetData);
+        setEntries(entriesData);
+      } catch (error) {
+        console.error('Failed to load timesheet details:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [timesheetId]);
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">{t('common.loading')}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!timesheet) {
+    return null;
+  }
+
+  const weekDates = getWeekDates(new Date(timesheet.weekStart));
+
+  // Calculate daily totals
+  const dailyTotals = weekDates.map((date) => {
+    const dateStr = formatDate(date);
+    const dayEntries = entries.filter((e) => e.date === dateStr);
+    return dayEntries.reduce((sum, e) => sum + e.hours, 0);
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {t('timesheet.timesheetDetails')}
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              {new Date(timesheet.weekStart).toLocaleDateString()} -{' '}
+              {new Date(timesheet.weekEnd).toLocaleDateString()}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        {/* Status and Metadata */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+          <div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{t('timesheet.status')}</p>
+            <span
+              className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-1 ${
+                timesheet.status === 'draft'
+                  ? 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                  : timesheet.status === 'pending'
+                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                  : timesheet.status === 'approved'
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+              }`}
+            >
+              {t(`timesheet.status_${timesheet.status}`)}
+            </span>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{t('timesheet.totalHours')}</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+              {timesheet.totalHours}h
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{t('timesheet.submitted')}</p>
+            <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
+              {timesheet.submittedAt
+                ? new Date(timesheet.submittedAt).toLocaleString()
+                : '-'}
+            </p>
+          </div>
+        </div>
+
+        {/* Timesheet Table */}
+        <div className="overflow-x-auto mb-6">
+          <table className="min-w-full border border-gray-300 dark:border-gray-600">
+            <thead className="bg-gray-50 dark:bg-gray-800">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 border-r border-gray-300 dark:border-gray-600">
+                  {t('timesheet.projectTask')}
+                </th>
+                {weekDates.map((date) => (
+                  <th
+                    key={formatDate(date)}
+                    className="px-4 py-3 text-center text-sm font-semibold text-gray-900 dark:text-gray-100 border-r border-gray-300 dark:border-gray-600"
+                  >
+                    <div>{getDayName(date)}</div>
+                    <div className="text-xs font-normal mt-1">
+                      {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-900">
+              {entries.map((entry) => (
+                <tr key={entry.id} className="border-t border-gray-200 dark:border-gray-700">
+                  <td className="px-4 py-3 border-r border-gray-200 dark:border-gray-700">
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {entry.projectName}
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      {entry.taskName}
+                    </div>
+                    {entry.notes && (
+                      <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        {entry.notes}
+                      </div>
+                    )}
+                  </td>
+                  {weekDates.map((date) => {
+                    const dateStr = formatDate(date);
+                    const isEntryDate = entry.date === dateStr;
+                    return (
+                      <td
+                        key={dateStr}
+                        className="px-4 py-3 text-center border-r border-gray-200 dark:border-gray-700"
+                      >
+                        {isEntryDate && (
+                          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {entry.hours}h
+                          </span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+
+              {/* Daily totals */}
+              <tr className="border-t-2 border-gray-400 dark:border-gray-500 bg-gray-100 dark:bg-gray-800">
+                <td className="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100 border-r border-gray-300 dark:border-gray-600">
+                  {t('timesheet.dailyTotal')}
+                </td>
+                {dailyTotals.map((total, index) => (
+                  <td
+                    key={index}
+                    className="px-4 py-3 text-center font-semibold text-gray-900 dark:text-gray-100 border-r border-gray-300 dark:border-gray-600"
+                  >
+                    {total > 0 ? `${total}h` : '-'}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3 justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
+            {t('common.close')}
+          </button>
+          {timesheet.status === 'pending' && onReject && (
+            <button
+              onClick={onReject}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+              {t('timesheet.reject')}
+            </button>
+          )}
+          {timesheet.status === 'pending' && onApprove && (
+            <button
+              onClick={onApprove}
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+            >
+              {t('timesheet.approve')}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
