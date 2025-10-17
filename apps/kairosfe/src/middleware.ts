@@ -8,6 +8,7 @@ const PROTECTED_ROUTES = [
   '/team-management',
   '/team-timesheets',
   '/leave-requests',
+  '/team-leave',
   '/settings',
 ];
 

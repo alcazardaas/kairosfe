@@ -34,8 +34,14 @@ export const menuItems: MenuItem[] = [
   {
     path: '/leave-requests',
     labelKey: 'nav.leaveRequests',
-    icon: 'calendar',
+    icon: 'calendar_month',
     roles: ['admin', 'manager', 'employee'],
+  },
+  {
+    path: '/team-leave',
+    labelKey: 'nav.teamLeave',
+    icon: 'approval',
+    roles: ['admin', 'manager'],
   },
   {
     path: '/settings',

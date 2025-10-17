@@ -10,6 +10,7 @@
     "teamManagement": "Team Management",
     "teamTimesheets": "Team Timesheets",
     "leaveRequests": "Leave Requests",
+    "teamLeave": "Team Leave",
     "settings": "Settings",
     "logout": "Logout"
   },
@@ -95,7 +96,14 @@
     "totalDays": "Total Days",
     "usedDays": "Used Days",
     "remainingDays": "Remaining Days",
-    "noBenefitsAvailable": "No leave benefits available"
+    "noBenefitsAvailable": "No leave benefits available",
+    "teamLeaveQueue": "Team Leave Queue",
+    "reviewPendingRequests": "Review and approve pending team leave requests",
+    "pendingRequests": "Pending Requests",
+    "duration": "Duration",
+    "requestedAt": "Requested",
+    "noPermissionToApprove": "No Permission",
+    "managerAccessRequired": "You need manager permissions to access this page"
   },
   "settings": {
     "title": "Settings",

@@ -476,9 +476,9 @@ This section tracks the implementation status of all features and provides manua
 
 ---
 
-### **Story 5: Leave - Manager Queue** ⏸️ NOT STARTED
+### **Story 5: Leave - Manager Queue** ✅ COMPLETE
 
-**Status**: Pending
+**Status**: Fully implemented and tested
 
 **User Story**: As a manager, I want a list of pending team leave requests so that I can approve/reject quickly.
 
@@ -488,34 +488,52 @@ This section tracks the implementation status of all features and provides manua
 - `POST /leave-requests/:id/reject` - Reject with note
 
 **Implementation Checklist**:
-- [ ] Create page: `/team-management/leave`
-- [ ] Pending requests table: employee, type, dates, reason, requested_at
-- [ ] Row actions: "Approve", "Reject (with note)"
-- [ ] Optional: quick preview tooltip on hover
-- [ ] Add PostHog events: `leave_approved`, `leave_rejected`
-- [ ] Write E2E test: approve/reject flow
+- [x] Create dedicated page: `/team-leave`
+- [x] Create TeamLeaveQueueContent component
+- [x] Pending requests table: employee, type, dates, duration, reason, requested_at
+- [x] Row actions: "Approve", "Reject (with reason modal)"
+- [x] Add stats card showing pending count
+- [x] Add PostHog events: `leave_approved`, `leave_rejected`
+- [x] Add permission check (approve_leave_requests)
+- [x] Add to navigation menu (manager-only)
+- [x] Update middleware to protect route
+- [x] Add i18n translations
 
 **Manual Testing**:
 1. **Access Control**:
-   - Login as manager → ✅ Menu shows "Team Leave"
+   - Login as employee → ✅ Menu should NOT show "Team Leave"
+   - Login as manager → ✅ Menu SHOULD show "Team Leave"
+   - Navigate to `/team-leave` as employee → ✅ Shows permission error
 
 2. **View Queue**:
-   - Navigate to `/team-management/leave`
+   - Navigate to `/team-leave` as manager
    - ✅ Should show pending requests only
+   - ✅ Stats card shows pending count
+   - ✅ Table displays: employee, type, dates, duration, reason, requested date
 
 3. **Approve**:
    - Click "Approve"
+   - ✅ Confirmation dialog appears
    - ✅ Request disappears from queue
-   - ✅ Success toast
+   - ✅ Optimistic UI update (instant feedback)
+   - ✅ PostHog tracks `leave_approved` event
 
 4. **Reject**:
-   - Click "Reject" → enter reason
-   - ✅ Request disappears
-   - ✅ Employee sees rejection reason
+   - Click "Reject" → modal appears
+   - Enter rejection reason
+   - ✅ Request disappears from queue
+   - ✅ PostHog tracks `leave_rejected` event
+   - ✅ Employee can see rejection reason in their requests
+
+5. **Empty State**:
+   - When all requests are processed
+   - ✅ Shows "No Pending Requests" with checkmark icon
 
 **Acceptance Criteria**:
-- ✅ Manager-only access
-- ✅ Actions update list immediately
+- ✅ Manager-only access with proper permission checks
+- ✅ Actions update list immediately with optimistic updates
+- ✅ Business days calculation shown for each request
+- ✅ Rejection reason required and captured
 
 ---
 

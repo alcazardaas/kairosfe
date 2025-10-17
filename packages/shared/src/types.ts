@@ -167,3 +167,35 @@ export interface ProjectStats {
   totalHours: number;
   percentage: number;
 }
+
+// Calendar Types
+export interface Holiday {
+  id: string;
+  name: string;
+  date: string; // YYYY-MM-DD
+  type: 'public' | 'company' | 'regional';
+  isRecurring: boolean;
+}
+
+export interface CalendarEvent {
+  id: string;
+  type: 'holiday' | 'leave';
+  date: string; // YYYY-MM-DD
+  title: string;
+  description?: string;
+  userId?: string;
+  userName?: string;
+}
+
+export interface CalendarData {
+  events: CalendarEvent[];
+  holidays: Holiday[];
+  leaves: LeaveRequest[];
+}
+
+export interface CalendarParams {
+  userId?: string;
+  from: string; // YYYY-MM-DD
+  to: string; // YYYY-MM-DD
+  include?: ('holidays' | 'leave')[];
+}

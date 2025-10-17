@@ -1,0 +1,14 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header from '@/components/layout/Header';
+import TeamLeaveQueueContent from '@/components/data/TeamLeaveQueueContent';
+
+export const prerender = false;
+---
+
+<BaseLayout title="Team Leave Requests - Kairos">
+  <div class="relative flex min-h-screen w-full flex-col">
+    <Header client:load />
+    <TeamLeaveQueueContent client:load />
+  </div>
+</BaseLayout>
