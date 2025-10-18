@@ -139,6 +139,8 @@
     "notesPlaceholder": "Optional notes...",
     "selectProject": "Select a project",
     "selectTask": "Select a task",
+    "searchProject": "Search for a project...",
+    "searchTask": "Search for a task...",
     "projectTask": "Project / Task",
     "dailyTotal": "Daily Total",
     "weeklyTotal": "Weekly Total",
@@ -190,6 +192,8 @@
     "add": "Add",
     "update": "Update",
     "actions": "Actions",
-    "optional": "optional"
+    "optional": "optional",
+    "noResults": "No results found",
+    "typeToSearch": "Type to search..."
   }
 }

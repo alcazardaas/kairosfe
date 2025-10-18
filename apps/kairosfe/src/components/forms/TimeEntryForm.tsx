@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
-import type { TimeEntry, Project, Task } from '@kairos/shared';
+import { useAuthStore } from '@/lib/store';
+import type { TimeEntry } from '@kairos/shared';
 import { searchProjects, searchTasks } from '@/lib/api/services/timesheets';
+import AsyncCombobox from '@/components/ui/AsyncCombobox';
 import '@/lib/i18n';
 
 const timeEntrySchema = z.object({
@@ -25,10 +27,7 @@ interface TimeEntryFormProps {
 
 export default function TimeEntryForm({ entry, date, onSubmit, onCancel }: TimeEntryFormProps) {
   const { t } = useTranslation();
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loadingProjects, setLoadingProjects] = useState(false);
-  const [loadingTasks, setLoadingTasks] = useState(false);
+  const user = useAuthStore((state) => state.user);
 
   const {
     register,
@@ -48,42 +47,55 @@ export default function TimeEntryForm({ entry, date, onSubmit, onCancel }: TimeE
 
   const selectedProjectId = watch('projectId');
 
-  // Load projects on mount
+  // Reset task when project changes
   useEffect(() => {
-    const loadProjects = async () => {
-      setLoadingProjects(true);
-      try {
-        const results = await searchProjects('');
-        setProjects(results);
-      } catch (error) {
-        console.error('Failed to load projects:', error);
-      } finally {
-        setLoadingProjects(false);
-      }
-    };
-    loadProjects();
-  }, []);
-
-  // Load tasks when project changes
-  useEffect(() => {
-    if (!selectedProjectId) {
-      setTasks([]);
-      return;
+    if (selectedProjectId && entry?.projectId !== selectedProjectId) {
+      setValue('taskId', '');
     }
+  }, [selectedProjectId, entry?.projectId, setValue]);
 
-    const loadTasks = async () => {
-      setLoadingTasks(true);
-      try {
-        const results = await searchTasks('', selectedProjectId);
-        setTasks(results);
-      } catch (error) {
-        console.error('Failed to load tasks:', error);
-      } finally {
-        setLoadingTasks(false);
+  const handleProjectSearch = async (query: string) => {
+    try {
+      const results = await searchProjects(query);
+
+      // Track search event
+      if (typeof window !== 'undefined' && (window as any).posthog) {
+        (window as any).posthog.capture('project_search', {
+          userId: user?.id,
+          query,
+          resultsCount: results.length,
+        });
       }
-    };
-    loadTasks();
-  }, [selectedProjectId]);
+
+      return results.map((p) => ({ id: p.id, name: p.name, code: p.code }));
+    } catch (error) {
+      console.error('Failed to search projects:', error);
+      return [];
+    }
+  };
+
+  const handleTaskSearch = async (query: string) => {
+    if (!selectedProjectId) return [];
+
+    try {
+      const results = await searchTasks(query, selectedProjectId);
+
+      // Track search event
+      if (typeof window !== 'undefined' && (window as any).posthog) {
+        (window as any).posthog.capture('task_search', {
+          userId: user?.id,
+          projectId: selectedProjectId,
+          query,
+          resultsCount: results.length,
+        });
+      }
+
+      return results.map((t) => ({ id: t.id, name: t.name, code: t.code }));
+    } catch (error) {
+      console.error('Failed to search tasks:', error);
+      return [];
+    }
+  };
 
   const handleFormSubmit = (data: TimeEntryFormData) => {
     onSubmit(data);
@@ -103,47 +115,24 @@ export default function TimeEntryForm({ entry, date, onSubmit, onCancel }: TimeE
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          {t('timesheet.project')} *
-        </label>
-        <select
-          {...register('projectId')}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
-          disabled={loadingProjects}
-        >
-          <option value="">{t('timesheet.selectProject')}</option>
-          {projects.map((project) => (
-            <option key={project.id} value={project.id}>
-              {project.name} ({project.code})
-            </option>
-          ))}
-        </select>
-        {errors.projectId && (
-          <p className="mt-1 text-sm text-red-600">{errors.projectId.message}</p>
-        )}
-      </div>
+      <AsyncCombobox
+        label={`${t('timesheet.project')} *`}
+        placeholder={t('timesheet.searchProject')}
+        value={selectedProjectId}
+        onChange={(value) => setValue('projectId', value, { shouldValidate: true })}
+        onSearch={handleProjectSearch}
+        error={errors.projectId?.message}
+      />
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          {t('timesheet.task')} *
-        </label>
-        <select
-          {...register('taskId')}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
-          disabled={!selectedProjectId || loadingTasks}
-        >
-          <option value="">{t('timesheet.selectTask')}</option>
-          {tasks.map((task) => (
-            <option key={task.id} value={task.id}>
-              {task.name} ({task.code})
-            </option>
-          ))}
-        </select>
-        {errors.taskId && (
-          <p className="mt-1 text-sm text-red-600">{errors.taskId.message}</p>
-        )}
-      </div>
+      <AsyncCombobox
+        label={`${t('timesheet.task')} *`}
+        placeholder={t('timesheet.searchTask')}
+        value={watch('taskId')}
+        onChange={(value) => setValue('taskId', value, { shouldValidate: true })}
+        onSearch={handleTaskSearch}
+        error={errors.taskId?.message}
+        disabled={!selectedProjectId}
+      />
 
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
