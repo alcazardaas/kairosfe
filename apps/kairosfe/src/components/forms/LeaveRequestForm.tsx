@@ -1,9 +1,12 @@
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import type { LeaveType } from '@kairos/shared';
 import { calculateBusinessDays } from '@/lib/api/services/leave-requests';
+import { checkDateOverlap, type OverlapCheck } from '@/lib/api/services/calendar';
+import { useAuthStore } from '@/lib/store';
 import '@/lib/i18n';
 
 const leaveRequestSchema = z.object({
@@ -36,6 +39,10 @@ export default function LeaveRequestForm({
   isEditing = false,
 }: LeaveRequestFormProps) {
   const { t } = useTranslation();
+  const user = useAuthStore((state) => state.user);
+  const [overlapCheck, setOverlapCheck] = useState<OverlapCheck | null>(null);
+  const [checkingOverlap, setCheckingOverlap] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -58,6 +65,36 @@ export default function LeaveRequestForm({
     startDate && endDate && new Date(endDate) >= new Date(startDate)
       ? calculateBusinessDays(startDate, endDate)
       : 0;
+
+  // Check for overlaps when dates change
+  useEffect(() => {
+    if (startDate && endDate && new Date(endDate) >= new Date(startDate)) {
+      checkOverlaps();
+    } else {
+      setOverlapCheck(null);
+    }
+  }, [startDate, endDate]);
+
+  const checkOverlaps = async () => {
+    try {
+      setCheckingOverlap(true);
+      const result = await checkDateOverlap(startDate, endDate, user?.id);
+      setOverlapCheck(result);
+
+      // Track event if there's an overlap
+      if (result.hasOverlap && typeof window !== 'undefined' && (window as any).posthog) {
+        (window as any).posthog.capture('pto_overlap_warned', {
+          userId: user?.id,
+          holidaysCount: result.holidays.length,
+          leavesCount: result.leaves.length,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to check date overlap:', error);
+    } finally {
+      setCheckingOverlap(false);
+    }
+  };
 
   const leaveTypes: { value: LeaveType; labelKey: string }[] = [
     { value: 'vacation', labelKey: 'leaveRequest.types.vacation' },
@@ -144,6 +181,67 @@ export default function LeaveRequestForm({
           <p className="text-sm text-blue-800 dark:text-blue-300">
             {t('leaveRequest.businessDays', { count: businessDays })}
           </p>
+        </div>
+      )}
+
+      {/* Overlap Warning */}
+      {checkingOverlap && (
+        <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md p-3">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {t('calendar.checkingOverlap')}...
+          </p>
+        </div>
+      )}
+
+      {overlapCheck && overlapCheck.hasOverlap && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-4">
+          <div className="flex items-start gap-2">
+            <span className="material-symbols-outlined text-yellow-600 dark:text-yellow-400 text-xl">
+              warning
+            </span>
+            <div className="flex-1">
+              <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-300 mb-2">
+                {t('calendar.overlapDetected')}
+              </h4>
+
+              {overlapCheck.holidays.length > 0 && (
+                <div className="mb-2">
+                  <p className="text-xs font-medium text-yellow-700 dark:text-yellow-400 mb-1">
+                    {t('calendar.holidays')}:
+                  </p>
+                  <ul className="text-xs text-yellow-700 dark:text-yellow-400 space-y-0.5">
+                    {overlapCheck.holidays.map((holiday) => (
+                      <li key={holiday.id}>
+                        • {holiday.name} ({new Date(holiday.date).toLocaleDateString()})
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {overlapCheck.leaves.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-yellow-700 dark:text-yellow-400 mb-1">
+                    {t('calendar.teamMembersOut', { count: overlapCheck.leaves.length })}
+                  </p>
+                  <ul className="text-xs text-yellow-700 dark:text-yellow-400 space-y-0.5">
+                    {overlapCheck.leaves.slice(0, 3).map((leave, idx) => (
+                      <li key={idx}>
+                        • {leave.userName} ({new Date(leave.startDate).toLocaleDateString()} - {new Date(leave.endDate).toLocaleDateString()})
+                      </li>
+                    ))}
+                    {overlapCheck.leaves.length > 3 && (
+                      <li>• {t('calendar.andMore', { count: overlapCheck.leaves.length - 3 })}</li>
+                    )}
+                  </ul>
+                </div>
+              )}
+
+              <p className="text-xs text-yellow-600 dark:text-yellow-500 mt-2">
+                {t('calendar.overlapWarningNote')}
+              </p>
+            </div>
+          </div>
         </div>
       )}
 

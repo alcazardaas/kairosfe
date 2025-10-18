@@ -11,6 +11,9 @@ import type {
   Task,
   UserBenefits,
   LeaveBenefit,
+  Holiday,
+  CalendarData,
+  CalendarEvent,
 } from '@kairos/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
@@ -139,6 +142,45 @@ const mockProjects: Project[] = [
     code: 'KAI-ANA',
     description: 'Data analytics and reporting',
     isActive: true,
+  },
+];
+
+// Mock holidays for 2025
+const mockHolidays: Holiday[] = [
+  {
+    id: 'h1',
+    name: "New Year's Day",
+    date: '2025-01-01',
+    type: 'public',
+    isRecurring: true,
+  },
+  {
+    id: 'h2',
+    name: 'Independence Day',
+    date: '2025-07-04',
+    type: 'public',
+    isRecurring: true,
+  },
+  {
+    id: 'h3',
+    name: 'Thanksgiving',
+    date: '2025-11-27',
+    type: 'public',
+    isRecurring: true,
+  },
+  {
+    id: 'h4',
+    name: 'Christmas Day',
+    date: '2025-12-25',
+    type: 'public',
+    isRecurring: true,
+  },
+  {
+    id: 'h5',
+    name: 'Company Anniversary',
+    date: '2025-06-15',
+    type: 'company',
+    isRecurring: true,
   },
 ];
 
@@ -704,5 +746,132 @@ export const handlers = [
     }
 
     return HttpResponse.json(results);
+  }),
+
+  // Calendar endpoints
+  http.get(`${API_BASE_URL}/calendar`, ({ request }) => {
+    const url = new URL(request.url);
+    const from = url.searchParams.get('from');
+    const to = url.searchParams.get('to');
+    const include = url.searchParams.get('include')?.split(',') || ['holidays', 'leave'];
+
+    const events: CalendarEvent[] = [];
+
+    if (from && to) {
+      const fromDate = new Date(from);
+      const toDate = new Date(to);
+
+      // Add holidays
+      if (include.includes('holidays')) {
+        mockHolidays.forEach((holiday) => {
+          const holidayDate = new Date(holiday.date);
+          if (holidayDate >= fromDate && holidayDate <= toDate) {
+            events.push({
+              id: holiday.id,
+              type: 'holiday',
+              date: holiday.date,
+              title: holiday.name,
+              description: `${holiday.type} holiday`,
+            });
+          }
+        });
+      }
+
+      // Add approved leaves
+      if (include.includes('leave')) {
+        Array.from(mockLeaveRequests.values())
+          .filter((req) => req.status === 'approved')
+          .forEach((leave) => {
+            const leaveStart = new Date(leave.startDate);
+            const leaveEnd = new Date(leave.endDate);
+
+            // Add events for each day in the leave range that falls within from-to
+            let currentDate = new Date(leaveStart);
+            while (currentDate <= leaveEnd) {
+              if (currentDate >= fromDate && currentDate <= toDate) {
+                const dateStr = currentDate.toISOString().split('T')[0];
+                events.push({
+                  id: `${leave.id}-${dateStr}`,
+                  type: 'leave',
+                  date: dateStr,
+                  title: `${leave.userName || leave.userId} - ${leave.type}`,
+                  userId: leave.userId,
+                  userName: leave.userName,
+                });
+              }
+              currentDate.setDate(currentDate.getDate() + 1);
+            }
+          });
+      }
+    }
+
+    const response: CalendarData = {
+      events,
+      holidays: mockHolidays.filter((h) => {
+        const hDate = new Date(h.date);
+        return from && to && hDate >= new Date(from) && hDate <= new Date(to);
+      }),
+      leaves: Array.from(mockLeaveRequests.values()).filter((r) => r.status === 'approved'),
+    };
+
+    return HttpResponse.json(response);
+  }),
+
+  http.get(`${API_BASE_URL}/holidays`, ({ request }) => {
+    const url = new URL(request.url);
+    const year = url.searchParams.get('year');
+
+    if (year) {
+      const filtered = mockHolidays.filter((h) => h.date.startsWith(year));
+      return HttpResponse.json(filtered);
+    }
+
+    return HttpResponse.json(mockHolidays);
+  }),
+
+  http.get(`${API_BASE_URL}/calendar/check-overlap`, ({ request }) => {
+    const url = new URL(request.url);
+    const startDate = url.searchParams.get('start_date');
+    const endDate = url.searchParams.get('end_date');
+
+    if (!startDate || !endDate) {
+      return HttpResponse.json({ hasOverlap: false, holidays: [], leaves: [] });
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // Check for holidays
+    const overlappingHolidays = mockHolidays.filter((holiday) => {
+      const hDate = new Date(holiday.date);
+      return hDate >= start && hDate <= end;
+    });
+
+    // Check for approved team leaves
+    const overlappingLeaves = Array.from(mockLeaveRequests.values())
+      .filter((req) => {
+        if (req.status !== 'approved') return false;
+        const reqStart = new Date(req.startDate);
+        const reqEnd = new Date(req.endDate);
+        // Check if date ranges overlap
+        return reqStart <= end && reqEnd >= start;
+      })
+      .map((req) => ({
+        userId: req.userId,
+        userName: req.userName || req.userId,
+        startDate: req.startDate,
+        endDate: req.endDate,
+      }));
+
+    const hasOverlap = overlappingHolidays.length > 0 || overlappingLeaves.length > 0;
+
+    return HttpResponse.json({
+      hasOverlap,
+      holidays: overlappingHolidays,
+      leaves: overlappingLeaves,
+      message: hasOverlap
+        ? `Found ${overlappingHolidays.length} holiday(s) and ${overlappingLeaves.length} team member(s) on leave`
+        : undefined,
+    });
   }),
 ];

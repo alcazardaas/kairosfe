@@ -5,6 +5,7 @@ import { createLeaveRequest } from '@/lib/api/services/leave-requests';
 import LeaveBalanceDisplay from './LeaveBalanceDisplay';
 import LeaveRequestsTable from './LeaveRequestsTable';
 import LeaveRequestForm from '@/components/forms/LeaveRequestForm';
+import Calendar from '@/components/ui/Calendar';
 import AuthGuard from '@/components/auth/AuthGuard';
 import type { CreateLeaveRequestData } from '@/lib/api/services/leave-requests';
 import '@/lib/i18n';
@@ -82,16 +83,17 @@ export default function LeaveRequestsContentNew() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Balance (only in employee mode) */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Left Sidebar - Balance and Calendar (only in employee mode) */}
             {viewMode === 'employee' && (
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1 space-y-6">
                 <LeaveBalanceDisplay key={refreshTrigger} />
+                <Calendar userId={user?.id} />
               </div>
             )}
 
-            {/* Right Column - Requests Table */}
-            <div className={viewMode === 'employee' ? 'lg:col-span-2' : 'lg:col-span-3'}>
+            {/* Main Content - Requests Table */}
+            <div className={viewMode === 'employee' ? 'lg:col-span-3' : 'lg:col-span-4'}>
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
                 {/* Action Button (only in employee mode) */}
                 {viewMode === 'employee' && !showForm && (

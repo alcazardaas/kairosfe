@@ -164,6 +164,16 @@
     "noPermissionToApprove": "You don't have permission to approve timesheets.",
     "timesheetDetails": "Timesheet Details"
   },
+  "calendar": {
+    "today": "Today",
+    "holidays": "Holidays",
+    "approvedLeave": "Approved Leave",
+    "checkingOverlap": "Checking availability",
+    "overlapDetected": "Scheduling Conflict Detected",
+    "overlapWarningNote": "This is just a warning. You can still submit your request.",
+    "teamMembersOut": "{{count}} team member(s) will be out",
+    "andMore": "and {{count}} more..."
+  },
   "common": {
     "loading": "Loading...",
     "saving": "Saving...",
