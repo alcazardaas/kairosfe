@@ -1,0 +1,972 @@
+=============================================================================
+KAIROS HR FRONTEND - COMPREHENSIVE MANUAL TESTING GUIDE
+=============================================================================
+
+Prerequisites:
+- Node.js 22+
+- pnpm installed
+- Run: pnpm install
+- Run: pnpm dev
+- App available at: http://localhost:4321
+
+Test User Credentials:
+- Employee: demo@kairos.com / demo123
+- Manager: manager@kairos.com / manager123
+
+=============================================================================
+STORY 1: LOGIN & SESSION BOOT
+=============================================================================
+
+Test 1.1: Successful Login (Employee)
+--------------------------------------
+1. Navigate to http://localhost:4321/login
+2. Enter email: demo@kairos.com
+3. Enter password: demo123
+4. Click "Sign In"
+5. ✅ Should redirect to /dashboard
+6. ✅ Navbar shows user name "Demo User"
+7. ✅ Sidebar shows employee menu items (no manager items)
+8. ✅ PostHog tracks "login_success" event
+
+Test 1.2: Successful Login (Manager)
+-------------------------------------
+1. Navigate to /login
+2. Enter email: manager@kairos.com
+3. Enter password: manager123
+4. Click "Sign In"
+5. ✅ Should redirect to /dashboard
+6. ✅ Navbar shows user name "Manager User"
+7. ✅ Sidebar shows manager menu items (Team Timesheets, Team Leave)
+8. ✅ PostHog tracks "login_success" event
+
+Test 1.3: Failed Login
+-----------------------
+1. Navigate to /login
+2. Enter email: wrong@email.com
+3. Enter password: wrongpass
+4. Click "Sign In"
+5. ✅ Error message appears: "Invalid email or password"
+6. ✅ User stays on login page
+7. ✅ PostHog tracks "login_failure" event
+8. ✅ Sentry captures error event
+
+Test 1.4: Role-Based Menu Filtering
+------------------------------------
+1. Login as employee (demo@kairos.com)
+2. Check sidebar menu items:
+   ✅ Dashboard - visible
+   ✅ Timesheet - visible
+   ✅ Leave Requests - visible
+   ✅ Profile - visible
+   ✅ Settings - visible
+   ✅ Team Timesheets - NOT visible
+   ✅ Team Leave - NOT visible
+
+3. Logout and login as manager (manager@kairos.com)
+4. Check sidebar menu items:
+   ✅ Dashboard - visible
+   ✅ Timesheet - visible
+   ✅ Leave Requests - visible
+   ✅ Team Timesheets - visible
+   ✅ Team Leave - visible
+   ✅ Profile - visible
+   ✅ Settings - visible
+
+Test 1.5: Session Persistence
+------------------------------
+1. Login as demo@kairos.com
+2. Navigate to /dashboard
+3. Refresh the page (F5)
+4. ✅ User remains logged in
+5. ✅ No redirect to /login
+6. Close browser tab and reopen http://localhost:4321
+7. ✅ User remains logged in (token persisted)
+
+Test 1.6: Logout
+----------------
+1. Login as any user
+2. Click user avatar in navbar
+3. Click "Logout"
+4. ✅ Redirects to /login
+5. ✅ Token cleared from storage
+6. Try navigating to /dashboard manually
+7. ✅ Redirects back to /login
+
+=============================================================================
+STORY 2: TIMESHEET - EMPLOYEE WEEKLY FLOW
+=============================================================================
+
+Test 2.1: Create & Navigate Timesheet
+--------------------------------------
+1. Login as demo@kairos.com / demo123
+2. Click "Timesheet" in sidebar
+3. Click "Create Timesheet" button
+4. ✅ 7-day grid appears (Monday-Sunday)
+5. ✅ Current week is selected by default
+6. ✅ Grid shows all 7 days with dates
+7. ✅ Status shows "Draft"
+8. ✅ Weekly total shows 0h
+
+9. Click "Previous Week" button
+10. ✅ Week changes to previous week
+11. ✅ Dates update correctly
+
+12. Click "Next Week" button
+13. ✅ Week changes to next week
+
+14. Click "This Week" button
+15. ✅ Returns to current week
+
+Test 2.2: Add Time Entry (Project/Task Typeahead)
+--------------------------------------------------
+1. In timesheet grid, click "Add Entry" button (or + icon)
+2. Modal appears with form
+3. Select a date from the week
+4. Click on Project field
+5. ✅ Dropdown opens with all projects
+6. Type "kairos" in the search
+7. ✅ Results filter instantly (debounced 300ms)
+8. ✅ Shows project name and code (e.g., "Kairos HR Platform - KAI-HR")
+9. Select "Kairos HR Platform"
+10. ✅ Project field shows selected project
+11. ✅ Task field becomes enabled
+12. ✅ PostHog tracks "project_search" event
+
+13. Click on Task field
+14. ✅ Dropdown shows only tasks for selected project
+15. Type "frontend" to search
+16. ✅ Results filter (debounced 300ms)
+17. Select "Frontend Development"
+18. ✅ PostHog tracks "task_search" event
+
+19. Enter hours: 8
+20. Add note: "Implemented timesheet feature"
+21. Click "Add"
+22. ✅ Entry appears in the grid under selected day
+23. ✅ Shows project name, task name, hours, and notes
+24. ✅ Daily total shows 8h
+25. ✅ Weekly total shows 8h
+
+Test 2.3: Add Multiple Entries
+-------------------------------
+1. Add another entry for the same day:
+   - Project: Mobile App Development
+   - Task: UI Design
+   - Hours: 2
+2. ✅ Both entries appear
+3. ✅ Daily total shows 10h
+4. ✅ Weekly total shows 10h
+
+5. Add entry for different day (Tuesday):
+   - Project: Analytics Dashboard
+   - Task: Data Analysis
+   - Hours: 6
+6. ✅ Entry appears under Tuesday
+7. ✅ Monday daily total: 10h
+8. ✅ Tuesday daily total: 6h
+9. ✅ Weekly total: 16h
+
+Test 2.4: Edit Time Entry
+--------------------------
+1. Click edit icon on an existing entry
+2. ✅ Modal opens with pre-filled data
+3. Change hours from 8 to 6
+4. Click "Update"
+5. ✅ Entry updates in grid
+6. ✅ Daily total recalculates
+7. ✅ Weekly total recalculates
+
+Test 2.5: Delete Time Entry
+----------------------------
+1. Click delete icon on an entry
+2. ✅ Confirmation dialog appears
+3. Click "Cancel"
+4. ✅ Entry remains
+5. Click delete icon again
+6. Click "Confirm"
+7. ✅ Entry removed from grid
+8. ✅ Daily total updates
+9. ✅ Weekly total updates
+
+Test 2.6: Policy Validation - Max Hours Per Day
+------------------------------------------------
+1. Add entry with 25 hours (exceeds daily max of 24)
+2. Click "Submit for Approval"
+3. ✅ Alert appears: "Exceeded maximum hours per day (24h) on [date]"
+4. ✅ Timesheet status remains "Draft"
+5. Edit entry to 8 hours
+6. ✅ Validation passes
+
+Test 2.7: Policy Validation - Max Hours Per Week
+-------------------------------------------------
+1. Add entries across the week totaling >40 hours:
+   - Monday: 10h
+   - Tuesday: 10h
+   - Wednesday: 10h
+   - Thursday: 10h
+   - Friday: 5h (total = 45h)
+2. Click "Submit for Approval"
+3. ✅ Alert appears: "Exceeded maximum hours per week (40h)"
+4. ✅ Timesheet status remains "Draft"
+5. Edit Friday to 0h (total = 40h)
+6. ✅ Validation passes
+
+Test 2.8: Submit for Approval
+------------------------------
+1. Ensure total hours ≤40h and each day ≤24h
+2. Click "Submit for Approval"
+3. ✅ Confirmation dialog appears
+4. Click "Confirm"
+5. ✅ Status changes to "Pending"
+6. ✅ "Submit for Approval" button disappears
+7. ✅ Edit buttons on entries are disabled
+8. ✅ Delete buttons on entries are disabled
+9. ✅ PostHog tracks "timesheet_submitted" event
+
+Test 2.9: Typeahead Cache
+--------------------------
+1. Open time entry form
+2. Search for "kairos" in project field
+3. Note the results
+4. Close modal and reopen
+5. Search for "kairos" again
+6. ✅ Results appear instantly (from cache)
+7. Search 10 different queries
+8. Search an 11th query
+9. ✅ Cache evicts oldest entry (keeps last 10)
+
+Test 2.10: Task Scoping by Project
+-----------------------------------
+1. Open time entry form
+2. Select project "Kairos HR Platform"
+3. ✅ Task dropdown shows only tasks for that project
+4. Change project to "Mobile App Development"
+5. ✅ Task field resets
+6. ✅ Task dropdown shows only tasks for Mobile App
+7. Try searching without selecting project first
+8. ✅ Task field is disabled
+
+=============================================================================
+STORY 3: TIMESHEET - MANAGER QUEUE
+=============================================================================
+
+Test 3.1: Access Control
+-------------------------
+1. Login as demo@kairos.com / demo123 (employee)
+2. Check sidebar
+3. ✅ "Team Timesheets" should NOT appear
+4. Try navigating to /team-timesheets manually
+5. ✅ Should show permission error or redirect
+
+6. Logout
+7. Login as manager@kairos.com / manager123
+8. Check sidebar
+9. ✅ "Team Timesheets" SHOULD appear
+
+Test 3.2: Setup - Submit Timesheet as Employee
+-----------------------------------------------
+1. Login as demo@kairos.com
+2. Navigate to /timesheet
+3. Create timesheet for current week
+4. Add entries totaling 20 hours
+5. Click "Submit for Approval"
+6. Confirm submission
+7. ✅ Status changes to "Pending"
+8. Logout
+
+Test 3.3: View Pending Queue
+-----------------------------
+1. Login as manager@kairos.com / manager123
+2. Click "Team Timesheets" in sidebar
+3. ✅ Table shows pending timesheets
+4. ✅ Stats card shows count of pending timesheets
+5. ✅ Table columns: Employee, Week, Total Hours, Submitted, Actions
+6. ✅ Each row shows employee ID/name, week range, total hours, submitted date
+7. ✅ Actions column has: View, Approve, Reject buttons
+
+Test 3.4: View Details Modal
+-----------------------------
+1. In pending queue, click "View" button
+2. ✅ Modal opens
+3. ✅ Modal title shows: "Timesheet Details"
+4. ✅ Shows employee name and week range
+5. ✅ Shows full 7-day grid
+6. ✅ Shows all time entries with project, task, hours, notes
+7. ✅ Shows daily totals
+8. ✅ Shows weekly total
+9. ✅ Shows status and metadata (submitted date)
+10. ✅ Approve/Reject buttons present in modal
+11. Click "Close" or click outside modal
+12. ✅ Modal closes
+
+Test 3.5: Approve Timesheet
+----------------------------
+1. In pending queue, click "Approve" button
+2. ✅ Confirmation dialog appears
+3. Click "Cancel"
+4. ✅ Timesheet remains in queue
+5. Click "Approve" again
+6. Click "Confirm"
+7. ✅ Timesheet disappears from queue immediately (optimistic update)
+8. ✅ PostHog tracks "timesheet_approved" event with managerId and timesheetId
+9. Refresh the page
+10. ✅ Timesheet still not in pending queue (approved)
+
+Test 3.6: Reject Timesheet
+---------------------------
+1. In pending queue, click "Reject" button
+2. ✅ Modal appears asking for rejection reason
+3. Try clicking "Reject" without entering reason
+4. ✅ Alert appears: "Rejection reason is required"
+5. Enter reason: "Please add more details to task descriptions"
+6. Click "Reject"
+7. ✅ Timesheet disappears from queue
+8. ✅ PostHog tracks "timesheet_rejected" event
+9. ✅ Rejection reason is captured
+
+Test 3.7: Empty State
+---------------------
+1. As manager, approve/reject all pending timesheets
+2. ✅ Queue shows empty state:
+   - Check mark icon
+   - "No Pending Timesheets"
+   - "All timesheets have been reviewed."
+
+Test 3.8: No Permission Error
+------------------------------
+1. Login as demo@kairos.com (employee without approval permission)
+2. Navigate to /team-timesheets manually
+3. ✅ Shows error message: "You don't have permission to approve timesheets."
+
+=============================================================================
+STORY 4: LEAVE - EMPLOYEE REQUESTS
+=============================================================================
+
+Test 4.1: View Leave Balance
+-----------------------------
+1. Login as demo@kairos.com / demo123
+2. Navigate to /leave-requests
+3. ✅ Page shows two main sections: "My Requests" and "Leave Balance"
+4. ✅ Leave Balance section displays:
+   - Vacation: X/20 days (with progress bar)
+   - Sick Leave: X/10 days (with progress bar)
+   - Personal Leave: X/5 days (with progress bar)
+   - Parental Leave: X/12 days (with progress bar)
+5. ✅ Progress bars color-coded:
+   - Green when remaining > 60%
+   - Yellow when remaining > 30%
+   - Red when remaining < 30%
+6. ✅ Shows total days, used days, remaining days for each type
+
+Test 4.2: Create Leave Request
+-------------------------------
+1. Click "New Leave Request" button
+2. ✅ Modal/form appears
+3. Select leave type: "Vacation"
+4. Select start date: Next Monday
+5. Select end date: Next Friday (5 business days)
+6. ✅ Shows business days calculation: "5 business day(s)"
+7. Enter reason: "Family vacation"
+8. Click "Submit Request"
+9. ✅ Request appears in "My Requests" table
+10. ✅ Status shows "Pending"
+11. ✅ Shows correct dates and duration
+12. ✅ PostHog tracks "leave_requested" event
+
+Test 4.3: View My Requests Table
+---------------------------------
+1. ✅ Table shows columns: Type, Dates, Duration, Status, Reason, Actions
+2. ✅ Leave type displayed with proper label (e.g., "Vacation", "Sick Leave")
+3. ✅ Dates shown in readable format
+4. ✅ Status shown with color-coded chip:
+   - Yellow for "Pending"
+   - Green for "Approved"
+   - Red for "Rejected"
+   - Gray for "Cancelled"
+5. ✅ Cancel button appears for pending requests only
+
+Test 4.4: Cancel Leave Request
+-------------------------------
+1. Find a pending request in "My Requests"
+2. Click "Cancel" button
+3. ✅ Confirmation dialog appears: "Cancel this leave request?"
+4. Click "Cancel" (on dialog)
+5. ✅ Request remains pending
+6. Click "Cancel" button again
+7. Click "Confirm"
+8. ✅ Status changes to "Cancelled"
+9. ✅ Cancel button disappears
+10. ✅ PostHog tracks "leave_cancelled" event
+
+Test 4.5: Empty State (No Requests)
+------------------------------------
+1. Login as new user with no requests
+2. Navigate to /leave-requests
+3. ✅ Shows empty state:
+   - Inbox icon
+   - "No Leave Requests"
+   - "Create your first leave request to get started."
+
+Test 4.6: Form Validation
+--------------------------
+1. Click "New Leave Request"
+2. Try submitting without selecting type
+3. ✅ Validation error: "Leave type is required"
+4. Select type but leave dates empty
+5. ✅ Validation error: "Start date is required"
+6. Enter start date only
+7. ✅ Validation error: "End date is required"
+8. Enter end date before start date
+9. ✅ Validation error: "End date must be after or equal to start date"
+
+Test 4.7: Business Days Calculation
+------------------------------------
+1. Create request:
+   - Start: Monday
+   - End: Friday (same week)
+2. ✅ Shows "5 business day(s)"
+
+3. Create request:
+   - Start: Friday
+   - End: Monday (next week)
+4. ✅ Shows "2 business day(s)" (excludes weekend)
+
+5. Create request spanning a week with 1 holiday
+6. ✅ Correctly calculates business days excluding weekends and holidays
+
+=============================================================================
+STORY 5: LEAVE - MANAGER QUEUE
+=============================================================================
+
+Test 5.1: Access Control
+-------------------------
+1. Login as demo@kairos.com (employee)
+2. Check sidebar
+3. ✅ "Team Leave" should NOT appear
+4. Navigate to /team-leave manually
+5. ✅ Shows permission error:
+   - "No Permission"
+   - "You need manager permissions to access this page"
+
+6. Logout and login as manager@kairos.com
+7. ✅ "Team Leave" appears in sidebar
+
+Test 5.2: Setup - Create Pending Leave Requests
+------------------------------------------------
+1. Login as demo@kairos.com (employee)
+2. Navigate to /leave-requests
+3. Create new leave request:
+   - Type: Vacation
+   - Start: Next week Monday
+   - End: Next week Friday
+   - Reason: "Team building trip"
+4. Submit request
+5. ✅ Status is "Pending"
+6. Logout
+
+Test 5.3: View Team Leave Queue
+--------------------------------
+1. Login as manager@kairos.com
+2. Navigate to /team-leave
+3. ✅ Page title: "Team Leave Queue"
+4. ✅ Stats card shows: "X Pending Requests"
+5. ✅ Table shows columns: Employee, Type, Dates, Duration, Reason, Requested, Actions
+6. ✅ Only pending requests are shown
+7. ✅ Shows employee name, leave type, date range, business days, reason, requested date
+
+Test 5.4: Approve Leave Request
+--------------------------------
+1. Find a pending request
+2. Click "Approve" button
+3. ✅ Confirmation dialog: "Approve this leave request?"
+4. Click "Cancel"
+5. ✅ Request remains in queue
+6. Click "Approve" again
+7. Click "Confirm"
+8. ✅ Request disappears from queue immediately (optimistic update)
+9. ✅ Pending count decreases
+10. ✅ PostHog tracks "leave_approved" event with managerId and requestId
+11. Refresh page
+12. ✅ Request still not in queue (approved)
+
+Test 5.5: Reject Leave Request
+-------------------------------
+1. Find a pending request
+2. Click "Reject" button
+3. ✅ Modal appears: "Reject Leave Request"
+4. ✅ Shows text field: "Please provide a reason for rejection:"
+5. Try clicking "Reject" without entering reason
+6. ✅ Validation error: "Rejection reason is required"
+7. Enter reason: "Please reschedule - critical project deadline"
+8. Click "Reject"
+9. ✅ Request disappears from queue
+10. ✅ Pending count decreases
+11. ✅ PostHog tracks "leave_rejected" event
+
+Test 5.6: Employee Sees Rejection Reason
+-----------------------------------------
+1. Logout from manager account
+2. Login as demo@kairos.com (employee)
+3. Navigate to /leave-requests
+4. Find the rejected request
+5. ✅ Status shows "Rejected"
+6. ✅ Shows rejection reason in table or detail view
+
+Test 5.7: Empty State
+---------------------
+1. Login as manager@kairos.com
+2. Navigate to /team-leave
+3. Approve/reject all pending requests
+4. ✅ Shows empty state:
+   - Check mark icon
+   - "No Pending Requests"
+   - "All leave requests have been reviewed."
+
+=============================================================================
+STORY 6: UNIFIED CALENDAR & PTO CONFLICT HINT
+=============================================================================
+
+Test 6.1: View Calendar
+------------------------
+1. Login as demo@kairos.com
+2. Navigate to /leave-requests
+3. ✅ Sidebar shows calendar widget below leave balance
+4. ✅ Calendar shows current month by default
+5. ✅ Displays month and year in header
+6. ✅ Shows 7-day week grid (Mon-Sun)
+7. ✅ Current day highlighted with blue border
+8. ✅ Legend shows:
+   - Red dot = Holidays
+   - Green dot = Approved Leave
+
+Test 6.2: Calendar Navigation
+------------------------------
+1. Click left arrow (Previous Month)
+2. ✅ Calendar changes to previous month
+3. ✅ Events update for new month
+
+4. Click right arrow (Next Month)
+5. ✅ Calendar changes to next month
+6. ✅ Events update for new month
+
+7. Click "Today" button
+8. ✅ Calendar returns to current month
+9. ✅ Current day highlighted
+
+Test 6.3: View Holidays on Calendar
+------------------------------------
+1. Navigate to month with holidays (e.g., January for New Year's)
+2. ✅ Holidays marked with red dots
+3. Hover over holiday date
+4. ✅ Shows holiday name (e.g., "New Year's Day")
+
+Test 6.4: View Approved Leaves on Calendar
+-------------------------------------------
+1. As employee, create and submit leave request
+2. As manager, approve the request
+3. Return to employee view at /leave-requests
+4. ✅ Approved leave dates marked with green dots
+5. Navigate calendar to month with approved leave
+6. ✅ All days in leave range have green dots
+
+Test 6.5: Overlap Warning - Holidays
+-------------------------------------
+1. Click "New Leave Request"
+2. Select dates that include a holiday:
+   - Start: July 2nd
+   - End: July 5th (includes July 4th - Independence Day)
+3. ✅ Warning box appears automatically:
+   - Red/orange background
+   - Icon indicating conflict
+   - "Scheduling Conflict Detected"
+4. ✅ Lists overlapping holidays with dates:
+   - "Independence Day (2025-07-04)"
+5. ✅ Shows message: "This is just a warning. You can still submit your request."
+6. ✅ Submit button remains enabled
+7. ✅ PostHog tracks "pto_overlap_warned" event with holidaysCount
+
+Test 6.6: Overlap Warning - Team Members on Leave
+--------------------------------------------------
+1. As manager, approve leave for team member:
+   - Employee: Bob Johnson
+   - Dates: August 10-14
+2. As another employee, create leave request:
+   - Start: August 12
+   - End: August 16
+3. ✅ Warning appears: "Scheduling Conflict Detected"
+4. ✅ Shows: "1 team member(s) will be out"
+5. ✅ Lists team member: "Bob Johnson (Aug 10 - Aug 14)"
+6. ✅ PostHog tracks "pto_overlap_warned" event with leavesCount
+
+Test 6.7: Overlap Warning - Multiple Team Members
+--------------------------------------------------
+1. Setup: Approve leave for 4 different team members with overlapping dates
+2. Create new request overlapping all 4
+3. ✅ Shows: "4 team member(s) will be out"
+4. ✅ Lists first 3 team members
+5. ✅ Shows: "and 1 more..."
+
+Test 6.8: No Overlap
+--------------------
+1. Create leave request with no holiday or team overlap
+2. ✅ No warning appears
+3. ✅ Can submit normally
+
+Test 6.9: Overlap Detection Debouncing
+---------------------------------------
+1. Open leave request form
+2. Select start date
+3. Quickly change end date multiple times
+4. ✅ Overlap check doesn't trigger until date selection settles
+5. ✅ "Checking availability..." message appears briefly
+6. ✅ Warning appears only after final date selection
+
+=============================================================================
+STORY 7: PROJECTS & TASKS PICKERS (Already Covered in Story 2.2)
+=============================================================================
+
+See Test 2.2, 2.9, and 2.10 for comprehensive typeahead testing.
+
+=============================================================================
+STORY 8: DASHBOARD DATA & WIDGETS
+=============================================================================
+
+Test 8.1: Employee Dashboard - Basic Widgets
+---------------------------------------------
+1. Login as demo@kairos.com (employee)
+2. Navigate to /dashboard (or auto-redirected after login)
+3. ✅ Welcome message: "Welcome back, Demo User!"
+4. ✅ Shows "Overview" heading
+5. ✅ Shows 3 widgets:
+   - This Week Hours
+   - By Project
+   - Upcoming Holidays
+6. ✅ Should NOT show manager-only widgets:
+   - Pending Timesheets
+   - Pending Leave Requests
+
+Test 8.2: This Week Hours Widget
+---------------------------------
+1. Prerequisite: Have time entries for current week
+2. ✅ Widget title: "This Week Hours"
+3. ✅ Shows bar chart with 7 bars (Mon-Sun)
+4. ✅ Each bar height corresponds to hours worked
+5. ✅ Shows hour value above each bar
+6. ✅ Total hours shown (e.g., "32 hours")
+7. ✅ X-axis shows day abbreviations (Mon, Tue, Wed, etc.)
+
+Test 8.3: This Week Hours - Empty State
+----------------------------------------
+1. Login as new user with no time entries
+2. Navigate to /dashboard
+3. ✅ "This Week Hours" widget shows empty state:
+   - Calendar icon
+   - "No time entries recorded yet for this week."
+
+Test 8.4: By Project Widget
+----------------------------
+1. Prerequisite: Have time entries across multiple projects
+2. ✅ Widget title: "By Project"
+3. ✅ Shows horizontal bar chart
+4. ✅ Each project listed with name
+5. ✅ Bar width represents percentage of total time
+6. ✅ Shows hours and percentage (e.g., "24h (60%)")
+7. ✅ Projects sorted by hours (most to least)
+
+Test 8.5: By Project - Empty State
+-----------------------------------
+1. User with no project data
+2. ✅ Shows empty state:
+   - Folder icon
+   - "No project data available for the selected period."
+
+Test 8.6: Upcoming Holidays Widget
+-----------------------------------
+1. ✅ Widget title: "Upcoming Holidays"
+2. ✅ Shows list of next holidays within 60 days
+3. ✅ Each holiday shows:
+   - Date (e.g., "Jan 1")
+   - Holiday name (e.g., "New Year's Day")
+   - Type badge (Public/Company/Regional)
+4. ✅ Holidays sorted by date
+5. ✅ Shows up to next 5 holidays
+
+Test 8.7: Upcoming Holidays - Empty State
+------------------------------------------
+1. If no holidays in next 60 days:
+2. ✅ Shows empty state:
+   - Calendar icon
+   - "No upcoming holidays in the next 60 days."
+
+Test 8.8: Manager Dashboard - Additional Widgets
+-------------------------------------------------
+1. Login as manager@kairos.com
+2. Navigate to /dashboard
+3. ✅ Shows all employee widgets PLUS:
+   - Pending Timesheets
+   - Pending Leave Requests
+
+Test 8.9: Pending Timesheets Widget (Manager Only)
+---------------------------------------------------
+1. Prerequisite: Have pending timesheets from team
+2. ✅ Widget title: "Pending Timesheets"
+3. ✅ Shows count: "X Awaiting Review"
+4. ✅ Shows link/button: "Review Timesheets"
+5. Click the link
+6. ✅ Navigates to /team-timesheets
+
+Test 8.10: Pending Leave Requests Widget (Manager Only)
+--------------------------------------------------------
+1. Prerequisite: Have pending leave requests from team
+2. ✅ Widget title: "Pending Leave Requests"
+3. ✅ Shows count: "X Awaiting Approval"
+4. ✅ Shows link/button: "Review Requests"
+5. Click the link
+6. ✅ Navigates to /team-leave
+
+Test 8.11: Dashboard Analytics Tracking
+----------------------------------------
+1. Navigate to /dashboard
+2. ✅ PostHog tracks "dashboard_viewed" event
+3. Check PostHog dashboard for event with:
+   - userId
+   - timestamp
+   - user role
+
+Test 8.12: Dashboard Loading State
+-----------------------------------
+1. Open DevTools Network tab
+2. Throttle network to "Slow 3G"
+3. Navigate to /dashboard
+4. ✅ Shows skeleton loaders while data loads
+5. ✅ Widgets appear progressively as data arrives
+
+=============================================================================
+STORY 9: ERROR, EMPTY, LOADING STATES + i18n
+=============================================================================
+
+Test 9.1: DataState Component - Loading Mode
+---------------------------------------------
+1. Open DevTools Network tab
+2. Throttle to "Slow 3G"
+3. Navigate to any data-driven page (e.g., /dashboard, /timesheet)
+4. ✅ Shows animated skeleton loader:
+   - Gray pulsing bars
+   - Simulates content layout
+   - Smooth animation
+5. Wait for data to load
+6. ✅ Skeleton smoothly transitions to actual content
+
+Test 9.2: DataState Component - Empty Mode
+-------------------------------------------
+1. Login as new user with no data
+2. Navigate to /timesheet
+3. ✅ Shows empty state:
+   - Icon (inbox or relevant icon)
+   - Message: "No timesheets yet. Create your first one!"
+   - Optional CTA button (if applicable)
+4. ✅ Empty state is centered and visually appealing
+
+Test 9.3: DataState Component - Error Mode
+-------------------------------------------
+1. Stop the development server API (or disable MSW)
+2. Navigate to /dashboard
+3. ✅ Shows error state:
+   - Red error icon
+   - "Something went wrong" heading
+   - Error message or generic message
+   - "Retry" button with refresh icon
+4. Click "Retry" button
+5. ✅ Attempts to reload data
+6. ✅ If still erroring, shows error state again
+
+Test 9.4: i18n - Spanish (es)
+------------------------------
+1. Login and navigate to profile or language switcher
+2. Change language to "Español"
+3. Navigate through app:
+   - /dashboard
+   - /timesheet
+   - /leave-requests
+4. ✅ All UI text translated to Spanish:
+   - Navigation menu
+   - Page titles
+   - Button labels
+   - Form labels
+   - Error messages
+   - Empty states
+5. ✅ DataState messages in Spanish:
+   - "No hay datos disponibles"
+   - "Algo salió mal"
+   - "Reintentar"
+
+Test 9.5: i18n - Portuguese (pt-PT)
+------------------------------------
+1. Change language to "Português"
+2. Navigate through app
+3. ✅ All UI text translated to Portuguese:
+   - Navigation, titles, buttons, forms
+4. ✅ DataState messages in Portuguese:
+   - "Não há dados disponíveis"
+   - "Algo correu mal"
+   - "Tentar novamente"
+
+Test 9.6: i18n - German (de)
+-----------------------------
+1. Change language to "Deutsch"
+2. Navigate through app
+3. ✅ All UI text translated to German:
+   - Navigation, titles, buttons, forms
+4. ✅ DataState messages in German:
+   - "Keine Daten verfügbar"
+   - "Etwas ist schief gelaufen"
+   - "Erneut versuchen"
+
+Test 9.7: i18n - Language Persistence
+--------------------------------------
+1. Change language to Spanish
+2. Refresh the page
+3. ✅ Language remains Spanish (persisted in localStorage)
+4. Close browser and reopen
+5. ✅ Language still Spanish
+
+Test 9.8: Sentry Error Tracking
+--------------------------------
+1. Navigate to /settings
+2. Click "Test Error Reporting" button
+3. ✅ Error thrown and caught
+4. Check Sentry dashboard
+5. ✅ Error appears in Sentry with:
+   - Error message
+   - Stack trace
+   - User context (if logged in)
+   - Browser info
+   - Timestamp
+
+=============================================================================
+STORY 10: WIRING MSW → API
+=============================================================================
+
+Test 10.1: Default MSW Setup
+-----------------------------
+1. Ensure .env has: VITE_API_BASE_URL=http://localhost:3000
+2. Start dev server: pnpm dev
+3. Open browser DevTools Console
+4. Navigate through app
+5. ✅ Check Network tab - all API requests go to localhost:3000
+6. ✅ MSW intercepts and mocks responses
+7. ✅ Console shows: "[MSW] Mocking enabled"
+
+Test 10.2: Switch to Real API
+------------------------------
+1. Update .env: VITE_API_BASE_URL=http://localhost:8080
+2. Start a real backend server on port 8080 (if available)
+3. Restart dev server: pnpm dev
+4. Navigate through app
+5. ✅ All requests go to localhost:8080
+6. ✅ Real API responses received (if backend available)
+7. ✅ If backend not available, network errors shown
+
+Test 10.3: Disable MSW
+-----------------------
+1. Open browser DevTools Console
+2. Enter: `window.stopMocking()`
+3. ✅ Console shows: "[MSW] Mocking disabled"
+4. Refresh page
+5. ✅ Requests now fail or go to real API (based on VITE_API_BASE_URL)
+
+Test 10.4: API Error Handling
+------------------------------
+1. With MSW disabled and no real API:
+2. Navigate to /dashboard
+3. ✅ Error state appears in widgets
+4. ✅ Error boundary catches errors
+5. ✅ Sentry captures API errors
+6. ✅ User sees friendly error message with retry option
+
+=============================================================================
+ADDITIONAL CROSS-CUTTING TESTS
+=============================================================================
+
+Test X.1: Dark Mode
+--------------------
+1. Navigate to /settings
+2. Theme is set to "Auto" by default
+3. Change to "Light"
+4. ✅ App uses light theme
+5. Change to "Dark"
+6. ✅ App switches to dark theme:
+   - Background: dark gray/black
+   - Text: light gray/white
+   - Cards: darker backgrounds
+   - Proper contrast
+7. Navigate through all pages
+8. ✅ Dark mode consistent across all pages
+
+Test X.2: Responsive Design
+----------------------------
+1. Open DevTools
+2. Toggle device toolbar (mobile view)
+3. Test at different viewport sizes:
+   - Mobile: 375px
+   - Tablet: 768px
+   - Desktop: 1440px
+4. Navigate through all pages
+5. ✅ Layout adapts responsively
+6. ✅ Navigation collapses on mobile
+7. ✅ Tables scroll horizontally on small screens
+8. ✅ Forms stack vertically on mobile
+
+Test X.3: Keyboard Navigation
+------------------------------
+1. Use Tab key to navigate through forms
+2. ✅ Focus indicators visible
+3. ✅ Tab order logical
+4. Press Enter on buttons
+5. ✅ Actions trigger correctly
+6. Use Escape to close modals
+7. ✅ Modals close
+
+Test X.4: Browser Back Button
+------------------------------
+1. Navigate: /dashboard → /timesheet → /leave-requests
+2. Click browser back button
+3. ✅ Returns to /timesheet
+4. Click back again
+5. ✅ Returns to /dashboard
+6. ✅ State preserved (no data loss)
+
+Test X.5: PostHog Event Tracking Summary
+-----------------------------------------
+Check PostHog dashboard for these events:
+1. ✅ login_success
+2. ✅ login_failure
+3. ✅ timesheet_submitted
+4. ✅ timesheet_approved
+5. ✅ timesheet_rejected
+6. ✅ leave_requested
+7. ✅ leave_cancelled
+8. ✅ leave_approved
+9. ✅ leave_rejected
+10. ✅ pto_overlap_warned
+11. ✅ project_search
+12. ✅ task_search
+13. ✅ dashboard_viewed
+
+Each event should include:
+- userId
+- timestamp
+- relevant context (e.g., requestId, managerId, etc.)
+
+=============================================================================
+END OF MANUAL TESTING GUIDE
+=============================================================================
+
+Notes:
+- All tests assume MSW is enabled by default for consistent mocking
+- For production testing, disable MSW and point to real API
+- Check browser console for errors during all tests
+- Verify no ESLint/Prettier warnings in codebase
+- All forms should have proper validation and error handling
+- All data operations should have optimistic UI updates
+- All user actions should track analytics events
