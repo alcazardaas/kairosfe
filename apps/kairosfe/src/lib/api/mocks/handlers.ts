@@ -713,6 +713,48 @@ export const handlers = [
     });
   }),
 
+  // Project stats
+  http.get(`${API_BASE_URL}/time-entries/stats/project`, ({ request }) => {
+    const url = new URL(request.url);
+    const userId = url.searchParams.get('user_id');
+    const from = url.searchParams.get('from');
+    const to = url.searchParams.get('to');
+
+    const entries = Array.from(timeEntries.values()).filter((entry) => {
+      if (userId && entry.userId !== userId) return false;
+      if (from && to) {
+        const entryDate = new Date(entry.date);
+        const fromDate = new Date(from);
+        const toDate = new Date(to);
+        return entryDate >= fromDate && entryDate <= toDate;
+      }
+      return true;
+    });
+
+    const projectTotals: Record<string, { name: string; hours: number }> = {};
+    let totalHours = 0;
+
+    entries.forEach((entry) => {
+      if (!projectTotals[entry.projectId]) {
+        projectTotals[entry.projectId] = {
+          name: entry.projectName || 'Unknown',
+          hours: 0,
+        };
+      }
+      projectTotals[entry.projectId].hours += entry.hours;
+      totalHours += entry.hours;
+    });
+
+    const stats = Object.entries(projectTotals).map(([projectId, data]) => ({
+      projectId,
+      projectName: data.name,
+      totalHours: data.hours,
+      percentage: totalHours > 0 ? (data.hours / totalHours) * 100 : 0,
+    }));
+
+    return HttpResponse.json(stats);
+  }),
+
   // Projects and tasks search
   http.get(`${API_BASE_URL}/search/projects`, ({ request }) => {
     const url = new URL(request.url);

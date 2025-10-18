@@ -26,8 +26,20 @@
   },
   "dashboard": {
     "welcome": "Welcome back, {{name}}!",
+    "overview": "Overview",
     "recentActivity": "Recent Activity",
-    "quickActions": "Quick Actions"
+    "quickActions": "Quick Actions",
+    "thisWeekHours": "This Week Hours",
+    "byProject": "By Project",
+    "upcomingHolidays": "Upcoming Holidays",
+    "pendingTimesheets": "Pending Timesheets",
+    "pendingLeaveRequests": "Pending Leave Requests",
+    "noHoursThisWeek": "No time entries recorded yet for this week.",
+    "noProjectData": "No project data available for the selected period.",
+    "noUpcomingHolidays": "No upcoming holidays in the next 60 days.",
+    "awaitingReview": "Awaiting Review",
+    "awaitingApproval": "Awaiting Approval",
+    "hours": "hours"
   },
   "profile": {
     "title": "Profile",
@@ -195,5 +207,12 @@
     "optional": "optional",
     "noResults": "No results found",
     "typeToSearch": "Type to search..."
+  },
+  "dataState": {
+    "noData": "No data available",
+    "errorTitle": "Something went wrong",
+    "errorGeneric": "An error occurred while loading data. Please try again.",
+    "retry": "Retry",
+    "loadingData": "Loading data..."
   }
 }

@@ -75,5 +75,12 @@
     "back": "Zurück",
     "next": "Weiter",
     "previous": "Vorherige"
+  },
+  "dataState": {
+    "noData": "Keine Daten verfügbar",
+    "errorTitle": "Etwas ist schief gelaufen",
+    "errorGeneric": "Beim Laden der Daten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+    "retry": "Erneut versuchen",
+    "loadingData": "Daten werden geladen..."
   }
 }

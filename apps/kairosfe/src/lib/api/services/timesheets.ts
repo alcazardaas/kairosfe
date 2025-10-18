@@ -95,6 +95,19 @@ export async function getWeeklyStats(params: {
   return apiClient.get<WeeklyStats>(`/time-entries/stats/weekly?${queryParams.toString()}`, true);
 }
 
+export async function getProjectStats(params: {
+  userId: string;
+  from?: string;
+  to?: string;
+}): Promise<ProjectStats[]> {
+  const queryParams = new URLSearchParams();
+  queryParams.append('user_id', params.userId);
+  if (params.from) queryParams.append('from', params.from);
+  if (params.to) queryParams.append('to', params.to);
+
+  return apiClient.get<ProjectStats[]>(`/time-entries/stats/project?${queryParams.toString()}`, true);
+}
+
 // Projects and Tasks
 export async function searchProjects(query: string): Promise<Project[]> {
   return apiClient.get<Project[]>(`/search/projects?q=${encodeURIComponent(query)}`, true);

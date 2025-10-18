@@ -75,5 +75,12 @@
     "back": "Atrás",
     "next": "Siguiente",
     "previous": "Anterior"
+  },
+  "dataState": {
+    "noData": "No hay datos disponibles",
+    "errorTitle": "Algo salió mal",
+    "errorGeneric": "Ocurrió un error al cargar los datos. Por favor, inténtelo de nuevo.",
+    "retry": "Reintentar",
+    "loadingData": "Cargando datos..."
   }
 }
