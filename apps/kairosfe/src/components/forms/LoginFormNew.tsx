@@ -1,25 +1,66 @@
 import React, { useState } from 'react';
+import { useAuthStore } from '@/lib/store';
+import { apiClient } from '@/lib/api/client';
 
 export default function LoginFormNew() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const login = useAuthStore((state) => state.login);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // For now, just redirect to dashboard (no auth)
-    window.location.href = '/dashboard';
+    setError(null);
+    setIsLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      const response = await apiClient.login(email, password);
+
+      // Save auth data to store
+      login(response.user, response.token, response.refreshToken);
+
+      // Sync to cookies for middleware
+      document.cookie = `kairos-auth=${JSON.stringify({
+        state: {
+          token: response.token,
+          user: response.user,
+        }
+      })}; path=/; max-age=${response.expiresIn || 3600}`;
+
+      // Redirect to dashboard
+      window.location.href = '/dashboard';
+    } catch (err) {
+      console.error('Login failed:', err);
+      setError(err instanceof Error ? err.message : 'Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+          <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+        </div>
+      )}
+
       {/* Email Input */}
       <label className="flex flex-col">
         <p className="text-gray-900 dark:text-gray-100 text-sm font-medium pb-2">Email</p>
         <input
+          name="email"
           className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-gray-100 focus:outline-0 focus:ring-2 focus:ring-primary border border-gray-300 dark:border-gray-600 bg-transparent dark:bg-gray-800/20 h-12 placeholder:text-gray-500 dark:placeholder:text-gray-400 px-4 text-base font-normal leading-normal"
           placeholder="you@example.com"
           type="email"
           required
+          disabled={isLoading}
         />
       </label>
 
@@ -28,10 +69,12 @@ export default function LoginFormNew() {
         <p className="text-gray-900 dark:text-gray-100 text-sm font-medium pb-2">Password</p>
         <div className="relative flex w-full flex-1 items-stretch">
           <input
+            name="password"
             className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-gray-100 focus:outline-0 focus:ring-2 focus:ring-primary border border-gray-300 dark:border-gray-600 bg-transparent dark:bg-gray-800/20 h-12 placeholder:text-gray-500 dark:placeholder:text-gray-400 px-4 pr-12 text-base font-normal leading-normal"
             placeholder="Enter your password"
             type={showPassword ? 'text' : 'password'}
             required
+            disabled={isLoading}
           />
           <button
             className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 dark:text-gray-400"
@@ -63,10 +106,18 @@ export default function LoginFormNew() {
 
       {/* Sign In Button */}
       <button
-        className="w-full h-12 flex items-center justify-center rounded-lg bg-primary text-white text-base font-semibold transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-800 focus:ring-primary"
+        className="w-full h-12 flex items-center justify-center rounded-lg bg-primary text-white text-base font-semibold transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-800 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
         type="submit"
+        disabled={isLoading}
       >
-        Sign In
+        {isLoading ? (
+          <>
+            <span className="material-symbols-outlined animate-spin mr-2">refresh</span>
+            Signing in...
+          </>
+        ) : (
+          'Sign In'
+        )}
       </button>
     </form>
   );

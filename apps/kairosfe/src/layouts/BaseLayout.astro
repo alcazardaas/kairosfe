@@ -30,12 +30,13 @@ const { title = 'Kairos', description = 'HR Management System' } = Astro.props;
   <body class="bg-white dark:bg-background-dark text-text-light dark:text-text-dark">
     <slot />
     <script>
-      // Initialize MSW in development
-      if (import.meta.env.DEV) {
+      // Initialize MSW in development (disabled by default - set VITE_ENABLE_MSW=true to enable)
+      if (import.meta.env.DEV && import.meta.env.VITE_ENABLE_MSW === 'true') {
         import('@/lib/api/mocks/browser').then(({ worker }) => {
           worker.start({
             onUnhandledRequest: 'bypass',
           });
+          console.log('🔶 MSW enabled - API requests will be mocked');
         });
       }
 

@@ -30,31 +30,32 @@ export const onRequest = defineMiddleware((context, next) => {
     return next();
   }
 
-  // Check for auth token in cookies or localStorage
-  // Note: We can't access localStorage here, so we rely on cookies
-  // The frontend will handle localStorage-based auth
+  // Check for auth token in cookies
+  // Note: We can't access localStorage in middleware, but the login form
+  // now syncs the auth state to both localStorage (via Zustand) and cookies
   const authCookie = cookies.get('kairos-auth');
 
   if (!authCookie) {
     // Check if this is a client-side navigation (has a referrer from same origin)
-    // If so, let the client handle the redirect
+    // If so, let the client-side AuthGuard handle the redirect
     const referer = context.request.headers.get('referer');
     if (referer && new URL(referer).origin === url.origin) {
       return next();
     }
 
-    // Server-side redirect for direct access
+    // Server-side redirect for direct access without auth
     return redirect('/login');
   }
 
   try {
-    // Validate the auth cookie
+    // Validate the auth cookie structure
     const authData = JSON.parse(authCookie.value);
     if (!authData.state?.token) {
       return redirect('/login');
     }
   } catch {
-    // Invalid cookie format
+    // Invalid cookie format - redirect to login
+    cookies.delete('kairos-auth');
     return redirect('/login');
   }
 
