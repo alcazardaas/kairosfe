@@ -49,7 +49,7 @@ export default function LeaveBalanceDisplay() {
     );
   }
 
-  if (!benefits || benefits.benefits.length === 0) {
+  if (!benefits || !benefits.benefits || benefits.benefits.length === 0) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <p className="text-gray-600 dark:text-gray-400">
@@ -62,7 +62,7 @@ export default function LeaveBalanceDisplay() {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
       <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-        {t('leaveRequest.leaveBalance')} - {benefits.year}
+        {t('leaveRequest.leaveBalance')}{benefits.year ? ` - ${benefits.year}` : ''}
       </h2>
 
       <div className="space-y-4">

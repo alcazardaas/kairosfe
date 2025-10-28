@@ -16,23 +16,26 @@ describe('Auth Store', () => {
   it('should login user', () => {
     const mockUser = { id: '1', email: 'test@test.com', name: 'Test', role: 'employee' as const };
     const mockToken = 'test-token';
+    const mockRefreshToken = 'test-refresh-token';
 
-    useAuthStore.getState().login(mockUser, mockToken);
+    useAuthStore.getState().login(mockUser, mockToken, mockRefreshToken);
 
     const state = useAuthStore.getState();
     expect(state.user).toEqual(mockUser);
     expect(state.token).toBe(mockToken);
+    expect(state.refreshToken).toBe(mockRefreshToken);
     expect(state.isAuthenticated).toBe(true);
   });
 
   it('should logout user', () => {
     const mockUser = { id: '1', email: 'test@test.com', name: 'Test', role: 'employee' as const };
-    useAuthStore.getState().login(mockUser, 'token');
+    useAuthStore.getState().login(mockUser, 'token', 'refresh-token');
     useAuthStore.getState().logout();
 
     const state = useAuthStore.getState();
     expect(state.user).toBeNull();
     expect(state.token).toBeNull();
+    expect(state.refreshToken).toBeNull();
     expect(state.isAuthenticated).toBe(false);
   });
 });

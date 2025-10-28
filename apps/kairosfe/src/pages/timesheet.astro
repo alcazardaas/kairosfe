@@ -1,16 +1,14 @@
 ---
-import AppLayout from '@/layouts/AppLayout.astro';
-import TimesheetTable from '@/components/data/TimesheetTable';
-import AuthGuard from '@/components/auth/AuthGuard';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header from '@/components/layout/Header';
+import TimesheetContentNew from '@/components/data/TimesheetContentNew';
+
+export const prerender = false;
 ---
 
-<AppLayout title="Timesheet - Kairos">
-  <AuthGuard client:load>
-    <div class="container mx-auto px-4 py-8">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-        Timesheet
-      </h1>
-      <TimesheetTable client:load />
-    </div>
-  </AuthGuard>
-</AppLayout>
+<BaseLayout title="Timesheet - Kairos">
+  <div class="relative flex min-h-screen w-full flex-col">
+    <Header client:load />
+    <TimesheetContentNew client:load />
+  </div>
+</BaseLayout>

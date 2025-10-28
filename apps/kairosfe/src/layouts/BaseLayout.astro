@@ -1,5 +1,6 @@
 ---
 import '@/styles/tailwind.css';
+import ToastProvider from '@/components/ui/ToastProvider';
 
 interface Props {
   title?: string;
@@ -29,6 +30,7 @@ const { title = 'Kairos', description = 'HR Management System' } = Astro.props;
   </head>
   <body class="bg-white dark:bg-background-dark text-text-light dark:text-text-dark">
     <slot />
+    <ToastProvider client:only="react" />
     <script>
       // Initialize MSW in development (disabled by default - set VITE_ENABLE_MSW=true to enable)
       if (import.meta.env.DEV && import.meta.env.VITE_ENABLE_MSW === 'true') {

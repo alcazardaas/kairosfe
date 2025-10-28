@@ -1,17 +1,55 @@
-import React, { useEffect, useState } from 'react';
-import { employeesService, type Employee } from '@/lib/api/services/employees';
+import React, { useEffect, useState, useCallback } from 'react';
+import { employeesService } from '@/lib/api/services/employees';
+import { useAuthStore } from '@/lib/store';
+import { canAddEmployee, canEditEmployee, canDeactivateEmployee } from '@/lib/utils/permissions';
+import type { Employee, EmployeeStatus, UserRole } from '@kairos/shared';
+import AddEmployeeModal from '@/components/forms/AddEmployeeModal';
+import EditEmployeeModal from '@/components/forms/EditEmployeeModal';
+import ConfirmDeleteDialog from '@/components/ui/ConfirmDeleteDialog';
 
 export default function TeamManagementContentNew() {
+  // Auth state
+  const { role } = useAuthStore();
+
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [totalEmployees, setTotalEmployees] = useState(0);
+  const [roleFilter, setRoleFilter] = useState<UserRole | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<EmployeeStatus | undefined>('active');
+  const [sortBy, setSortBy] = useState<string>('name:asc');
+
+  // Modal state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null);
+
+  // Permission checks
+  const userCanAddEmployee = canAddEmployee(role);
+  const userCanEditEmployee = canEditEmployee(role);
+  const userCanDeactivate = canDeactivateEmployee(role);
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (currentPage === 1) {
+        loadEmployees();
+      } else {
+        setCurrentPage(1); // Reset to first page on search
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   useEffect(() => {
     loadEmployees();
-  }, [currentPage, searchTerm]);
+  }, [currentPage, roleFilter, statusFilter, sortBy]);
 
   const loadEmployees = async () => {
     try {
@@ -21,14 +59,19 @@ export default function TeamManagementContentNew() {
         page: currentPage,
         limit: 10,
         search: searchTerm || undefined,
+        role: roleFilter,
+        status: statusFilter,
+        sort: sortBy,
       });
-      setEmployees(response.employees);
-      setTotalEmployees(response.total);
+      setEmployees(response.data);
+      setTotalEmployees(response.meta.total);
+      setTotalPages(response.meta.totalPages);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load employees');
       // Fallback to mock data if API fails
       setEmployees(getMockEmployees());
       setTotalEmployees(5);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -39,72 +82,187 @@ export default function TeamManagementContentNew() {
       id: '1',
       name: 'Olivia Rhye',
       email: 'olivia@kairos.com',
-      position: 'Software Engineer',
-      department: 'Engineering',
-      status: 'active',
-      lastLogin: '2 days ago',
-      avatar: 'https://via.placeholder.com/40',
+      locale: 'en',
+      createdAt: '2025-01-15T10:00:00.000Z',
+      lastLoginAt: '2025-10-24T14:30:00.000Z',
+      membership: {
+        role: 'employee',
+        status: 'active',
+        createdAt: '2025-01-15T10:00:00.000Z',
+      },
+      profile: {
+        jobTitle: 'Software Engineer',
+        startDate: '2025-01-15',
+        managerUserId: null,
+        location: 'New York, NY',
+        phone: null,
+      },
     },
     {
       id: '2',
       name: 'Phoenix Baker',
       email: 'phoenix@kairos.com',
-      position: 'Product Manager',
-      department: 'Product',
-      status: 'active',
-      lastLogin: '1 day ago',
-      avatar: 'https://via.placeholder.com/40',
+      locale: 'en',
+      createdAt: '2025-01-16T11:00:00.000Z',
+      lastLoginAt: '2025-10-25T09:15:00.000Z',
+      membership: {
+        role: 'manager',
+        status: 'active',
+        createdAt: '2025-01-16T11:00:00.000Z',
+      },
+      profile: {
+        jobTitle: 'Engineering Manager',
+        startDate: '2024-06-01',
+        managerUserId: null,
+        location: 'San Francisco, CA',
+        phone: null,
+      },
     },
     {
       id: '3',
       name: 'Lana Steiner',
       email: 'lana@kairos.com',
-      position: 'UX Designer',
-      department: 'Design',
-      status: 'on_leave',
-      lastLogin: '1 month ago',
-      avatar: 'https://via.placeholder.com/40',
+      locale: 'en',
+      createdAt: '2025-02-01T09:00:00.000Z',
+      lastLoginAt: '2025-09-20T16:45:00.000Z',
+      membership: {
+        role: 'employee',
+        status: 'active',
+        createdAt: '2025-02-01T09:00:00.000Z',
+      },
+      profile: {
+        jobTitle: 'UX Designer',
+        startDate: '2025-02-01',
+        managerUserId: null,
+        location: 'Remote',
+        phone: null,
+      },
     },
     {
       id: '4',
       name: 'Demi Wilkinson',
       email: 'demi@kairos.com',
-      position: 'Frontend Developer',
-      department: 'Engineering',
-      status: 'active',
-      lastLogin: '3 hours ago',
-      avatar: 'https://via.placeholder.com/40',
+      locale: 'en',
+      createdAt: '2025-03-10T08:30:00.000Z',
+      lastLoginAt: '2025-10-26T11:20:00.000Z',
+      membership: {
+        role: 'employee',
+        status: 'active',
+        createdAt: '2025-03-10T08:30:00.000Z',
+      },
+      profile: {
+        jobTitle: 'Frontend Developer',
+        startDate: '2025-03-10',
+        managerUserId: null,
+        location: 'Austin, TX',
+        phone: null,
+      },
     },
     {
       id: '5',
       name: 'Candice Wu',
       email: 'candice@kairos.com',
-      position: 'Backend Developer',
-      department: 'Engineering',
-      status: 'inactive',
-      lastLogin: '6 months ago',
-      avatar: 'https://via.placeholder.com/40',
+      locale: 'en',
+      createdAt: '2024-06-15T10:00:00.000Z',
+      lastLoginAt: '2025-04-10T14:00:00.000Z',
+      membership: {
+        role: 'employee',
+        status: 'disabled',
+        createdAt: '2024-06-15T10:00:00.000Z',
+      },
+      profile: {
+        jobTitle: 'Backend Developer',
+        startDate: '2024-06-15',
+        managerUserId: null,
+        location: 'Seattle, WA',
+        phone: null,
+      },
     },
   ];
 
-  const getStatusBadge = (status: string) => {
-    const statusClasses = {
+  const getStatusBadge = (status: EmployeeStatus) => {
+    const statusClasses: Record<EmployeeStatus, string> = {
       active: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-      inactive: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-      on_leave: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+      disabled: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+      invited: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
     };
 
-    const statusLabels = {
+    const statusLabels: Record<EmployeeStatus, string> = {
       active: 'Active',
-      inactive: 'Inactive',
-      on_leave: 'On Leave',
+      disabled: 'Disabled',
+      invited: 'Invited',
     };
 
     return (
-      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClasses[status as keyof typeof statusClasses]}`}>
-        {statusLabels[status as keyof typeof statusLabels]}
+      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClasses[status]}`}>
+        {statusLabels[status]}
       </span>
     );
+  };
+
+  const getRoleBadge = (role: UserRole) => {
+    const roleClasses: Record<UserRole, string> = {
+      admin: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+      manager: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+      employee: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+    };
+
+    const roleLabels: Record<UserRole, string> = {
+      admin: 'Admin',
+      manager: 'Manager',
+      employee: 'Employee',
+    };
+
+    return (
+      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${roleClasses[role]}`}>
+        {roleLabels[role]}
+      </span>
+    );
+  };
+
+  const formatLastLogin = (lastLoginAt: string | null) => {
+    if (!lastLoginAt) return 'Never';
+    const date = new Date(lastLoginAt);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+    if (diffHours < 24) {
+      if (diffHours < 1) return 'Just now';
+      return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    }
+    if (diffDays < 30) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
+  };
+
+  // Modal handlers
+  const handleEmployeeAdded = () => {
+    loadEmployees(); // Refresh list and show toast from modal
+  };
+
+  const handleEdit = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setShowEditModal(true);
+    setActionMenuOpen(null);
+  };
+
+  const handleEmployeeUpdated = () => {
+    loadEmployees(); // Refresh list and show toast from modal
+  };
+
+  const handleDelete = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setShowDeleteDialog(true);
+    setActionMenuOpen(null);
+  };
+
+  const handleEmployeeDeleted = () => {
+    loadEmployees(); // Refresh list and show toast from modal
+  };
+
+  const toggleActionMenu = (employeeId: string) => {
+    setActionMenuOpen(actionMenuOpen === employeeId ? null : employeeId);
   };
 
   return (
@@ -117,9 +275,14 @@ export default function TeamManagementContentNew() {
               Manage your team members and their roles.
             </p>
           </div>
-          <button className="hidden sm:flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
-            <span className="truncate">Add New Employee</span>
-          </button>
+          {userCanAddEmployee && (
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="hidden sm:flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
+            >
+              <span className="truncate">Add New Employee</span>
+            </button>
+          )}
         </div>
 
         {/* Search and Filters */}
@@ -132,7 +295,7 @@ export default function TeamManagementContentNew() {
                 </div>
                 <input
                   className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-gray-900 dark:text-gray-100 focus:outline-0 focus:ring-2 focus:ring-primary h-full placeholder:text-gray-500 dark:placeholder:text-gray-400 px-2 text-base font-normal leading-normal bg-transparent border-none"
-                  placeholder="Search by name, position..."
+                  placeholder="Search by name or email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -140,18 +303,45 @@ export default function TeamManagementContentNew() {
             </label>
           </div>
           <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
-            <button className="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 pl-4 pr-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-              <p className="text-gray-900 dark:text-gray-100 text-sm font-medium leading-normal">Department</p>
-              <span className="material-symbols-outlined text-gray-600 dark:text-gray-400 text-xl">expand_more</span>
-            </button>
-            <button className="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 pl-4 pr-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-              <p className="text-gray-900 dark:text-gray-100 text-sm font-medium leading-normal">Location</p>
-              <span className="material-symbols-outlined text-gray-600 dark:text-gray-400 text-xl">expand_more</span>
-            </button>
-            <button className="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 pl-4 pr-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-              <p className="text-gray-900 dark:text-gray-100 text-sm font-medium leading-normal">Status</p>
-              <span className="material-symbols-outlined text-gray-600 dark:text-gray-400 text-xl">expand_more</span>
-            </button>
+            {/* Role Filter */}
+            <select
+              className="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 pl-4 pr-8 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-gray-100 text-sm font-medium"
+              value={roleFilter || ''}
+              onChange={(e) => setRoleFilter(e.target.value as UserRole | undefined || undefined)}
+            >
+              <option value="">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="manager">Manager</option>
+              <option value="employee">Employee</option>
+            </select>
+
+            {/* Status Filter */}
+            <select
+              className="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 pl-4 pr-8 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-gray-100 text-sm font-medium"
+              value={statusFilter || ''}
+              onChange={(e) => setStatusFilter(e.target.value as EmployeeStatus | undefined || undefined)}
+            >
+              <option value="">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="invited">Invited</option>
+              <option value="disabled">Disabled</option>
+            </select>
+
+            {/* Sort Filter */}
+            <select
+              className="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 pl-4 pr-8 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-gray-100 text-sm font-medium"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="name:asc">Name (A-Z)</option>
+              <option value="name:desc">Name (Z-A)</option>
+              <option value="email:asc">Email (A-Z)</option>
+              <option value="email:desc">Email (Z-A)</option>
+              <option value="role:asc">Role (A-Z)</option>
+              <option value="role:desc">Role (Z-A)</option>
+              <option value="created_at:asc">Oldest First</option>
+              <option value="created_at:desc">Newest First</option>
+            </select>
           </div>
         </div>
 
@@ -185,7 +375,10 @@ export default function TeamManagementContentNew() {
                         Name
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">
-                        Position
+                        Job Title
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell">
+                        Role
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                         Status
@@ -203,30 +396,84 @@ export default function TeamManagementContentNew() {
                       <tr key={employee.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              <img
-                                className="h-10 w-10 rounded-full"
-                                src={employee.avatar || 'https://via.placeholder.com/40'}
-                                alt={`${employee.name} profile`}
-                              />
+                            <div className="flex-shrink-0 h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center">
+                              <span className="text-primary font-semibold text-sm">
+                                {employee.name?.charAt(0).toUpperCase() || employee.email.charAt(0).toUpperCase()}
+                              </span>
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{employee.name}</div>
-                              <div className="text-sm text-gray-600 dark:text-gray-400 md:hidden">{employee.position}</div>
+                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {employee.name || 'N/A'}
+                              </div>
+                              <div className="text-sm text-gray-600 dark:text-gray-400">{employee.email}</div>
+                              <div className="text-sm text-gray-600 dark:text-gray-400 md:hidden">
+                                {employee.profile?.jobTitle || 'N/A'}
+                              </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                          <div className="text-sm text-gray-600 dark:text-gray-400">{employee.position}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {employee.profile?.jobTitle || 'N/A'}
+                          </div>
+                          {employee.profile?.location && (
+                            <div className="text-xs text-gray-500 dark:text-gray-500">{employee.profile.location}</div>
+                          )}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(employee.status)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                          {getRoleBadge(employee.membership.role)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getStatusBadge(employee.membership.status)}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 hidden lg:table-cell">
-                          {employee.lastLogin || 'Never'}
+                          {formatLastLogin(employee.lastLoginAt)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary">
-                            <span className="material-symbols-outlined">more_horiz</span>
-                          </button>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
+                          {(userCanEditEmployee || userCanDeactivate) && (
+                            <>
+                              <button
+                                onClick={() => toggleActionMenu(employee.id)}
+                                className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary"
+                              >
+                                <span className="material-symbols-outlined">more_horiz</span>
+                              </button>
+
+                              {/* Actions Dropdown */}
+                              {actionMenuOpen === employee.id && (
+                                <>
+                                  {/* Backdrop to close menu */}
+                                  <div
+                                    className="fixed inset-0 z-10"
+                                    onClick={() => setActionMenuOpen(null)}
+                                  />
+
+                                  {/* Menu */}
+                                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20">
+                                    {userCanEditEmployee && (
+                                      <button
+                                        onClick={() => handleEdit(employee)}
+                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-t-lg"
+                                      >
+                                        <span className="material-symbols-outlined text-base">edit</span>
+                                        Edit
+                                      </button>
+                                    )}
+
+                                    {userCanDeactivate && employee.membership.status === 'active' && (
+                                      <button
+                                        onClick={() => handleDelete(employee)}
+                                        className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-b-lg"
+                                      >
+                                        <span className="material-symbols-outlined text-base">block</span>
+                                        Deactivate
+                                      </button>
+                                    )}
+                                  </div>
+                                </>
+                              )}
+                            </>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -238,20 +485,21 @@ export default function TeamManagementContentNew() {
             {/* Pagination */}
             <div className="flex items-center justify-between mt-4">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Showing {(currentPage - 1) * 10 + 1} to {Math.min(currentPage * 10, totalEmployees)} of{' '}
-                {totalEmployees} results
+                Showing {employees.length > 0 ? (currentPage - 1) * 10 + 1 : 0} to{' '}
+                {Math.min(currentPage * 10, totalEmployees)} of {totalEmployees} results
+                {totalPages > 0 && ` (Page ${currentPage} of ${totalPages})`}
               </p>
               <div className="flex gap-2">
                 <button
-                  className="flex items-center justify-center h-9 w-9 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                  className="flex items-center justify-center h-9 w-9 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((p) => p - 1)}
                 >
                   <span className="material-symbols-outlined text-xl">chevron_left</span>
                 </button>
                 <button
-                  className="flex items-center justify-center h-9 w-9 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-                  disabled={currentPage * 10 >= totalEmployees}
+                  className="flex items-center justify-center h-9 w-9 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={currentPage >= totalPages}
                   onClick={() => setCurrentPage((p) => p + 1)}
                 >
                   <span className="material-symbols-outlined text-xl">chevron_right</span>
@@ -260,6 +508,27 @@ export default function TeamManagementContentNew() {
             </div>
           </>
         )}
+
+        {/* Modals */}
+        <AddEmployeeModal
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onSuccess={handleEmployeeAdded}
+        />
+
+        <EditEmployeeModal
+          isOpen={showEditModal}
+          employee={selectedEmployee}
+          onClose={() => setShowEditModal(false)}
+          onSuccess={handleEmployeeUpdated}
+        />
+
+        <ConfirmDeleteDialog
+          isOpen={showDeleteDialog}
+          employee={selectedEmployee}
+          onClose={() => setShowDeleteDialog(false)}
+          onSuccess={handleEmployeeDeleted}
+        />
       </div>
     </main>
   );

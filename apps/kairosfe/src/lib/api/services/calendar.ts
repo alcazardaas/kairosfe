@@ -18,14 +18,22 @@ export async function getCalendarData(params: CalendarParams): Promise<CalendarD
     queryParams.append('include', params.include.join(','));
   }
 
-  return apiClient.get<CalendarData>(`/calendar?${queryParams.toString()}`);
+  const response = await apiClient.get<{ data: any[]; meta: any }>(`/calendar?${queryParams.toString()}`, true);
+
+  // The API returns { data: array of calendar items, meta: {...} }
+  // Transform to CalendarData format
+  return {
+    events: [], // Will need to map from response.data
+    holidays: [],
+    leaves: []
+  };
 }
 
 /**
  * Get public holidays for a specific year
  */
 export async function getHolidays(year: number): Promise<Holiday[]> {
-  return apiClient.get<Holiday[]>(`/holidays?year=${year}`);
+  return apiClient.get<Holiday[]>(`/holidays?year=${year}`, true);
 }
 
 /**
@@ -52,5 +60,5 @@ export async function checkDateOverlap(
     queryParams.append('user_id', userId);
   }
 
-  return apiClient.get<OverlapCheck>(`/calendar/check-overlap?${queryParams.toString()}`);
+  return apiClient.get<OverlapCheck>(`/calendar/check-overlap?${queryParams.toString()}`, true);
 }

@@ -28,7 +28,7 @@ export default function LeaveRequestsContentNew() {
       // Track event
       if (typeof window !== 'undefined' && (window as any).posthog) {
         (window as any).posthog.capture('leave_requested', {
-          type: data.type,
+          benefitTypeId: data.benefitTypeId,
           userId: user?.id,
         });
       }
@@ -85,10 +85,10 @@ export default function LeaveRequestsContentNew() {
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Left Sidebar - Balance and Calendar (only in employee mode) */}
-            {viewMode === 'employee' && (
+            {viewMode === 'employee' && user?.id && (
               <div className="lg:col-span-1 space-y-6">
                 <LeaveBalanceDisplay key={refreshTrigger} />
-                <Calendar userId={user?.id} />
+                <Calendar userId={user.id} />
               </div>
             )}
 

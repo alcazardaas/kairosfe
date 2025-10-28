@@ -82,5 +82,126 @@
     "errorGeneric": "Ocorreu um erro ao carregar os dados. Por favor, tente novamente.",
     "retry": "Tentar novamente",
     "loadingData": "A carregar dados..."
+  },
+  "employees": {
+    "title": "Funcionários",
+    "addEmployee": "Adicionar Funcionário",
+    "searchPlaceholder": "Procurar por nome ou e-mail...",
+    "filters": {
+      "all": "Todos",
+      "active": "Ativos",
+      "inactive": "Inativos",
+      "invited": "Convidados"
+    },
+    "table": {
+      "name": "Nome",
+      "email": "E-mail",
+      "role": "Função",
+      "status": "Estado",
+      "lastLogin": "Último Acesso",
+      "actions": "Ações",
+      "page": "Página {{current}} de {{total}}"
+    },
+    "noResults": "Nenhum funcionário encontrado",
+    "loading": "A carregar funcionários...",
+    "error": "Erro ao carregar funcionários. A mostrar dados de demonstração.",
+    "noProfile": "N/D",
+    "modals": {
+      "add": {
+        "title": "Adicionar Novo Funcionário",
+        "subtitle": "Convidar um novo membro para a equipa",
+        "sendInvite": "Enviar e-mail de convite",
+        "submit": "Adicionar Funcionário",
+        "cancel": "Cancelar"
+      },
+      "edit": {
+        "title": "Editar Funcionário",
+        "subtitle": "Atualizar informação do funcionário",
+        "submit": "Guardar Alterações",
+        "cancel": "Cancelar"
+      },
+      "delete": {
+        "title": "Desativar Funcionário",
+        "message": "Tem a certeza que deseja desativar {{name}}?",
+        "warning": "Perderão acesso imediatamente.",
+        "confirm": "Desativar",
+        "cancel": "Cancelar"
+      }
+    },
+    "fields": {
+      "email": "E-mail",
+      "emailPlaceholder": "funcionario@exemplo.com",
+      "name": "Nome Completo",
+      "namePlaceholder": "João Silva",
+      "role": "Função",
+      "rolePlaceholder": "Selecionar função",
+      "jobTitle": "Cargo",
+      "jobTitlePlaceholder": "Engenheiro de Software",
+      "startDate": "Data de Início",
+      "manager": "Reporta a",
+      "managerPlaceholder": "Selecionar gestor",
+      "location": "Localização",
+      "locationPlaceholder": "Lisboa, Portugal",
+      "phone": "Telefone",
+      "phonePlaceholder": "+351-123-456-789"
+    },
+    "validation": {
+      "emailRequired": "O e-mail é obrigatório",
+      "emailInvalid": "Insira um e-mail válido",
+      "nameRequired": "O nome é obrigatório",
+      "nameMin": "O nome deve ter pelo menos 2 caracteres",
+      "roleRequired": "A função é obrigatória"
+    },
+    "success": {
+      "created": "Funcionário adicionado com sucesso",
+      "createdInvite": "Funcionário adicionado e convite enviado para {{email}}",
+      "updated": "Funcionário atualizado com sucesso",
+      "deleted": "Funcionário desativado com sucesso"
+    },
+    "errors": {
+      "createFailed": "Erro ao criar funcionário",
+      "updateFailed": "Erro ao atualizar funcionário",
+      "deleteFailed": "Erro ao desativar funcionário",
+      "emailExists": "Este e-mail já existe",
+      "ownRoleChange": "Não pode alterar a sua própria função",
+      "invalidHierarchy": "Hierarquia de gestor inválida",
+      "notFound": "Funcionário não encontrado"
+    }
+  },
+  "timesheet": {
+    "title": "Registo de Horas",
+    "description": "Registe o seu tempo e faça a gestão das suas horas semanais",
+    "previousWeek": "Semana Anterior",
+    "nextWeek": "Próxima Semana",
+    "weekTotal": "Total Semanal",
+    "confirmDelete": "Eliminar este registo de horas?",
+    "addEntry": "Adicionar Registo",
+    "editEntry": "Editar Registo",
+    "day": "Dia",
+    "monday": "Segunda-feira",
+    "tuesday": "Terça-feira",
+    "wednesday": "Quarta-feira",
+    "thursday": "Quinta-feira",
+    "friday": "Sexta-feira",
+    "saturday": "Sábado",
+    "sunday": "Domingo",
+    "project": "Projeto",
+    "task": "Tarefa",
+    "hours": "Horas",
+    "hoursHelp": "Introduza as horas em formato decimal (ex: 8,5 para 8 horas e 30 minutos)",
+    "note": "Nota",
+    "notePlaceholder": "Adicionar notas sobre este registo...",
+    "selectProjectFirst": "Selecione um projeto para escolher uma tarefa",
+    "searchProject": "Pesquisar projeto...",
+    "searchTask": "Pesquisar tarefa...",
+    "noEntries": "Não há registos para esta semana. Clique em 'Adicionar Registo' para começar.",
+    "noEntriesForDay": "Sem registos",
+    "entryCreated": "Registo criado com sucesso",
+    "entryUpdated": "Registo atualizado com sucesso",
+    "entryDeleted": "Registo eliminado com sucesso",
+    "duplicateEntry": "Já existe um registo para este projeto/tarefa neste dia. Por favor edite o registo existente.",
+    "errorLoadingEntries": "Erro ao carregar registos. Por favor tente novamente.",
+    "errorSavingEntry": "Erro ao guardar registo. Por favor tente novamente.",
+    "errorDeletingEntry": "Erro ao eliminar registo. Por favor tente novamente."
   }
 }

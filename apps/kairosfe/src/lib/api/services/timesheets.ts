@@ -1,5 +1,5 @@
 import { apiClient } from '../client';
-import type { Timesheet, TimeEntry, WeeklyStats, Project, Task } from '@kairos/shared';
+import type { Timesheet, TimeEntry, WeeklyStats, ProjectStats, Project, Task } from '@kairos/shared';
 
 export interface CreateTimesheetRequest {
   weekStart: string; // ISO date string (Monday)
@@ -26,11 +26,13 @@ export async function getTimesheets(params: {
   userId?: string;
   weekStart?: string;
   status?: string;
+  team?: boolean;
 }): Promise<Timesheet[]> {
   const queryParams = new URLSearchParams();
   if (params.userId) queryParams.append('user_id', params.userId);
   if (params.weekStart) queryParams.append('week_start', params.weekStart);
   if (params.status) queryParams.append('status', params.status);
+  if (params.team !== undefined) queryParams.append('team', params.team.toString());
 
   const query = queryParams.toString();
   return apiClient.get<Timesheet[]>(`/timesheets${query ? `?${query}` : ''}`, true);

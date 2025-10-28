@@ -17,5 +17,13 @@ export default defineConfig({
     ssr: {
       noExternal: ['@kairos/ui', '@kairos/shared'],
     },
+    server: {
+      host: true, // or '0.0.0.0'
+      allowedHosts: [
+        '689cf700be2b.ngrok-free.app', // exact host from the error
+        // You can keep a regex too if your Vite supports it:
+        // /.*\.ngrok-free\.app$/
+      ],
+    },
   },
 });

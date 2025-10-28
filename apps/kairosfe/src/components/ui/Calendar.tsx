@@ -14,6 +14,7 @@ export default function Calendar({ userId = 'me', onDateClick }: CalendarProps) 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -25,6 +26,7 @@ export default function Calendar({ userId = 'me', onDateClick }: CalendarProps) 
   const loadCalendarData = async () => {
     try {
       setLoading(true);
+      setError(null);
 
       // Get first and last day of the month
       const firstDay = new Date(year, month, 1);
@@ -37,9 +39,11 @@ export default function Calendar({ userId = 'me', onDateClick }: CalendarProps) 
         include: ['holidays', 'leave'],
       });
 
-      setEvents(data.events);
+      setEvents(data?.events || []);
     } catch (error) {
       console.error('Failed to load calendar data:', error);
+      setError('Failed to load calendar');
+      setEvents([]);
     } finally {
       setLoading(false);
     }
@@ -125,7 +129,7 @@ export default function Calendar({ userId = 'me', onDateClick }: CalendarProps) 
             onClick={goToToday}
             className="px-3 py-1 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors"
           >
-            {t('calendar.today')}
+            Today
           </button>
           <button
             onClick={goToNextMonth}
@@ -138,6 +142,13 @@ export default function Calendar({ userId = 'me', onDateClick }: CalendarProps) 
           </button>
         </div>
       </div>
+
+      {/* Error State */}
+      {error && !loading && (
+        <div className="text-center py-4">
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        </div>
+      )}
 
       {/* Loading indicator */}
       {loading && (

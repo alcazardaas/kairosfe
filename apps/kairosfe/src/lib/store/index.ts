@@ -100,14 +100,73 @@ export const useAuthStore = create<AuthState>()(
         try {
           // Import dynamically to avoid circular dependencies
           const { apiClient } = await import('../api/client');
-          const user = await apiClient.get<User>('/me', true);
+
+          // Call /auth/me to get full user context
+          const response = await apiClient.get<any>('/auth/me', true);
+          const { data } = response;
+
+          // Build full user object from the /auth/me response
+          const fullUser: User = {
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.name,
+            role: data.membership.role,
+            permissions: [], // Will be populated based on role
+            policy: data.timesheetPolicy ? {
+              maxHoursPerDay: 24,
+              maxHoursPerWeek: data.timesheetPolicy.hoursPerWeek,
+              canApproveTimesheets: data.membership.role === 'manager' || data.membership.role === 'admin',
+              canApproveLeaveRequests: data.membership.role === 'manager' || data.membership.role === 'admin',
+            } : undefined,
+          };
+
+          // Set permissions based on role
+          if (data.membership.role === 'admin') {
+            fullUser.permissions = [
+              'view_dashboard' as const,
+              'view_profile' as const,
+              'edit_profile' as const,
+              'view_team' as const,
+              'manage_team' as const,
+              'view_leave_requests' as const,
+              'create_leave_request' as const,
+              'approve_leave_requests' as const,
+              'view_timesheets' as const,
+              'create_timesheet' as const,
+              'approve_timesheets' as const,
+            ];
+          } else if (data.membership.role === 'manager') {
+            fullUser.permissions = [
+              'view_dashboard' as const,
+              'view_profile' as const,
+              'edit_profile' as const,
+              'view_team' as const,
+              'manage_team' as const,
+              'view_leave_requests' as const,
+              'create_leave_request' as const,
+              'approve_leave_requests' as const,
+              'view_timesheets' as const,
+              'create_timesheet' as const,
+              'approve_timesheets' as const,
+            ];
+          } else {
+            fullUser.permissions = [
+              'view_dashboard' as const,
+              'view_profile' as const,
+              'edit_profile' as const,
+              'view_leave_requests' as const,
+              'create_leave_request' as const,
+              'view_timesheets' as const,
+              'create_timesheet' as const,
+            ];
+          }
 
           set({
-            user,
+            user: fullUser,
             isAuthenticated: true,
-            role: user.role,
-            permissions: user.permissions || [],
-            policy: user.policy || null,
+            role: fullUser.role,
+            permissions: fullUser.permissions,
+            policy: fullUser.policy,
             isHydrating: false,
           });
         } catch (error) {

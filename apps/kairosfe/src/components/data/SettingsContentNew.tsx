@@ -104,16 +104,6 @@ export default function SettingsContentNew() {
                   <p className="text-sm font-bold leading-normal tracking-[0.015em]">Organization</p>
                 </button>
                 <button
-                  onClick={() => setActiveTab('working-hours')}
-                  className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-4 ${
-                    activeTab === 'working-hours'
-                      ? 'border-b-primary text-primary'
-                      : 'border-b-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                >
-                  <p className="text-sm font-bold leading-normal tracking-[0.015em]">Working Hours</p>
-                </button>
-                <button
                   onClick={() => setActiveTab('notifications')}
                   className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-4 ${
                     activeTab === 'notifications'

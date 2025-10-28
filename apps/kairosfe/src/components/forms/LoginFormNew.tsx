@@ -7,7 +7,8 @@ export default function LoginFormNew() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const login = useAuthStore((state) => state.login);
+  const setTokens = useAuthStore((state) => state.setTokens);
+  const hydrate = useAuthStore((state) => state.hydrate);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -21,16 +22,14 @@ export default function LoginFormNew() {
     try {
       const response = await apiClient.login(email, password);
 
-      // Save auth data to store
-      login(response.user, response.token, response.refreshToken);
+      // The API returns { data: { token, refreshToken, user, tenant, ... } }
+      const data = (response as any).data;
 
-      // Sync to cookies for middleware
-      document.cookie = `kairos-auth=${JSON.stringify({
-        state: {
-          token: response.token,
-          user: response.user,
-        }
-      })}; path=/; max-age=${response.expiresIn || 3600}`;
+      // Save tokens first
+      setTokens(data.token, data.refreshToken);
+
+      // Then call hydrate to get full user data from /auth/me
+      await hydrate();
 
       // Redirect to dashboard
       window.location.href = '/dashboard';

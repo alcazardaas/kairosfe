@@ -3,14 +3,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
-import type { LeaveType } from '@kairos/shared';
 import { calculateBusinessDays } from '@/lib/api/services/leave-requests';
 import { checkDateOverlap, type OverlapCheck } from '@/lib/api/services/calendar';
 import { useAuthStore } from '@/lib/store';
+import { findAllBenefitTypes } from '@/lib/api/endpoints/benefit-types';
+import type { BenefitTypeDto } from '@/lib/api/schemas/benefits';
 import '@/lib/i18n';
 
 const leaveRequestSchema = z.object({
-  type: z.enum(['vacation', 'sick', 'personal', 'bereavement', 'parental', 'other']),
+  benefitTypeId: z.string().uuid('Please select a leave type'),
   startDate: z.string().min(1, 'Start date is required'),
   endDate: z.string().min(1, 'End date is required'),
   reason: z.string().optional(),
@@ -42,6 +43,9 @@ export default function LeaveRequestForm({
   const user = useAuthStore((state) => state.user);
   const [overlapCheck, setOverlapCheck] = useState<OverlapCheck | null>(null);
   const [checkingOverlap, setCheckingOverlap] = useState(false);
+  const [benefitTypes, setBenefitTypes] = useState<BenefitTypeDto[]>([]);
+  const [loadingBenefitTypes, setLoadingBenefitTypes] = useState(true);
+  const [benefitTypesError, setBenefitTypesError] = useState<string | null>(null);
 
   const {
     register,
@@ -51,7 +55,7 @@ export default function LeaveRequestForm({
   } = useForm<LeaveRequestFormData>({
     resolver: zodResolver(leaveRequestSchema),
     defaultValues: initialData || {
-      type: 'vacation',
+      benefitTypeId: '',
       startDate: '',
       endDate: '',
       reason: '',
@@ -66,69 +70,104 @@ export default function LeaveRequestForm({
       ? calculateBusinessDays(startDate, endDate)
       : 0;
 
-  // Check for overlaps when dates change
+  // Fetch benefit types on mount
   useEffect(() => {
-    if (startDate && endDate && new Date(endDate) >= new Date(startDate)) {
-      checkOverlaps();
-    } else {
-      setOverlapCheck(null);
-    }
-  }, [startDate, endDate]);
+    loadBenefitTypes();
+  }, []);
 
-  const checkOverlaps = async () => {
+  const loadBenefitTypes = async () => {
     try {
-      setCheckingOverlap(true);
-      const result = await checkDateOverlap(startDate, endDate, user?.id);
-      setOverlapCheck(result);
-
-      // Track event if there's an overlap
-      if (result.hasOverlap && typeof window !== 'undefined' && (window as any).posthog) {
-        (window as any).posthog.capture('pto_overlap_warned', {
-          userId: user?.id,
-          holidaysCount: result.holidays.length,
-          leavesCount: result.leaves.length,
-        });
-      }
+      setLoadingBenefitTypes(true);
+      setBenefitTypesError(null);
+      const response = await findAllBenefitTypes();
+      setBenefitTypes(response.data || []);
     } catch (error) {
-      console.error('Failed to check date overlap:', error);
+      console.error('Failed to load benefit types:', error);
+      setBenefitTypesError('Failed to load leave types');
     } finally {
-      setCheckingOverlap(false);
+      setLoadingBenefitTypes(false);
     }
   };
 
-  const leaveTypes: { value: LeaveType; labelKey: string }[] = [
-    { value: 'vacation', labelKey: 'leaveRequest.types.vacation' },
-    { value: 'sick', labelKey: 'leaveRequest.types.sick' },
-    { value: 'personal', labelKey: 'leaveRequest.types.personal' },
-    { value: 'bereavement', labelKey: 'leaveRequest.types.bereavement' },
-    { value: 'parental', labelKey: 'leaveRequest.types.parental' },
-    { value: 'other', labelKey: 'leaveRequest.types.other' },
-  ];
+  // Check for overlaps when dates change
+  // DISABLED: Backend doesn't support /calendar/check-overlap endpoint yet
+  useEffect(() => {
+    // TODO: Re-enable when backend implements check-overlap endpoint
+    // if (startDate && endDate && new Date(endDate) >= new Date(startDate)) {
+    //   checkOverlaps();
+    // } else {
+    //   setOverlapCheck(null);
+    // }
+  }, [startDate, endDate]);
+
+  const checkOverlaps = async () => {
+    // DISABLED: Backend endpoint not available
+    // try {
+    //   setCheckingOverlap(true);
+    //   const result = await checkDateOverlap(startDate, endDate, user?.id);
+    //   setOverlapCheck(result);
+    //
+    //   // Track event if there's an overlap
+    //   if (result.hasOverlap && typeof window !== 'undefined' && (window as any).posthog) {
+    //     (window as any).posthog.capture('pto_overlap_warned', {
+    //       userId: user?.id,
+    //       holidaysCount: result.holidays.length,
+    //       leavesCount: result.leaves.length,
+    //     });
+    //   }
+    // } catch (error) {
+    //   console.error('Failed to check date overlap:', error);
+    // } finally {
+    //   setCheckingOverlap(false);
+    // }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Leave Type */}
       <div>
         <label
-          htmlFor="type"
+          htmlFor="benefitTypeId"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
           {t('leaveRequest.leaveType')}
         </label>
-        <select
-          id="type"
-          {...register('type')}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
-        >
-          {leaveTypes.map((type) => (
-            <option key={type.value} value={type.value}>
-              {t(type.labelKey)}
-            </option>
-          ))}
-        </select>
-        {errors.type && (
+
+        {loadingBenefitTypes ? (
+          <div className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+            {t('common.loading')}...
+          </div>
+        ) : benefitTypesError ? (
+          <div className="space-y-2">
+            <div className="w-full px-3 py-2 border border-red-300 dark:border-red-600 rounded-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400">
+              {benefitTypesError}
+            </div>
+            <button
+              type="button"
+              onClick={loadBenefitTypes}
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              {t('common.retry')}
+            </button>
+          </div>
+        ) : (
+          <select
+            id="benefitTypeId"
+            {...register('benefitTypeId')}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select a leave type...</option>
+            {benefitTypes.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {errors.benefitTypeId && (
           <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-            {errors.type.message}
+            {errors.benefitTypeId.message}
           </p>
         )}
       </div>

@@ -37,7 +37,7 @@ export default function AsyncCombobox({
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
   const [cache, setCache] = useState<Map<string, Option[]>>(new Map());
 
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -99,7 +99,9 @@ export default function AsyncCombobox({
         // Keep only last 10 searches in cache
         if (newCache.size > 10) {
           const firstKey = newCache.keys().next().value;
-          newCache.delete(firstKey);
+          if (firstKey !== undefined) {
+            newCache.delete(firstKey);
+          }
         }
         return newCache;
       });

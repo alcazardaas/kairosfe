@@ -82,5 +82,126 @@
     "errorGeneric": "Beim Laden der Daten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
     "retry": "Erneut versuchen",
     "loadingData": "Daten werden geladen..."
+  },
+  "employees": {
+    "title": "Mitarbeiter",
+    "addEmployee": "Mitarbeiter hinzufügen",
+    "searchPlaceholder": "Nach Name oder E-Mail suchen...",
+    "filters": {
+      "all": "Alle",
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "invited": "Eingeladen"
+    },
+    "table": {
+      "name": "Name",
+      "email": "E-Mail",
+      "role": "Rolle",
+      "status": "Status",
+      "lastLogin": "Letzter Login",
+      "actions": "Aktionen",
+      "page": "Seite {{current}} von {{total}}"
+    },
+    "noResults": "Keine Mitarbeiter gefunden",
+    "loading": "Mitarbeiter werden geladen...",
+    "error": "Fehler beim Laden der Mitarbeiter. Zeige Demodaten.",
+    "noProfile": "N/V",
+    "modals": {
+      "add": {
+        "title": "Neuen Mitarbeiter hinzufügen",
+        "subtitle": "Neues Teammitglied zur Organisation einladen",
+        "sendInvite": "Einladungs-E-Mail senden",
+        "submit": "Mitarbeiter hinzufügen",
+        "cancel": "Abbrechen"
+      },
+      "edit": {
+        "title": "Mitarbeiter bearbeiten",
+        "subtitle": "Mitarbeiterinformationen aktualisieren",
+        "submit": "Änderungen speichern",
+        "cancel": "Abbrechen"
+      },
+      "delete": {
+        "title": "Mitarbeiter deaktivieren",
+        "message": "Sind Sie sicher, dass Sie {{name}} deaktivieren möchten?",
+        "warning": "Der Zugriff wird sofort entzogen.",
+        "confirm": "Deaktivieren",
+        "cancel": "Abbrechen"
+      }
+    },
+    "fields": {
+      "email": "E-Mail-Adresse",
+      "emailPlaceholder": "mitarbeiter@beispiel.com",
+      "name": "Vollständiger Name",
+      "namePlaceholder": "Max Mustermann",
+      "role": "Rolle",
+      "rolePlaceholder": "Rolle auswählen",
+      "jobTitle": "Berufsbezeichnung",
+      "jobTitlePlaceholder": "Software-Ingenieur",
+      "startDate": "Startdatum",
+      "manager": "Berichtet an",
+      "managerPlaceholder": "Vorgesetzten auswählen",
+      "location": "Standort",
+      "locationPlaceholder": "Berlin, Deutschland",
+      "phone": "Telefonnummer",
+      "phonePlaceholder": "+49-123-456-789"
+    },
+    "validation": {
+      "emailRequired": "E-Mail ist erforderlich",
+      "emailInvalid": "Bitte geben Sie eine gültige E-Mail ein",
+      "nameRequired": "Name ist erforderlich",
+      "nameMin": "Name muss mindestens 2 Zeichen lang sein",
+      "roleRequired": "Rolle ist erforderlich"
+    },
+    "success": {
+      "created": "Mitarbeiter erfolgreich hinzugefügt",
+      "createdInvite": "Mitarbeiter hinzugefügt und Einladung an {{email}} gesendet",
+      "updated": "Mitarbeiter erfolgreich aktualisiert",
+      "deleted": "Mitarbeiter erfolgreich deaktiviert"
+    },
+    "errors": {
+      "createFailed": "Fehler beim Erstellen des Mitarbeiters",
+      "updateFailed": "Fehler beim Aktualisieren des Mitarbeiters",
+      "deleteFailed": "Fehler beim Deaktivieren des Mitarbeiters",
+      "emailExists": "Diese E-Mail existiert bereits",
+      "ownRoleChange": "Sie können Ihre eigene Rolle nicht ändern",
+      "invalidHierarchy": "Ungültige Vorgesetztenhierarchie",
+      "notFound": "Mitarbeiter nicht gefunden"
+    }
+  },
+  "timesheet": {
+    "title": "Zeiterfassung",
+    "description": "Erfassen Sie Ihre Zeit und verwalten Sie Ihre Wochenstunden",
+    "previousWeek": "Vorherige Woche",
+    "nextWeek": "Nächste Woche",
+    "weekTotal": "Wochentotal",
+    "confirmDelete": "Diesen Zeiteintrag löschen?",
+    "addEntry": "Eintrag hinzufügen",
+    "editEntry": "Eintrag bearbeiten",
+    "day": "Tag",
+    "monday": "Montag",
+    "tuesday": "Dienstag",
+    "wednesday": "Mittwoch",
+    "thursday": "Donnerstag",
+    "friday": "Freitag",
+    "saturday": "Samstag",
+    "sunday": "Sonntag",
+    "project": "Projekt",
+    "task": "Aufgabe",
+    "hours": "Stunden",
+    "hoursHelp": "Geben Sie die Stunden im Dezimalformat ein (z.B. 8,5 für 8 Stunden und 30 Minuten)",
+    "note": "Notiz",
+    "notePlaceholder": "Notizen zu diesem Eintrag hinzufügen...",
+    "selectProjectFirst": "Wählen Sie ein Projekt, um eine Aufgabe auszuwählen",
+    "searchProject": "Projekt suchen...",
+    "searchTask": "Aufgabe suchen...",
+    "noEntries": "Keine Einträge für diese Woche. Klicken Sie auf 'Eintrag hinzufügen', um zu beginnen.",
+    "noEntriesForDay": "Keine Einträge",
+    "entryCreated": "Eintrag erfolgreich erstellt",
+    "entryUpdated": "Eintrag erfolgreich aktualisiert",
+    "entryDeleted": "Eintrag erfolgreich gelöscht",
+    "duplicateEntry": "Ein Eintrag für dieses Projekt/diese Aufgabe existiert bereits an diesem Tag. Bitte bearbeiten Sie den vorhandenen Eintrag.",
+    "errorLoadingEntries": "Fehler beim Laden der Einträge. Bitte versuchen Sie es erneut.",
+    "errorSavingEntry": "Fehler beim Speichern des Eintrags. Bitte versuchen Sie es erneut.",
+    "errorDeletingEntry": "Fehler beim Löschen des Eintrags. Bitte versuchen Sie es erneut."
   }
 }

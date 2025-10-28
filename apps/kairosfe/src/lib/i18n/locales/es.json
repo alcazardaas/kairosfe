@@ -82,5 +82,126 @@
     "errorGeneric": "Ocurrió un error al cargar los datos. Por favor, inténtelo de nuevo.",
     "retry": "Reintentar",
     "loadingData": "Cargando datos..."
+  },
+  "employees": {
+    "title": "Empleados",
+    "addEmployee": "Agregar Empleado",
+    "searchPlaceholder": "Buscar por nombre o correo...",
+    "filters": {
+      "all": "Todos",
+      "active": "Activos",
+      "inactive": "Inactivos",
+      "invited": "Invitados"
+    },
+    "table": {
+      "name": "Nombre",
+      "email": "Correo",
+      "role": "Rol",
+      "status": "Estado",
+      "lastLogin": "Último Acceso",
+      "actions": "Acciones",
+      "page": "Página {{current}} de {{total}}"
+    },
+    "noResults": "No se encontraron empleados",
+    "loading": "Cargando empleados...",
+    "error": "Error al cargar empleados. Mostrando datos de demostración.",
+    "noProfile": "N/A",
+    "modals": {
+      "add": {
+        "title": "Agregar Nuevo Empleado",
+        "subtitle": "Invitar un nuevo miembro al equipo",
+        "sendInvite": "Enviar correo de invitación",
+        "submit": "Agregar Empleado",
+        "cancel": "Cancelar"
+      },
+      "edit": {
+        "title": "Editar Empleado",
+        "subtitle": "Actualizar información del empleado",
+        "submit": "Guardar Cambios",
+        "cancel": "Cancelar"
+      },
+      "delete": {
+        "title": "Desactivar Empleado",
+        "message": "¿Está seguro de que desea desactivar a {{name}}?",
+        "warning": "Perderán acceso inmediatamente.",
+        "confirm": "Desactivar",
+        "cancel": "Cancelar"
+      }
+    },
+    "fields": {
+      "email": "Correo Electrónico",
+      "emailPlaceholder": "empleado@ejemplo.com",
+      "name": "Nombre Completo",
+      "namePlaceholder": "Juan Pérez",
+      "role": "Rol",
+      "rolePlaceholder": "Seleccionar rol",
+      "jobTitle": "Puesto",
+      "jobTitlePlaceholder": "Ingeniero de Software",
+      "startDate": "Fecha de Inicio",
+      "manager": "Reporta a",
+      "managerPlaceholder": "Seleccionar gerente",
+      "location": "Ubicación",
+      "locationPlaceholder": "Madrid, España",
+      "phone": "Teléfono",
+      "phonePlaceholder": "+34-123-456-789"
+    },
+    "validation": {
+      "emailRequired": "El correo es obligatorio",
+      "emailInvalid": "Ingrese un correo válido",
+      "nameRequired": "El nombre es obligatorio",
+      "nameMin": "El nombre debe tener al menos 2 caracteres",
+      "roleRequired": "El rol es obligatorio"
+    },
+    "success": {
+      "created": "Empleado agregado exitosamente",
+      "createdInvite": "Empleado agregado e invitación enviada a {{email}}",
+      "updated": "Empleado actualizado exitosamente",
+      "deleted": "Empleado desactivado exitosamente"
+    },
+    "errors": {
+      "createFailed": "Error al crear empleado",
+      "updateFailed": "Error al actualizar empleado",
+      "deleteFailed": "Error al desactivar empleado",
+      "emailExists": "Este correo ya existe",
+      "ownRoleChange": "No puede cambiar su propio rol",
+      "invalidHierarchy": "Jerarquía de gerente inválida",
+      "notFound": "Empleado no encontrado"
+    }
+  },
+  "timesheet": {
+    "title": "Registro de Horas",
+    "description": "Registra tu tiempo y gestiona tus horas semanales",
+    "previousWeek": "Semana Anterior",
+    "nextWeek": "Semana Siguiente",
+    "weekTotal": "Total Semanal",
+    "confirmDelete": "¿Eliminar este registro de tiempo?",
+    "addEntry": "Agregar Registro",
+    "editEntry": "Editar Registro",
+    "day": "Día",
+    "monday": "Lunes",
+    "tuesday": "Martes",
+    "wednesday": "Miércoles",
+    "thursday": "Jueves",
+    "friday": "Viernes",
+    "saturday": "Sábado",
+    "sunday": "Domingo",
+    "project": "Proyecto",
+    "task": "Tarea",
+    "hours": "Horas",
+    "hoursHelp": "Ingrese las horas en formato decimal (ej., 8.5 para 8 horas y 30 minutos)",
+    "note": "Nota",
+    "notePlaceholder": "Agregar notas sobre este registro...",
+    "selectProjectFirst": "Seleccione un proyecto para elegir una tarea",
+    "searchProject": "Buscar proyecto...",
+    "searchTask": "Buscar tarea...",
+    "noEntries": "No hay registros para esta semana. Haz clic en 'Agregar Registro' para comenzar.",
+    "noEntriesForDay": "Sin registros",
+    "entryCreated": "Registro creado exitosamente",
+    "entryUpdated": "Registro actualizado exitosamente",
+    "entryDeleted": "Registro eliminado exitosamente",
+    "duplicateEntry": "Ya existe un registro para este proyecto/tarea en este día. Por favor edite el registro existente.",
+    "errorLoadingEntries": "Error al cargar registros. Por favor intente de nuevo.",
+    "errorSavingEntry": "Error al guardar registro. Por favor intente de nuevo.",
+    "errorDeletingEntry": "Error al eliminar registro. Por favor intente de nuevo."
   }
 }

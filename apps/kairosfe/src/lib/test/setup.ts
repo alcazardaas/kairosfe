@@ -8,6 +8,6 @@ afterEach(() => {
 });
 
 // Mock environment variables
-vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:3000');
+vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:3000/api/v1');
 vi.stubEnv('VITE_DEFAULT_LOCALE', 'en');
 vi.stubEnv('VITE_SUPPORTED_LOCALES', 'en,es,pt-PT,de');
