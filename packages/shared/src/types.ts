@@ -153,11 +153,13 @@ export interface Task {
   isActive: boolean;
 }
 
+// Dashboard API Types (matching backend response)
 export interface WeeklyStats {
-  weekStart: string;
-  weekEnd: string;
+  userId: string;
+  weekStartDate: string; // YYYY-MM-DD
+  weekEndDate: string; // YYYY-MM-DD
   totalHours: number;
-  hoursPerDay: Record<string, number>; // date -> hours
+  hoursPerDay: Record<string, number>; // { "2025-01-27": 8.5, ... }
   entriesCount: number;
 }
 
@@ -165,16 +167,50 @@ export interface ProjectStats {
   projectId: string;
   projectName: string;
   totalHours: number;
-  percentage: number;
+  percentage: number; // Rounded to 2 decimals
 }
 
-// Calendar Types
+export interface UserProjectStats {
+  userId: string;
+  totalHours: number;
+  projects: ProjectStats[]; // Sorted by totalHours descending
+}
+
+// Calendar Types (matching backend response - snake_case)
+export type HolidayType = 'public' | 'company' | 'regional';
+
 export interface Holiday {
   id: string;
+  tenant_id: string | null;
+  country_code: string; // 2-letter ISO code
   name: string;
   date: string; // YYYY-MM-DD
-  type: 'public' | 'company' | 'regional';
-  isRecurring: boolean;
+  type: HolidayType;
+  is_recurring: boolean;
+  description?: string | null;
+}
+
+export interface HolidaysResponse {
+  data: Holiday[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+}
+
+export interface HolidaysParams {
+  page?: number;
+  limit?: number;
+  sort?: string; // format: "field:asc|desc"
+  tenant_id?: string;
+  country_code?: string;
+  type?: HolidayType;
+  startDate?: string; // YYYY-MM-DD
+  endDate?: string; // YYYY-MM-DD
+  upcoming?: boolean;
+  year?: number;
+  search?: string;
 }
 
 export interface CalendarEvent {

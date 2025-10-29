@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Header from '@/components/layout/Header';
-import DashboardContent2 from '@/components/data/DashboardContent2';
+import DashboardContent from '@/components/data/DashboardContent';
 
 export const prerender = false;
 ---
@@ -10,7 +10,7 @@ export const prerender = false;
   <div class="relative flex min-h-screen w-full flex-col">
     <div class="layout-container flex h-full grow flex-col">
       <Header client:load />
-      <DashboardContent2 client:load />
+      <DashboardContent client:load />
     </div>
   </div>
 </BaseLayout>

@@ -1,5 +1,5 @@
 import { apiClient } from '../client';
-import type { CalendarData, CalendarParams, Holiday } from '@kairos/shared';
+import type { CalendarData, CalendarParams, Holiday, HolidaysResponse, HolidaysParams } from '@kairos/shared';
 
 /**
  * Get calendar data (holidays and leaves) for a date range
@@ -30,10 +30,29 @@ export async function getCalendarData(params: CalendarParams): Promise<CalendarD
 }
 
 /**
- * Get public holidays for a specific year
+ * Get holidays with advanced filtering and pagination
+ * @param params - Optional query parameters for filtering holidays
+ * @returns Paginated holidays response with metadata
  */
-export async function getHolidays(year: number): Promise<Holiday[]> {
-  return apiClient.get<Holiday[]>(`/holidays?year=${year}`, true);
+export async function getHolidays(params?: HolidaysParams): Promise<HolidaysResponse> {
+  const queryParams = new URLSearchParams();
+
+  if (params?.page) queryParams.append('page', params.page.toString());
+  if (params?.limit) queryParams.append('limit', params.limit.toString());
+  if (params?.sort) queryParams.append('sort', params.sort);
+  if (params?.tenant_id) queryParams.append('tenant_id', params.tenant_id);
+  if (params?.country_code) queryParams.append('country_code', params.country_code);
+  if (params?.type) queryParams.append('type', params.type);
+  if (params?.startDate) queryParams.append('startDate', params.startDate);
+  if (params?.endDate) queryParams.append('endDate', params.endDate);
+  if (params?.upcoming !== undefined) queryParams.append('upcoming', params.upcoming.toString());
+  if (params?.year) queryParams.append('year', params.year.toString());
+  if (params?.search) queryParams.append('search', params.search);
+
+  const queryString = queryParams.toString();
+  const endpoint = `/holidays${queryString ? `?${queryString}` : ''}`;
+
+  return apiClient.get<HolidaysResponse>(endpoint, true);
 }
 
 /**
