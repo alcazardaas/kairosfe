@@ -2,13 +2,24 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '@/lib/store';
 import { apiClient } from '@/lib/api/client';
 import { useTranslation } from 'react-i18next';
+import { menuItems } from '@/app.config';
 import '@/lib/i18n';
 
 export default function Header() {
   const { t } = useTranslation();
   const user = useAuthStore((state) => state.user);
+  const role = useAuthStore((state) => state.role);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Filter menu items based on user role
+  const filteredMenuItems = menuItems.filter((item) => {
+    if (!role) return false;
+    return item.roles.includes(role);
+  });
+
+  // Get current pathname for active state
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -54,10 +65,22 @@ export default function Header() {
           <h2 className="text-xl font-bold tracking-tight">Kairos</h2>
         </div>
         <nav className="hidden md:flex items-center gap-6 ml-6">
-          <a className="text-sm font-medium text-primary" href="/dashboard">Dashboard</a>
-          <a className="text-sm font-medium hover:text-primary dark:text-gray-300" href="/team-management">Employees</a>
-          <a className="text-sm font-medium hover:text-primary dark:text-gray-300" href="/leave-requests">Reports</a>
-          <a className="text-sm font-medium hover:text-primary dark:text-gray-300" href="/settings">Settings</a>
+          {filteredMenuItems.map((item) => {
+            const isActive = currentPath === item.path || currentPath.startsWith(`${item.path}/`);
+            return (
+              <a
+                key={item.path}
+                className={`text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'text-primary'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary'
+                }`}
+                href={item.path}
+              >
+                {t(item.labelKey)}
+              </a>
+            );
+          })}
         </nav>
       </div>
 

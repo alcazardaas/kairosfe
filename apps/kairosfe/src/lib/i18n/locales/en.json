@@ -201,7 +201,112 @@
     "duplicateEntry": "An entry already exists for this project/task on this day. Please edit the existing entry instead.",
     "errorLoadingEntries": "Failed to load time entries. Please try again.",
     "errorSavingEntry": "Failed to save time entry. Please try again.",
-    "errorDeletingEntry": "Failed to delete time entry. Please try again."
+    "errorDeletingEntry": "Failed to delete time entry. Please try again.",
+    "tabs": {
+      "myWeek": "My Week",
+      "history": "History",
+      "reports": "Reports"
+    },
+    "status": {
+      "draft": "Draft",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "form": {
+      "project": "Project",
+      "projectPlaceholder": "Search for a project...",
+      "task": "Task (Optional)",
+      "taskPlaceholder": "Search for a task...",
+      "hours": "Hours per day",
+      "note": "Note (Optional)",
+      "notePlaceholder": "Add any notes..."
+    },
+    "bulkFill": {
+      "title": "Fill Week",
+      "subtitle": "Apply the same entry to multiple days",
+      "button": "Fill Week",
+      "selectDays": "Select days",
+      "days": "days",
+      "summary": "Summary",
+      "apply": "Apply to Week",
+      "success": "Successfully added {{count}} time entries",
+      "error": "Failed to fill week. Please try again."
+    },
+    "copyWeek": {
+      "button": "Copy Previous Week",
+      "confirm": "Copy all time entries from the previous week?",
+      "success": "Successfully copied {{count}} time entries",
+      "error": "Failed to copy week. Please try again."
+    },
+    "validation": {
+      "button": "Validate",
+      "success": "Timesheet is valid and ready to submit",
+      "failed": "Validation found {{errors}} error(s) and {{warnings}} warning(s)",
+      "error": "Failed to validate timesheet. Please try again.",
+      "issues": "Validation Issues"
+    },
+    "submit": {
+      "button": "Submit for Approval",
+      "confirm": "Submit this timesheet for approval? You won't be able to edit it after submission.",
+      "cannotSubmit": "Please fix all validation errors before submitting",
+      "success": "Timesheet submitted successfully",
+      "error": "Failed to submit timesheet. Please try again."
+    },
+    "recall": {
+      "button": "Recall",
+      "confirm": "Recall this timesheet back to draft status?",
+      "success": "Timesheet recalled successfully",
+      "error": "Failed to recall timesheet. Please try again."
+    },
+    "totals": {
+      "daily": "Daily Totals",
+      "weekly": "Weekly Total",
+      "target": "target"
+    },
+    "breakdown": {
+      "title": "Project Breakdown",
+      "subtitle": "Hours by project this week",
+      "empty": "No time entries yet for this week",
+      "total": "Total Hours",
+      "projectCount_one": "{{count}} project",
+      "projectCount_other": "{{count}} projects"
+    },
+    "history": {
+      "title": "Timesheet History",
+      "subtitle": "View and filter past timesheets",
+      "status": "Status",
+      "allStatuses": "All Statuses",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "resetFilters": "Reset Filters",
+      "showing": "Showing {{from}}-{{to}} of {{total}} timesheets",
+      "weekPeriod": "Week Period",
+      "totalHours": "Total Hours",
+      "submittedDate": "Submitted",
+      "reviewedDate": "Reviewed",
+      "noTimesheets": "No timesheets found",
+      "errorLoading": "Failed to load timesheets. Please try again."
+    },
+    "reports": {
+      "title": "Timesheet Reports",
+      "subtitle": "Analytics and insights for your time entries",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "refresh": "Refresh",
+      "exportCSV": "Export to CSV",
+      "totalHours": "Total Hours",
+      "avgWeekly": "Average Weekly",
+      "totalWeeks": "Total Weeks",
+      "projectBreakdown": "Project Breakdown",
+      "projectBreakdownSubtitle": "Time distribution across projects",
+      "noData": "No approved timesheets in selected period",
+      "errorLoading": "Failed to load report data. Please try again.",
+      "project": "Project",
+      "weeks": "Weeks",
+      "avgPerWeek": "Avg/Week",
+      "percentage": "Percentage"
+    }
   },
   "calendar": {
     "today": "Today",
@@ -217,12 +322,14 @@
     "loading": "Loading...",
     "saving": "Saving...",
     "submitting": "Submitting...",
+    "validating": "Validating...",
     "error": "Something went wrong",
     "save": "Save",
     "cancel": "Cancel",
     "close": "Close",
     "delete": "Delete",
     "edit": "Edit",
+    "view": "View",
     "back": "Back",
     "next": "Next",
     "previous": "Previous",
@@ -232,7 +339,9 @@
     "optional": "optional",
     "retry": "Retry",
     "noResults": "No results found",
-    "typeToSearch": "Type to search..."
+    "typeToSearch": "Type to search...",
+    "page": "Page",
+    "of": "of"
   },
   "dataState": {
     "noData": "No data available",

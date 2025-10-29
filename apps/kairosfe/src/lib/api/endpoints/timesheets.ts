@@ -7,10 +7,12 @@ import { apiClient } from '../client';
 import type {
   TimesheetListResponse,
   TimesheetResponse,
+  ValidationResult,
 } from '../schemas';
 import {
   TimesheetListResponseSchema,
   TimesheetResponseSchema,
+  ValidationResultSchema,
 } from '../schemas';
 
 interface TimesheetQueryParams {
@@ -130,6 +132,51 @@ export async function rejectTimesheet(id: string, data?: unknown): Promise<Times
     body: data ? JSON.stringify(data) : undefined,
     requiresAuth: true,
     operationId: 'TimesheetsController_reject',
+    schema: TimesheetResponseSchema,
+  });
+}
+
+/**
+ * TimesheetsController_validate
+ * POST /timesheets/{id}/validate
+ * Validate a timesheet before submission
+ * Epic 3, Story 3: Pre-submission validation
+ */
+export async function validateTimesheet(id: string): Promise<ValidationResult> {
+  return apiClient.request<ValidationResult>(`/timesheets/${id}/validate`, {
+    method: 'POST',
+    requiresAuth: true,
+    operationId: 'TimesheetsController_validate',
+    schema: ValidationResultSchema,
+  });
+}
+
+/**
+ * TimesheetsController_recall
+ * POST /timesheets/{id}/recall
+ * Recall a submitted timesheet back to draft status
+ * Epic 3, Story 5: Recall submitted timesheet
+ */
+export async function recallTimesheet(id: string): Promise<TimesheetResponse> {
+  return apiClient.request<TimesheetResponse>(`/timesheets/${id}/recall`, {
+    method: 'POST',
+    requiresAuth: true,
+    operationId: 'TimesheetsController_recall',
+    schema: TimesheetResponseSchema,
+  });
+}
+
+/**
+ * TimesheetsController_getCurrentTimesheet
+ * GET /timesheets/my-current
+ * Get or auto-create the current week's timesheet for the authenticated user
+ * Epic 1, Story 1: Simplified timesheet access
+ */
+export async function getCurrentTimesheet(): Promise<TimesheetResponse> {
+  return apiClient.request<TimesheetResponse>('/timesheets/my-current', {
+    method: 'GET',
+    requiresAuth: true,
+    operationId: 'TimesheetsController_getCurrentTimesheet',
     schema: TimesheetResponseSchema,
   });
 }

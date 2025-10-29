@@ -1,122 +1,133 @@
-import { apiClient } from '../client';
-import type { Timesheet, TimeEntry, WeeklyStats, ProjectStats, Project, Task } from '@kairos/shared';
+/**
+ * Timesheets Service
+ * Service layer for timesheet operations
+ */
 
-export interface CreateTimesheetRequest {
-  weekStart: string; // ISO date string (Monday)
-}
+import {
+  findAllTimesheets,
+  findTimesheetById,
+  createTimesheet as createTimesheetEndpoint,
+  submitTimesheet as submitTimesheetEndpoint,
+  approveTimesheet as approveTimesheetEndpoint,
+  rejectTimesheet as rejectTimesheetEndpoint,
+  validateTimesheet,
+  recallTimesheet,
+  getCurrentTimesheet,
+} from '../endpoints/timesheets';
+import type {
+  TimesheetListResponse,
+  TimesheetResponse,
+  TimesheetDto,
+  ValidationResult,
+} from '../schemas';
 
-export interface CreateTimeEntryRequest {
-  timesheetId: string;
-  projectId: string;
-  taskId: string;
-  date: string;
-  hours: number;
-  notes?: string;
-}
-
-export interface UpdateTimeEntryRequest {
-  projectId?: string;
-  taskId?: string;
-  hours?: number;
-  notes?: string;
-}
-
-// Timesheets
-export async function getTimesheets(params: {
+export interface GetTimesheetsParams {
   userId?: string;
   weekStart?: string;
   status?: string;
-  team?: boolean;
-}): Promise<Timesheet[]> {
-  const queryParams = new URLSearchParams();
-  if (params.userId) queryParams.append('user_id', params.userId);
-  if (params.weekStart) queryParams.append('week_start', params.weekStart);
-  if (params.status) queryParams.append('status', params.status);
-  if (params.team !== undefined) queryParams.append('team', params.team.toString());
-
-  const query = queryParams.toString();
-  return apiClient.get<Timesheet[]>(`/timesheets${query ? `?${query}` : ''}`, true);
-}
-
-export async function getTimesheet(id: string): Promise<Timesheet> {
-  return apiClient.get<Timesheet>(`/timesheets/${id}`, true);
-}
-
-export async function createTimesheet(data: CreateTimesheetRequest): Promise<Timesheet> {
-  return apiClient.post<Timesheet>('/timesheets', data, true);
-}
-
-export async function submitTimesheet(id: string): Promise<Timesheet> {
-  return apiClient.post<Timesheet>(`/timesheets/${id}/submit`, {}, true);
-}
-
-export async function approveTimesheet(id: string): Promise<Timesheet> {
-  return apiClient.post<Timesheet>(`/timesheets/${id}/approve`, {}, true);
-}
-
-export async function rejectTimesheet(id: string, reason: string): Promise<Timesheet> {
-  return apiClient.post<Timesheet>(`/timesheets/${id}/reject`, { reason }, true);
-}
-
-// Time Entries
-export async function getTimeEntries(params: {
-  timesheetId?: string;
-  userId?: string;
-  weekStart?: string;
-}): Promise<TimeEntry[]> {
-  const queryParams = new URLSearchParams();
-  if (params.timesheetId) queryParams.append('timesheet_id', params.timesheetId);
-  if (params.userId) queryParams.append('user_id', params.userId);
-  if (params.weekStart) queryParams.append('week_start', params.weekStart);
-
-  const query = queryParams.toString();
-  return apiClient.get<TimeEntry[]>(`/time-entries${query ? `?${query}` : ''}`, true);
-}
-
-export async function createTimeEntry(data: CreateTimeEntryRequest): Promise<TimeEntry> {
-  return apiClient.post<TimeEntry>('/time-entries', data, true);
-}
-
-export async function updateTimeEntry(id: string, data: UpdateTimeEntryRequest): Promise<TimeEntry> {
-  return apiClient.patch<TimeEntry>(`/time-entries/${id}`, data, true);
-}
-
-export async function deleteTimeEntry(id: string): Promise<void> {
-  return apiClient.delete<void>(`/time-entries/${id}`, true);
-}
-
-// Stats
-export async function getWeeklyStats(params: {
-  userId: string;
-  weekStart?: string;
-}): Promise<WeeklyStats> {
-  const queryParams = new URLSearchParams();
-  queryParams.append('user_id', params.userId);
-  if (params.weekStart) queryParams.append('week_start', params.weekStart);
-
-  return apiClient.get<WeeklyStats>(`/time-entries/stats/weekly?${queryParams.toString()}`, true);
-}
-
-export async function getProjectStats(params: {
-  userId: string;
+  team?: string;
   from?: string;
   to?: string;
-}): Promise<ProjectStats[]> {
-  const queryParams = new URLSearchParams();
-  queryParams.append('user_id', params.userId);
-  if (params.from) queryParams.append('from', params.from);
-  if (params.to) queryParams.append('to', params.to);
-
-  return apiClient.get<ProjectStats[]>(`/time-entries/stats/project?${queryParams.toString()}`, true);
+  page?: number;
+  pageSize?: number;
 }
 
-// Projects and Tasks
-export async function searchProjects(query: string): Promise<Project[]> {
-  return apiClient.get<Project[]>(`/search/projects?q=${encodeURIComponent(query)}`, true);
-}
+export const timesheetsService = {
+  /**
+   * Get timesheets with optional filtering
+   * @param params - Filter parameters
+   */
+  async getAll(params?: GetTimesheetsParams): Promise<TimesheetListResponse> {
+    const queryParams: Record<string, string> = {};
 
-export async function searchTasks(query: string, projectId?: string): Promise<Task[]> {
-  const params = new URLSearchParams({ q: query });
-  if (projectId) params.append('project_id', projectId);
-  return apiClient.get<Task[]>(`/search/tasks?${params.toString()}`, true);
-}
+    if (params?.userId) queryParams.user_id = params.userId;
+    if (params?.weekStart) queryParams.week_start = params.weekStart;
+    if (params?.status) queryParams.status = params.status;
+    if (params?.team) queryParams.team = params.team;
+    if (params?.from) queryParams.from = params.from;
+    if (params?.to) queryParams.to = params.to;
+    if (params?.page) queryParams.page = params.page.toString();
+    if (params?.pageSize) queryParams.page_size = params.pageSize.toString();
+
+    return findAllTimesheets(queryParams);
+  },
+
+  /**
+   * Get a timesheet by ID
+   * @param id - Timesheet ID
+   */
+  async getById(id: string): Promise<TimesheetDto> {
+    const response = await findTimesheetById(id);
+    return response.data;
+  },
+
+  /**
+   * Get or create the current week's timesheet
+   * Epic 1, Story 1: Simplified access
+   */
+  async getCurrent(): Promise<TimesheetDto> {
+    const response = await getCurrentTimesheet();
+    return response.data;
+  },
+
+  /**
+   * Create a new draft timesheet
+   * @param weekStartDate - Week start date (YYYY-MM-DD)
+   * @param userId - User ID
+   */
+  async create(weekStartDate: string, userId: string): Promise<TimesheetDto> {
+    const response = await createTimesheetEndpoint({
+      week_start_date: weekStartDate,
+      user_id: userId,
+    });
+    return response.data;
+  },
+
+  /**
+   * Validate a timesheet before submission
+   * Epic 3, Story 3: Pre-submission validation
+   * @param id - Timesheet ID
+   */
+  async validate(id: string): Promise<ValidationResult> {
+    return validateTimesheet(id);
+  },
+
+  /**
+   * Submit a timesheet for approval
+   * Epic 3, Story 1: Submit timesheet
+   * @param id - Timesheet ID
+   */
+  async submit(id: string): Promise<TimesheetDto> {
+    const response = await submitTimesheetEndpoint(id);
+    return response.data;
+  },
+
+  /**
+   * Recall a submitted timesheet back to draft
+   * Epic 3, Story 5: Recall submitted timesheet
+   * @param id - Timesheet ID
+   */
+  async recall(id: string): Promise<TimesheetDto> {
+    const response = await recallTimesheet(id);
+    return response.data;
+  },
+
+  /**
+   * Approve a pending timesheet (manager action)
+   * @param id - Timesheet ID
+   */
+  async approve(id: string): Promise<TimesheetDto> {
+    const response = await approveTimesheetEndpoint(id);
+    return response.data;
+  },
+
+  /**
+   * Reject a pending timesheet (manager action)
+   * @param id - Timesheet ID
+   * @param reviewNote - Optional rejection reason
+   */
+  async reject(id: string, reviewNote?: string): Promise<TimesheetDto> {
+    const response = await rejectTimesheetEndpoint(id, reviewNote ? { review_note: reviewNote } : undefined);
+    return response.data;
+  },
+};

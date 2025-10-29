@@ -9,6 +9,11 @@ import type {
   Timesheet,
   TimeEntry
 } from '@kairos/shared';
+import type {
+  DailyTotalDto,
+  ProjectBreakdownDto,
+  ValidationResult,
+} from '../api/schemas';
 
 interface AuthState {
   user: User | null;
@@ -216,10 +221,18 @@ export const useLeaveRequestsStore = create<LeaveRequestsState>((set) => ({
 
 // Timesheet Store
 interface TimesheetState {
+  // Data
   currentTimesheet: Timesheet | null;
   timeEntries: TimeEntry[];
+  dailyTotals: DailyTotalDto[];
+  weeklyTotal: number;
+  projectBreakdown: ProjectBreakdownDto[];
+  validationResult: ValidationResult | null;
+
+  // UI State
   selectedWeekStart: Date;
   isLoading: boolean;
+  activeTab: 'week' | 'history' | 'reports';
 
   // Actions
   setCurrentTimesheet: (timesheet: Timesheet | null) => void;
@@ -227,17 +240,31 @@ interface TimesheetState {
   addTimeEntry: (entry: TimeEntry) => void;
   updateTimeEntry: (id: string, entry: Partial<TimeEntry>) => void;
   removeTimeEntry: (id: string) => void;
+  setDailyTotals: (totals: DailyTotalDto[]) => void;
+  setWeeklyTotal: (total: number) => void;
+  setProjectBreakdown: (breakdown: ProjectBreakdownDto[]) => void;
+  setValidationResult: (result: ValidationResult | null) => void;
   setSelectedWeekStart: (date: Date) => void;
   setIsLoading: (loading: boolean) => void;
+  setActiveTab: (tab: 'week' | 'history' | 'reports') => void;
   clearTimesheet: () => void;
 }
 
 export const useTimesheetStore = create<TimesheetState>((set) => ({
+  // Data
   currentTimesheet: null,
   timeEntries: [],
+  dailyTotals: [],
+  weeklyTotal: 0,
+  projectBreakdown: [],
+  validationResult: null,
+
+  // UI State
   selectedWeekStart: new Date(),
   isLoading: false,
+  activeTab: 'week',
 
+  // Actions
   setCurrentTimesheet: (timesheet) => set({ currentTimesheet: timesheet }),
 
   setTimeEntries: (entries) => set({ timeEntries: entries }),
@@ -257,14 +284,28 @@ export const useTimesheetStore = create<TimesheetState>((set) => ({
       timeEntries: state.timeEntries.filter((entry) => entry.id !== id),
     })),
 
+  setDailyTotals: (totals) => set({ dailyTotals: totals }),
+
+  setWeeklyTotal: (total) => set({ weeklyTotal: total }),
+
+  setProjectBreakdown: (breakdown) => set({ projectBreakdown: breakdown }),
+
+  setValidationResult: (result) => set({ validationResult: result }),
+
   setSelectedWeekStart: (date) => set({ selectedWeekStart: date }),
 
   setIsLoading: (loading) => set({ isLoading: loading }),
+
+  setActiveTab: (tab) => set({ activeTab: tab }),
 
   clearTimesheet: () =>
     set({
       currentTimesheet: null,
       timeEntries: [],
+      dailyTotals: [],
+      weeklyTotal: 0,
+      projectBreakdown: [],
+      validationResult: null,
       isLoading: false,
     }),
 }));

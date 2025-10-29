@@ -10,12 +10,19 @@ import {
   deleteTimeEntry,
   getWeeklyHours,
   getProjectHours,
+  getWeekView,
+  bulkSaveTimeEntries,
+  copyWeek,
 } from '../endpoints/time-entries';
 import type {
   TimeEntryListResponse,
   TimeEntryResponse,
   WeeklyHoursDto,
   ProjectHoursDto,
+  WeekViewResponse,
+  BulkOperationRequest,
+  BulkOperationResponse,
+  CopyWeekRequest,
 } from '../schemas/time-entries';
 
 export interface GetTimeEntriesParams {
@@ -114,5 +121,38 @@ export const timeEntriesService = {
    */
   async getProjectTotal(projectId: string): Promise<ProjectHoursDto> {
     return getProjectHours(projectId);
+  },
+
+  /**
+   * Get optimized week view with entries, totals, and project breakdown
+   * Epic 1, Story 1: View Weekly Timesheet
+   * @param userId - User ID
+   * @param weekStartDate - Week start date (YYYY-MM-DD)
+   */
+  async getWeekView(userId: string, weekStartDate: string): Promise<WeekViewResponse> {
+    return getWeekView(userId, weekStartDate);
+  },
+
+  /**
+   * Bulk save time entries (create/update multiple entries)
+   * Epic 2, Story 4 & 5: Fill Week functionality
+   * @param request - Bulk operation request
+   */
+  async bulkSave(request: BulkOperationRequest): Promise<BulkOperationResponse> {
+    return bulkSaveTimeEntries(request);
+  },
+
+  /**
+   * Copy all time entries from one week to another
+   * Epic 2, Story 6: Copy Previous Week
+   * @param fromWeekStart - Source week start date (YYYY-MM-DD)
+   * @param toWeekStart - Target week start date (YYYY-MM-DD)
+   */
+  async copyWeek(fromWeekStart: string, toWeekStart: string): Promise<BulkOperationResponse> {
+    const request: CopyWeekRequest = {
+      fromWeekStart,
+      toWeekStart,
+    };
+    return copyWeek(request);
   },
 };
