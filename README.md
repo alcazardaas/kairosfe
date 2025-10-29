@@ -76,12 +76,6 @@ pnpm dev
 
 The application will be available at [http://localhost:4321](http://localhost:4321)
 
-### Authentication Status
-- All routes are publicly accessible
-- No login required to access any page
-- API client does not send Authorization headers
-- This is intentional until BTM backend authentication is implemented
-
 ## Available Scripts
 
 ### Root Level
@@ -114,17 +108,14 @@ pnpm test:e2e     # Run E2E tests
 ### Pages
 
 1. **Login** (`/login`)
-   - Currently optional (auth disabled)
    - Email + password form ready for integration
    - Event tracking (PostHog)
 
 2. **Dashboard** (`/dashboard`)
-   - Public (auth disabled)
    - Welcome message with user name
    - Quick actions and recent activity
 
 3. **Profile** (`/profile`)
-   - Public (auth disabled)
    - View/edit user information
    - Language switcher
 
@@ -134,13 +125,11 @@ pnpm test:e2e     # Run E2E tests
    - Search and filters
 
 5. **Leave Requests** (`/leave-requests`)
-   - Public (auth disabled)
    - View existing requests
    - Create new leave requests
    - Status tracking
 
 6. **Settings** (`/settings`)
-   - Public (auth disabled)
    - Theme toggle (auto/light/dark)
    - API configuration
    - Error reporting test
@@ -156,8 +145,6 @@ Supported languages:
 Language can be changed via the language switcher in the navbar.
 
 ### Design System
-
-The design system uses **Tailwind CSS** configured with custom colors from `libromarca.json`:
 
 - **Colors**: Custom color palette for light and dark modes
   - Primary: `#1E3A8A` (blue)
@@ -185,7 +172,6 @@ Custom Tailwind config located at `apps/kairosfe/tailwind.config.mjs`:
 - **API Base URL**: `http://localhost:3000` (configurable via .env)
 - MSW (Mock Service Worker) for API mocking in development (optional)
 - API client ready for real backend integration
-- No authentication headers sent (until BTM is implemented)
 - Supports GET, POST, PUT, PATCH, DELETE methods
 
 ### Testing
@@ -827,45 +813,6 @@ Each story is considered complete when:
 - ⚠️ **BLOCKED** - Waiting on dependencies
 
 ---
-
-## Quick Reference: API Endpoints
-
-All endpoints assume base URL from `VITE_API_BASE_URL` (default: `http://localhost:8080`)
-
-**Auth**:
-- `POST /auth/login` - Login
-- `POST /auth/refresh` - Refresh token
-- `GET /me` - Current user info
-
-**Timesheets**:
-- `GET /timesheets` - List timesheets
-- `POST /timesheets` - Create timesheet
-- `GET /timesheets/:id` - Get details
-- `POST /timesheets/:id/submit` - Submit
-- `POST /timesheets/:id/approve` - Approve (manager)
-- `POST /timesheets/:id/reject` - Reject (manager)
-
-**Time Entries**:
-- `GET /time-entries` - List entries
-- `POST /time-entries` - Create entry
-- `PATCH /time-entries/:id` - Update entry
-- `DELETE /time-entries/:id` - Delete entry
-- `GET /time-entries/stats/weekly` - Weekly stats
-- `GET /time-entries/stats/project` - Project stats
-
-**Leave**:
-- `GET /leave-requests` - List requests
-- `POST /leave-requests` - Create request
-- `PATCH /leave-requests/:id` - Update request
-- `POST /leave-requests/:id/approve` - Approve (manager)
-- `POST /leave-requests/:id/reject` - Reject (manager)
-- `GET /users/:id/benefits` - Leave balances
-
-**Calendar & Search**:
-- `GET /calendar` - Calendar data (holidays + leaves)
-- `GET /holidays` - Public holidays
-- `GET /search/projects` - Search projects
-- `GET /search/tasks` - Search tasks
 
 ## Development Guidelines
 
