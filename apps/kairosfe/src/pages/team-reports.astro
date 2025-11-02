@@ -3,16 +3,12 @@
  * Team Reports Page
  * Manager/Admin view for team analytics and reporting
  */
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import Header from '@/components/layout/Header';
+import AppLayout from '@/layouts/AppLayout.astro';
 import TeamReportsContent from '@/components/data/TeamReportsContent';
 
 export const prerender = false;
 ---
 
-<BaseLayout title="Team Reports - Kairos">
-  <div class="relative flex min-h-screen w-full flex-col">
-    <Header client:load />
-    <TeamReportsContent client:load />
-  </div>
-</BaseLayout>
+<AppLayout title="Team Reports - Kairos">
+  <TeamReportsContent client:load />
+</AppLayout>

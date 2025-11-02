@@ -170,7 +170,7 @@ export default function TimesheetWeekTab() {
         toast.success(t('timesheet.entryUpdated'));
       } else {
         await timeEntriesService.create({
-          tenantId: user.tenant_id,
+          // tenantId removed - backend derives from JWT
           userId: user.id,
           projectId: data.projectId,
           taskId: data.taskId,

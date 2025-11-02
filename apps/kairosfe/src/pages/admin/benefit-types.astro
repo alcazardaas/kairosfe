@@ -3,18 +3,12 @@
  * Benefit Types Administration Page
  * Admin interface for managing benefit/leave types
  */
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import Header from '@/components/layout/Header';
+import AppLayout from '@/layouts/AppLayout.astro';
 import BenefitTypesManagementContent from '@/components/admin/BenefitTypesManagementContent';
 
 export const prerender = false;
 ---
 
-<BaseLayout title="Benefit Types Administration - Kairos">
-  <div class="relative flex min-h-screen w-full flex-col">
-    <div class="layout-container flex h-full grow flex-col">
-      <Header client:load />
-      <BenefitTypesManagementContent client:load />
-    </div>
-  </div>
-</BaseLayout>
+<AppLayout title="Benefit Types Administration - Kairos">
+  <BenefitTypesManagementContent client:load />
+</AppLayout>

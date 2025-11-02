@@ -339,6 +339,8 @@
     "cancel": "Cancel",
     "close": "Close",
     "delete": "Delete",
+    "openSidebar": "Open menu",
+    "closeSidebar": "Close menu",
     "edit": "Edit",
     "view": "View",
     "back": "Back",

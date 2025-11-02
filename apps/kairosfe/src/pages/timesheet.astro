@@ -1,14 +1,10 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import Header from '@/components/layout/Header';
+import AppLayout from '@/layouts/AppLayout.astro';
 import TimesheetContentNew from '@/components/data/TimesheetContentNew';
 
 export const prerender = false;
 ---
 
-<BaseLayout title="Timesheet - Kairos">
-  <div class="relative flex min-h-screen w-full flex-col">
-    <Header client:load />
-    <TimesheetContentNew client:load />
-  </div>
-</BaseLayout>
+<AppLayout title="Timesheet - Kairos">
+  <TimesheetContentNew client:load />
+</AppLayout>

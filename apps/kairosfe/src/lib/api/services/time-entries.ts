@@ -37,7 +37,6 @@ export interface GetTimeEntriesParams {
 }
 
 export interface CreateTimeEntryParams {
-  tenantId: string;
   userId: string;
   projectId: string;
   taskId: string | null;
@@ -75,10 +74,11 @@ export const timeEntriesService = {
   /**
    * Create a new time entry
    * @param data - Time entry data
+   * Note: tenant_id is derived from JWT on backend
    */
   async create(data: CreateTimeEntryParams): Promise<TimeEntryResponse> {
     return createTimeEntry({
-      tenant_id: data.tenantId,
+      // tenant_id removed - backend derives from JWT
       user_id: data.userId,
       project_id: data.projectId,
       task_id: data.taskId,

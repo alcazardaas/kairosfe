@@ -79,12 +79,19 @@ export default function TimesheetReportsTab() {
 
       // Calculate statistics
       const entries = entriesResponse?.data || [];
-      const total = entries.reduce((sum, entry) => sum + (entry.hours || 0), 0);
-      setTotalHours(total);
+      const total = entries.reduce((sum, entry) => {
+        const hours = typeof entry.hours === 'number' ? entry.hours : 0;
+        return sum + hours;
+      }, 0);
+
+      // Ensure we always have a valid number
+      const validTotal = typeof total === 'number' && !isNaN(total) ? total : 0;
+      setTotalHours(validTotal);
 
       const weeks = timesheetsResponse?.data?.length || 0;
       setWeekCount(weeks);
-      setAvgWeeklyHours(weeks > 0 ? total / weeks : 0);
+      const avgWeekly = weeks > 0 ? validTotal / weeks : 0;
+      setAvgWeeklyHours(typeof avgWeekly === 'number' && !isNaN(avgWeekly) ? avgWeekly : 0);
 
       // Calculate project statistics
       const projectMap = new Map<string, { hours: number; weeks: Set<string> }>();
@@ -247,7 +254,7 @@ export default function TimesheetReportsTab() {
                   {t('timesheet.reports.totalHours')}
                 </p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
-                  {(totalHours ?? 0).toFixed(1)}h
+                  {(typeof totalHours === 'number' ? totalHours : 0).toFixed(1)}h
                 </p>
               </div>
               <span className="material-symbols-outlined text-4xl text-blue-500">schedule</span>
@@ -261,7 +268,7 @@ export default function TimesheetReportsTab() {
                   {t('timesheet.reports.avgWeekly')}
                 </p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
-                  {(avgWeeklyHours ?? 0).toFixed(1)}h
+                  {(typeof avgWeeklyHours === 'number' ? avgWeeklyHours : 0).toFixed(1)}h
                 </p>
               </div>
               <span className="material-symbols-outlined text-4xl text-green-500">trending_up</span>

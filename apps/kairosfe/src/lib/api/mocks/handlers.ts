@@ -925,15 +925,15 @@ export const handlers = [
 
     const entriesArray = results.map((e) => ({
       id: e.id,
-      tenant_id: 'tenant-1',
+      tenant_id: '11111111-1111-1111-1111-111111111111', // Valid UUID for tenant
       user_id: e.userId,
       project_id: e.projectId,
       task_id: e.taskId || null,
-      week_start_date: e.date,
+      week_start_date: new Date(e.date).toISOString(), // Convert to ISO datetime
       day_of_week: new Date(e.date).getDay(),
       hours: e.hours,
       note: e.notes || null,
-      created_at: e.createdAt,
+      created_at: new Date(e.createdAt).toISOString(), // Convert to ISO datetime
     }));
 
     return HttpResponse.json({
@@ -1235,17 +1235,17 @@ export const handlers = [
 
     const timesheetsArray = results.map((ts) => ({
       id: ts.id,
-      tenantId: 'tenant-1',
+      tenantId: '11111111-1111-1111-1111-111111111111', // Valid UUID for tenant
       userId: ts.userId,
       weekStartDate: ts.weekStart,
       status: ts.status,
-      submittedAt: ts.submittedAt || null,
-      submittedByUserId: ts.userId || null,
-      reviewedAt: null,
-      reviewedByUserId: null,
+      submittedAt: ts.submittedAt ? new Date(ts.submittedAt).toISOString() : null,
+      submittedByUserId: ts.submittedAt ? ts.userId : null,
+      reviewedAt: ts.status === 'approved' || ts.status === 'rejected' ? new Date().toISOString() : null,
+      reviewedByUserId: ts.status === 'approved' || ts.status === 'rejected' ? ts.userId : null,
       reviewNote: null,
-      createdAt: ts.createdAt,
-      updatedAt: ts.updatedAt,
+      createdAt: new Date(ts.createdAt).toISOString(),
+      updatedAt: new Date(ts.updatedAt).toISOString(),
       time_entries: [],
     }));
 
@@ -1968,8 +1968,12 @@ export const handlers = [
 
     const body = (await request.json()) as any;
 
+    // Extract tenant from JWT token (backend behavior)
+    // In real backend, tenantId would be extracted from JWT
+    const tenantId = '11111111-1111-1111-1111-111111111111'; // Mock tenant ID
+
     const newPolicy = {
-      tenantId: body.tenantId || 'tenant-1',
+      tenantId, // Derived from JWT, not from request body
       hoursPerWeek: body.hoursPerWeek || 40,
       weekStartDay: body.weekStartDay || 1,
       requireApproval: body.requireApproval !== false,

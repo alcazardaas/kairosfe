@@ -50,7 +50,12 @@ $colors-dark: (
 }
 
 // Generate CSS custom properties for dark mode
-:root[data-theme='dark'],
+:root[data-theme='dark'] {
+  @each $name, $value in $colors-dark {
+    --color-#{$name}: #{$value};
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     @each $name, $value in $colors-dark {

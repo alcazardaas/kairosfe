@@ -1,25 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useAuthStore } from '@/lib/store';
+import { useAuthStore, useUIStore } from '@/lib/store';
 import { apiClient } from '@/lib/api/client';
 import { useTranslation } from 'react-i18next';
-import { menuItems } from '@/app.config';
 import '@/lib/i18n';
 
 export default function Header() {
   const { t } = useTranslation();
   const user = useAuthStore((state) => state.user);
-  const role = useAuthStore((state) => state.role);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Filter menu items based on user role
-  const filteredMenuItems = menuItems.filter((item) => {
-    if (!role) return false;
-    return item.roles.includes(role);
-  });
-
-  // Get current pathname for active state
-  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+  const { isSidebarOpen, toggleSidebar } = useUIStore();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -60,28 +50,20 @@ export default function Header() {
   return (
     <header className="flex items-center justify-between whitespace-nowrap border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 lg:px-8 py-3 bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10">
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 text-primary">
+        {/* Mobile menu button - shows on mobile and tablet */}
+        <button
+          onClick={toggleSidebar}
+          className="lg:hidden flex items-center justify-center rounded-full h-10 w-10 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          aria-label={isSidebarOpen ? t('common.closeSidebar') : t('common.openSidebar')}
+        >
+          <span className="material-symbols-outlined">menu</span>
+        </button>
+
+        {/* Logo */}
+        <a href="/dashboard" className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity">
           <span className="material-symbols-outlined text-2xl">timelapse</span>
           <h2 className="text-xl font-bold tracking-tight">Kairos</h2>
-        </div>
-        <nav className="hidden md:flex items-center gap-6 ml-6">
-          {filteredMenuItems.map((item) => {
-            const isActive = currentPath === item.path || currentPath.startsWith(`${item.path}/`);
-            return (
-              <a
-                key={item.path}
-                className={`text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'text-primary'
-                    : 'text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary'
-                }`}
-                href={item.path}
-              >
-                {t(item.labelKey)}
-              </a>
-            );
-          })}
-        </nav>
+        </a>
       </div>
 
       <div className="flex flex-1 justify-end items-center gap-4">
@@ -131,10 +113,6 @@ export default function Header() {
             </div>
           )}
         </div>
-
-        <button className="md:hidden flex items-center justify-center rounded-full h-10 w-10 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-          <span className="material-symbols-outlined">menu</span>
-        </button>
       </div>
     </header>
   );

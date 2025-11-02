@@ -37,8 +37,11 @@ interface AuthState {
 interface UIState {
   theme: 'auto' | 'light' | 'dark';
   locale: string;
+  isSidebarOpen: boolean;
   setTheme: (theme: 'auto' | 'light' | 'dark') => void;
   setLocale: (locale: string) => void;
+  setSidebarOpen: (open: boolean) => void;
+  toggleSidebar: () => void;
 }
 
 interface LeaveRequestsState {
@@ -238,11 +241,15 @@ export const useAuthStore = create<AuthState>()(
 // UI Store
 export const useUIStore = create<UIState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       theme: 'auto',
       locale: 'en',
+      // Sidebar is open by default on desktop (≥1024px), closed on smaller screens
+      isSidebarOpen: typeof window !== 'undefined' ? window.innerWidth >= 1024 : true,
       setTheme: (theme) => set({ theme }),
       setLocale: (locale) => set({ locale }),
+      setSidebarOpen: (open) => set({ isSidebarOpen: open }),
+      toggleSidebar: () => set({ isSidebarOpen: !get().isSidebarOpen }),
     }),
     {
       name: 'kairos-ui',

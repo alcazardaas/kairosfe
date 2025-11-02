@@ -1,6 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
-import Navbar from '@/components/layout/Navbar.astro';
+import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar.astro';
 
 interface Props {
@@ -12,7 +12,7 @@ const { title } = Astro.props;
 
 <BaseLayout title={title}>
   <div class="app-layout">
-    <Navbar />
+    <Header client:load />
     <div class="app-layout__content">
       <Sidebar />
       <main class="app-layout__main">

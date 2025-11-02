@@ -3,16 +3,12 @@
  * Team Calendar Page
  * Manager/Admin view of team availability and schedules
  */
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import Header from '@/components/layout/Header';
+import AppLayout from '@/layouts/AppLayout.astro';
 import TeamCalendarContent from '@/components/data/TeamCalendarContent';
 
 export const prerender = false;
 ---
 
-<BaseLayout title="Team Calendar - Kairos">
-  <div class="relative flex min-h-screen w-full flex-col">
-    <Header client:load />
-    <TeamCalendarContent client:load />
-  </div>
-</BaseLayout>
+<AppLayout title="Team Calendar - Kairos">
+  <TeamCalendarContent client:load />
+</AppLayout>
