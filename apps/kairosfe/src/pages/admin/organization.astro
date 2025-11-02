@@ -1,0 +1,16 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header from '@/components/layout/Header';
+import OrganizationSettingsContent from '@/components/admin/OrganizationSettingsContent';
+
+export const prerender = false;
+---
+
+<BaseLayout title="Organization Settings - Kairos">
+  <div class="relative flex min-h-screen w-full flex-col">
+    <div class="layout-container flex h-full grow flex-col">
+      <Header client:load />
+      <OrganizationSettingsContent client:load />
+    </div>
+  </div>
+</BaseLayout>

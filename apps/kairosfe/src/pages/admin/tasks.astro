@@ -1,0 +1,20 @@
+---
+/**
+ * Tasks Administration Page
+ * Admin interface for managing tasks
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header from '@/components/layout/Header';
+import TasksManagementContent from '@/components/admin/TasksManagementContent';
+
+export const prerender = false;
+---
+
+<BaseLayout title="Tasks Administration - Kairos">
+  <div class="relative flex min-h-screen w-full flex-col">
+    <div class="layout-container flex h-full grow flex-col">
+      <Header client:load />
+      <TasksManagementContent client:load />
+    </div>
+  </div>
+</BaseLayout>

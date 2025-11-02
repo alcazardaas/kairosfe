@@ -3,8 +3,18 @@
  * Service layer for project operations
  */
 
-import { findAllProjects } from '../endpoints/projects';
-import type { ProjectListResponse } from '../schemas/projects';
+import {
+  findAllProjects,
+  findProjectById,
+  createProject,
+  updateProject,
+  deleteProject,
+  getProjectMembers,
+  addProjectMember,
+  removeProjectMember,
+} from '../endpoints/projects';
+import { searchProjects as searchProjectsEndpoint } from '../endpoints/search';
+import type { ProjectListResponse, ProjectResponse, CreateProjectDto, UpdateProjectDto } from '../schemas/projects';
 
 export const projectsService = {
   /**
@@ -12,6 +22,62 @@ export const projectsService = {
    */
   async getAll(): Promise<ProjectListResponse> {
     return findAllProjects();
+  },
+
+  /**
+   * Get a single project by ID
+   */
+  async getById(id: string): Promise<ProjectResponse> {
+    return findProjectById(id);
+  },
+
+  /**
+   * Create a new project
+   */
+  async create(data: CreateProjectDto): Promise<ProjectResponse> {
+    return createProject(data);
+  },
+
+  /**
+   * Update an existing project
+   */
+  async update(id: string, data: UpdateProjectDto): Promise<ProjectResponse> {
+    return updateProject(id, data);
+  },
+
+  /**
+   * Delete a project
+   */
+  async delete(id: string): Promise<void> {
+    return deleteProject(id);
+  },
+
+  /**
+   * Get project members
+   */
+  async getMembers(projectId: string) {
+    return getProjectMembers(projectId);
+  },
+
+  /**
+   * Add a member to a project
+   */
+  async addMember(projectId: string, userId: string, role?: string) {
+    return addProjectMember(projectId, { user_id: userId, role: role || null });
+  },
+
+  /**
+   * Remove a member from a project
+   */
+  async removeMember(projectId: string, userId: string) {
+    return removeProjectMember(projectId, userId);
+  },
+
+  /**
+   * Search projects by query
+   */
+  async search(query: string, limit: number = 10) {
+    return searchProjectsEndpoint(query, limit);
   },
 
   /**

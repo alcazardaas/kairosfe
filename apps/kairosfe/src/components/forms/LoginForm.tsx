@@ -38,8 +38,8 @@ export default function LoginForm() {
       // Call login endpoint
       const response = await apiClient.login(data.email, data.password);
 
-      // Save tokens and user to store
-      login(response.user, response.token, response.refreshToken);
+      // Save tokens and user to store (with expiresIn for token refresh)
+      login(response.user, response.token, response.refreshToken, response.expiresIn);
 
       // Hydrate user session (fetch /me)
       await useAuthStore.getState().hydrate();

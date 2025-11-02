@@ -1,0 +1,20 @@
+---
+/**
+ * Holidays Administration Page
+ * Admin interface for managing organization holidays
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header from '@/components/layout/Header';
+import HolidaysManagementContent from '@/components/admin/HolidaysManagementContent';
+
+export const prerender = false;
+---
+
+<BaseLayout title="Holidays Administration - Kairos">
+  <div class="relative flex min-h-screen w-full flex-col">
+    <div class="layout-container flex h-full grow flex-col">
+      <Header client:load />
+      <HolidaysManagementContent client:load />
+    </div>
+  </div>
+</BaseLayout>

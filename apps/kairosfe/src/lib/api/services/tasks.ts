@@ -3,14 +3,32 @@
  * Service layer for task operations
  */
 
-import { findAllTasks } from '../endpoints/tasks';
-import type { TaskListResponse } from '../schemas/tasks';
+import {
+  findAllTasks,
+  findTaskById,
+  createTask,
+  updateTask,
+  deleteTask,
+} from '../endpoints/tasks';
+import type { TaskListResponse, TaskResponse } from '../schemas/tasks';
 
 export interface GetTasksParams {
   projectId?: string;
   search?: string;
   page?: number;
   limit?: number;
+}
+
+export interface CreateTaskDto {
+  name: string;
+  project_id: string;
+  parent_task_id?: string | null;
+}
+
+export interface UpdateTaskDto {
+  name?: string;
+  project_id?: string;
+  parent_task_id?: string | null;
 }
 
 export const tasksService = {
@@ -27,6 +45,34 @@ export const tasksService = {
     if (params?.limit) queryParams.append('limit', params.limit.toString());
 
     return findAllTasks(queryParams);
+  },
+
+  /**
+   * Get a single task by ID
+   */
+  async getById(id: string): Promise<TaskResponse> {
+    return findTaskById(id);
+  },
+
+  /**
+   * Create a new task
+   */
+  async create(data: CreateTaskDto): Promise<TaskResponse> {
+    return createTask(data);
+  },
+
+  /**
+   * Update an existing task
+   */
+  async update(id: string, data: UpdateTaskDto): Promise<TaskResponse> {
+    return updateTask(id, data);
+  },
+
+  /**
+   * Delete a task
+   */
+  async delete(id: string): Promise<void> {
+    return deleteTask(id);
   },
 
   /**

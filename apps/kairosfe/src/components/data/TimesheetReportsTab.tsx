@@ -78,11 +78,11 @@ export default function TimesheetReportsTab() {
       });
 
       // Calculate statistics
-      const entries = entriesResponse.data || [];
-      const total = entries.reduce((sum, entry) => sum + entry.hours, 0);
+      const entries = entriesResponse?.data || [];
+      const total = entries.reduce((sum, entry) => sum + (entry.hours || 0), 0);
       setTotalHours(total);
 
-      const weeks = timesheetsResponse.data.length;
+      const weeks = timesheetsResponse?.data?.length || 0;
       setWeekCount(weeks);
       setAvgWeeklyHours(weeks > 0 ? total / weeks : 0);
 
@@ -92,6 +92,11 @@ export default function TimesheetReportsTab() {
       entries.forEach((entry) => {
         const projectId = entry.project_id;
         const weekKey = entry.week_start_date;
+
+        // Skip entries without required data
+        if (!projectId || !weekKey || typeof entry.hours !== 'number') {
+          return;
+        }
 
         if (!projectMap.has(projectId)) {
           projectMap.set(projectId, { hours: 0, weeks: new Set() });
@@ -119,6 +124,12 @@ export default function TimesheetReportsTab() {
     } catch (err) {
       console.error('Failed to load report data:', err);
       setError(t('timesheet.reports.errorLoading'));
+
+      // Reset state to prevent stale data
+      setTotalHours(0);
+      setAvgWeeklyHours(0);
+      setWeekCount(0);
+      setProjectStats([]);
     } finally {
       setLoading(false);
     }
@@ -129,18 +140,18 @@ export default function TimesheetReportsTab() {
     const headers = ['Project', 'Total Hours', 'Weeks', 'Avg Hours/Week'];
     const rows = projectStats.map((stat) => [
       stat.projectName,
-      stat.totalHours.toFixed(2),
+      (stat.totalHours ?? 0).toFixed(2),
       stat.weekCount.toString(),
-      stat.avgHoursPerWeek.toFixed(2),
+      (stat.avgHoursPerWeek ?? 0).toFixed(2),
     ]);
 
     const csv = [
       headers.join(','),
       ...rows.map((row) => row.join(',')),
       '',
-      `Total Hours,${totalHours.toFixed(2)}`,
-      `Total Weeks,${weekCount}`,
-      `Average Hours/Week,${avgWeeklyHours.toFixed(2)}`,
+      `Total Hours,${(totalHours ?? 0).toFixed(2)}`,
+      `Total Weeks,${weekCount ?? 0}`,
+      `Average Hours/Week,${(avgWeeklyHours ?? 0).toFixed(2)}`,
     ].join('\n');
 
     // Download
@@ -236,7 +247,7 @@ export default function TimesheetReportsTab() {
                   {t('timesheet.reports.totalHours')}
                 </p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
-                  {totalHours.toFixed(1)}h
+                  {(totalHours ?? 0).toFixed(1)}h
                 </p>
               </div>
               <span className="material-symbols-outlined text-4xl text-blue-500">schedule</span>
@@ -250,7 +261,7 @@ export default function TimesheetReportsTab() {
                   {t('timesheet.reports.avgWeekly')}
                 </p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
-                  {avgWeeklyHours.toFixed(1)}h
+                  {(avgWeeklyHours ?? 0).toFixed(1)}h
                 </p>
               </div>
               <span className="material-symbols-outlined text-4xl text-green-500">trending_up</span>
@@ -311,7 +322,7 @@ export default function TimesheetReportsTab() {
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {projectStats.map((stat, index) => {
-                    const percentage = totalHours > 0 ? (stat.totalHours / totalHours) * 100 : 0;
+                    const percentage = totalHours > 0 ? ((stat.totalHours ?? 0) / totalHours) * 100 : 0;
 
                     return (
                       <tr
@@ -331,13 +342,13 @@ export default function TimesheetReportsTab() {
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm font-semibold text-right text-gray-900 dark:text-gray-100">
-                          {stat.totalHours.toFixed(1)}h
+                          {(stat.totalHours ?? 0).toFixed(1)}h
                         </td>
                         <td className="px-6 py-4 text-sm text-right text-gray-600 dark:text-gray-400">
-                          {stat.weekCount}
+                          {stat.weekCount ?? 0}
                         </td>
                         <td className="px-6 py-4 text-sm text-right text-gray-600 dark:text-gray-400">
-                          {stat.avgHoursPerWeek.toFixed(1)}h
+                          {(stat.avgHoursPerWeek ?? 0).toFixed(1)}h
                         </td>
                         <td className="px-6 py-4 text-sm text-right">
                           <div className="flex items-center justify-end gap-2">
@@ -348,7 +359,7 @@ export default function TimesheetReportsTab() {
                               />
                             </div>
                             <span className="text-gray-600 dark:text-gray-400 min-w-[3rem]">
-                              {percentage.toFixed(1)}%
+                              {(percentage ?? 0).toFixed(1)}%
                             </span>
                           </div>
                         </td>

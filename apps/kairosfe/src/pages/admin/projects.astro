@@ -1,0 +1,20 @@
+---
+/**
+ * Projects Administration Page
+ * Admin interface for managing projects
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header from '@/components/layout/Header';
+import ProjectsManagementContent from '@/components/admin/ProjectsManagementContent';
+
+export const prerender = false;
+---
+
+<BaseLayout title="Projects Administration - Kairos">
+  <div class="relative flex min-h-screen w-full flex-col">
+    <div class="layout-container flex h-full grow flex-col">
+      <Header client:load />
+      <ProjectsManagementContent client:load />
+    </div>
+  </div>
+</BaseLayout>

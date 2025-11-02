@@ -1,0 +1,18 @@
+---
+/**
+ * Team Member Performance Page
+ * Manager/Admin view for individual team member analytics
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header from '@/components/layout/Header';
+import TeamMemberPerformanceContent from '@/components/data/TeamMemberPerformanceContent';
+
+export const prerender = false;
+---
+
+<BaseLayout title="Team Member Performance - Kairos">
+  <div class="relative flex min-h-screen w-full flex-col">
+    <Header client:load />
+    <TeamMemberPerformanceContent client:load />
+  </div>
+</BaseLayout>

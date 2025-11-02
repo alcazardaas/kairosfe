@@ -19,6 +19,7 @@ interface AuthState {
   user: User | null;
   token: string | null;
   refreshToken: string | null;
+  tokenExpiresIn: number | null; // Token expiry in seconds
   isAuthenticated: boolean;
   role: UserRole | null;
   permissions: Permission[];
@@ -26,9 +27,9 @@ interface AuthState {
   isHydrating: boolean;
 
   // Actions
-  login: (user: User, token: string, refreshToken: string) => void;
+  login: (user: User, token: string, refreshToken: string, expiresIn: number) => void;
   logout: () => void;
-  setTokens: (token: string, refreshToken: string) => void;
+  setTokens: (token: string, refreshToken: string, expiresIn?: number) => void;
   hydrate: () => Promise<void>;
   setUser: (user: User) => void;
 }
@@ -53,36 +54,67 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       refreshToken: null,
+      tokenExpiresIn: null,
       isAuthenticated: false,
       role: null,
       permissions: [],
       policy: null,
       isHydrating: false,
 
-      login: (user, token, refreshToken) =>
+      login: (user, token, refreshToken, expiresIn) => {
         set({
           user,
           token,
           refreshToken,
+          tokenExpiresIn: expiresIn,
           isAuthenticated: true,
           role: user.role,
           permissions: user.permissions || [],
           policy: user.policy || null,
-        }),
+        });
 
-      logout: () =>
+        // Initialize token refresh manager
+        if (typeof window !== 'undefined') {
+          import('../auth/tokenRefresh').then(({ initializeTokenRefresh }) => {
+            initializeTokenRefresh(expiresIn);
+          });
+        }
+      },
+
+      logout: () => {
+        // Cleanup token refresh manager
+        if (typeof window !== 'undefined') {
+          import('../auth/tokenRefresh').then(({ cleanupTokenRefresh }) => {
+            cleanupTokenRefresh();
+          });
+        }
+
         set({
           user: null,
           token: null,
           refreshToken: null,
+          tokenExpiresIn: null,
           isAuthenticated: false,
           role: null,
           permissions: [],
           policy: null,
-        }),
+        });
+      },
 
-      setTokens: (token, refreshToken) =>
-        set({ token, refreshToken }),
+      setTokens: (token, refreshToken, expiresIn) => {
+        set({
+          token,
+          refreshToken,
+          ...(expiresIn !== undefined && { tokenExpiresIn: expiresIn })
+        });
+
+        // Reinitialize token refresh if expiresIn is provided
+        if (expiresIn !== undefined && typeof window !== 'undefined') {
+          import('../auth/tokenRefresh').then(({ initializeTokenRefresh }) => {
+            initializeTokenRefresh(expiresIn);
+          });
+        }
+      },
 
       setUser: (user) =>
         set({
@@ -93,7 +125,7 @@ export const useAuthStore = create<AuthState>()(
         }),
 
       hydrate: async () => {
-        const { token } = get();
+        const { token, tokenExpiresIn } = get();
 
         if (!token) {
           set({ isAuthenticated: false, isHydrating: false });
@@ -174,6 +206,12 @@ export const useAuthStore = create<AuthState>()(
             policy: fullUser.policy,
             isHydrating: false,
           });
+
+          // Initialize token refresh if we have tokenExpiresIn
+          if (tokenExpiresIn && typeof window !== 'undefined') {
+            const { initializeTokenRefresh } = await import('../auth/tokenRefresh');
+            initializeTokenRefresh(tokenExpiresIn);
+          }
         } catch (error) {
           console.error('Failed to hydrate user session:', error);
           // Clear invalid session
@@ -181,6 +219,7 @@ export const useAuthStore = create<AuthState>()(
             user: null,
             token: null,
             refreshToken: null,
+            tokenExpiresIn: null,
             isAuthenticated: false,
             role: null,
             permissions: [],

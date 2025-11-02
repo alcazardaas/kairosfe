@@ -130,8 +130,8 @@ class ApiClient {
 
         const data: RefreshTokenResponse = await response.json();
 
-        // Update tokens in store
-        useAuthStore.getState().setTokens(data.token, refreshToken);
+        // Update tokens in store (with expiresIn for token refresh)
+        useAuthStore.getState().setTokens(data.token, refreshToken, data.expiresIn);
 
         this.log('info', 'Access token refreshed successfully');
         return data.token;
