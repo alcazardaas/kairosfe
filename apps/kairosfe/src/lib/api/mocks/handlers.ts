@@ -2896,6 +2896,111 @@ export const handlers = [
     return new HttpResponse(null, { status: 204 });
   }),
 
+  // 62. Reactivate user (PUT /users/:id/reactivate)
+  http.put(`${API_BASE_URL}/api/v1/users/:id/reactivate`, ({ request, params }) => {
+    if (!checkAuth(request)) {
+      return HttpResponse.json({
+        error: 'Unauthorized',
+        message: 'Invalid or expired session token',
+        statusCode: 401
+      }, { status: 401 });
+    }
+
+    // Check permissions (admin or manager for reactivate)
+    const currentUser = getUserFromToken(request);
+    if (currentUser.role !== 'admin' && currentUser.role !== 'manager') {
+      return HttpResponse.json({
+        error: 'Forbidden',
+        message: 'Forbidden – requires admin or manager role',
+        statusCode: 403
+      }, { status: 403 });
+    }
+
+    const userId = params.id as string;
+
+    // Mock employee data (subset for reactivation testing)
+    const mockEmployees = [
+      {
+        id: '123e4567-e89b-12d3-a456-426614174001',
+        name: 'Olivia Rhye',
+        status: 'active',
+        managerUserId: '123e4567-e89b-12d3-a456-426614174002',
+      },
+      {
+        id: '123e4567-e89b-12d3-a456-426614174002',
+        name: 'Phoenix Baker',
+        status: 'active',
+        managerUserId: null,
+      },
+      {
+        id: '123e4567-e89b-12d3-a456-426614174003',
+        name: 'Lana Steiner',
+        status: 'active',
+        managerUserId: '123e4567-e89b-12d3-a456-426614174002',
+      },
+      {
+        id: '123e4567-e89b-12d3-a456-426614174004',
+        name: 'Demi Wilkinson',
+        status: 'active',
+        managerUserId: '123e4567-e89b-12d3-a456-426614174002',
+      },
+      {
+        id: '123e4567-e89b-12d3-a456-426614174005',
+        name: 'Candice Wu',
+        status: 'disabled', // This user is disabled and can be reactivated
+        managerUserId: '123e4567-e89b-12d3-a456-426614174002',
+      },
+      {
+        id: '123e4567-e89b-12d3-a456-426614174006',
+        name: 'Natali Craig',
+        status: 'active',
+        managerUserId: '123e4567-e89b-12d3-a456-426614174002',
+      },
+      {
+        id: '123e4567-e89b-12d3-a456-426614174007',
+        name: 'Drew Cano',
+        status: 'active',
+        managerUserId: null,
+      },
+    ];
+
+    const user = mockEmployees.find(emp => emp.id === userId);
+
+    if (!user) {
+      return HttpResponse.json({
+        error: 'User not found',
+        message: `User with ID ${userId} not found`,
+        statusCode: 404
+      }, { status: 404 });
+    }
+
+    // Check if user is already active
+    if (user.status === 'active') {
+      return HttpResponse.json({
+        error: 'Bad Request',
+        message: 'User is already active',
+        statusCode: 400
+      }, { status: 400 });
+    }
+
+    // If manager, check if user is their direct report
+    if (currentUser.role === 'manager') {
+      if (user.managerUserId !== currentUser.id) {
+        return HttpResponse.json({
+          error: 'Forbidden',
+          message: 'Managers can only reactivate their direct reports',
+          statusCode: 403
+        }, { status: 403 });
+      }
+    }
+
+    // Reactivate: In real implementation, would set status to 'active'
+    console.log(`[MSW] User ${user.name} (${userId}) has been reactivated by ${currentUser.role}`);
+
+    // Return 204 No Content
+    return new HttpResponse(null, { status: 204 });
+  }),
+
   // ========================================
   // CALENDAR ENDPOINT (1)
   // ========================================
@@ -2979,6 +3084,95 @@ export const handlers = [
         to,
         include,
       },
+    });
+  }),
+
+  // 63. Check calendar overlap (GET /calendar/check-overlap)
+  http.get(`${API_BASE_URL}/api/v1/calendar/check-overlap`, ({ request }) => {
+    if (!checkAuth(request)) {
+      return HttpResponse.json({
+        error: 'Unauthorized',
+        message: 'Invalid or expired session token',
+        statusCode: 401
+      }, { status: 401 });
+    }
+
+    const url = new URL(request.url);
+    const startDate = url.searchParams.get('start_date');
+    const endDate = url.searchParams.get('end_date');
+    const userId = url.searchParams.get('user_id');
+
+    if (!startDate || !endDate) {
+      return HttpResponse.json({
+        error: 'Bad Request',
+        message: 'Missing required parameters (start_date and end_date)',
+        statusCode: 400
+      }, { status: 400 });
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const overlappingHolidays: any[] = [];
+    const overlappingLeaves: any[] = [];
+
+    // Check for holidays in the date range
+    mockHolidays.forEach((holiday) => {
+      const holidayDate = new Date(holiday.date);
+      if (holidayDate >= start && holidayDate <= end) {
+        overlappingHolidays.push({
+          id: holiday.id,
+          date: holiday.date,
+          name: holiday.name,
+          type: holiday.type,
+        });
+      }
+    });
+
+    // Check for approved leave requests in the date range
+    Array.from(leaveRequests.values())
+      .filter((req) => req.status === 'approved')
+      .forEach((leave) => {
+        const leaveStart = new Date(leave.startDate);
+        const leaveEnd = new Date(leave.endDate);
+
+        // Check if there's any overlap between the leave and the requested date range
+        if (leaveStart <= end && leaveEnd >= start) {
+          // Skip user's own leave requests if userId is provided
+          if (userId && leave.userId === userId) {
+            return;
+          }
+
+          overlappingLeaves.push({
+            userId: leave.userId,
+            userName: leave.userName || 'Unknown User',
+            startDate: leave.startDate,
+            endDate: leave.endDate,
+            type: leave.type,
+          });
+        }
+      });
+
+    const hasOverlap = overlappingHolidays.length > 0 || overlappingLeaves.length > 0;
+
+    let message = '';
+    if (hasOverlap) {
+      const parts: string[] = [];
+      if (overlappingHolidays.length > 0) {
+        parts.push(`${overlappingHolidays.length} holiday(s)`);
+      }
+      if (overlappingLeaves.length > 0) {
+        parts.push(`${overlappingLeaves.length} team member(s) on leave`);
+      }
+      message = `This period overlaps with ${parts.join(' and ')}.`;
+    }
+
+    console.log(`[MSW] Overlap check: ${startDate} to ${endDate} - ${hasOverlap ? 'HAS OVERLAPS' : 'No overlaps'}`);
+
+    return HttpResponse.json({
+      hasOverlap,
+      holidays: overlappingHolidays,
+      leaves: overlappingLeaves,
+      message: hasOverlap ? message : undefined,
     });
   }),
 ];

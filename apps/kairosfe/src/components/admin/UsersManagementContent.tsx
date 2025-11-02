@@ -278,6 +278,34 @@ export default function UsersManagementContent() {
     }
   };
 
+  const handleReactivate = async (user: Employee) => {
+    try {
+      setSaving(true);
+      await employeesService.reactivate(user.id);
+
+      toast.success('User reactivated successfully');
+      await loadUsers();
+
+      // Track event
+      if (typeof window !== 'undefined' && (window as any).posthog) {
+        (window as any).posthog.capture('user_reactivated', {
+          userId: user.id,
+        });
+      }
+    } catch (error: any) {
+      console.error('Failed to reactivate user:', error);
+      toast.error(error?.message || 'Failed to reactivate user');
+
+      if (typeof window !== 'undefined' && (window as any).Sentry) {
+        (window as any).Sentry.captureException(error, {
+          tags: { type: 'user_reactivate_failure' },
+        });
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const getRoleBadgeColor = (role: UserRole) => {
     switch (role) {
       case 'admin':
@@ -442,15 +470,27 @@ export default function UsersManagementContent() {
                       <button
                         onClick={() => openEditModal(user)}
                         className="mr-3 text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                        title="Edit user"
                       >
                         <span className="material-symbols-outlined text-lg">edit</span>
                       </button>
-                      <button
-                        onClick={() => openDeleteModal(user)}
-                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                      >
-                        <span className="material-symbols-outlined text-lg">delete</span>
-                      </button>
+                      {user.membership.status === 'active' ? (
+                        <button
+                          onClick={() => openDeleteModal(user)}
+                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                          title="Deactivate user"
+                        >
+                          <span className="material-symbols-outlined text-lg">block</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleReactivate(user)}
+                          className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                          title="Reactivate user"
+                        >
+                          <span className="material-symbols-outlined text-lg">check_circle</span>
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

@@ -185,6 +185,24 @@ export const employeesService = {
   },
 
   /**
+   * Reactivate an employee/user
+   * Sets the user's status back to 'active'
+   * @param id - Employee UUID
+   * @returns Promise<void>
+   */
+  async reactivate(id: string): Promise<void> {
+    // Call PUT /users/:id/reactivate endpoint
+    // This endpoint needs to be implemented by backend team
+    // For now, we'll create the API call structure
+    const { apiClient } = await import('../client');
+    return apiClient.request<void>(`/users/${id}/reactivate`, {
+      method: 'PUT',
+      requiresAuth: true,
+      operationId: 'UsersController_reactivate',
+    });
+  },
+
+  /**
    * Invite a new employee with minimal information
    * Simplified helper for creating a user with invitation
    * @param email - Employee email

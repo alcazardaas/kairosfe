@@ -90,36 +90,33 @@ export default function LeaveRequestForm({
   };
 
   // Check for overlaps when dates change
-  // DISABLED: Backend doesn't support /calendar/check-overlap endpoint yet
   useEffect(() => {
-    // TODO: Re-enable when backend implements check-overlap endpoint
-    // if (startDate && endDate && new Date(endDate) >= new Date(startDate)) {
-    //   checkOverlaps();
-    // } else {
-    //   setOverlapCheck(null);
-    // }
+    if (startDate && endDate && new Date(endDate) >= new Date(startDate)) {
+      checkOverlaps();
+    } else {
+      setOverlapCheck(null);
+    }
   }, [startDate, endDate]);
 
   const checkOverlaps = async () => {
-    // DISABLED: Backend endpoint not available
-    // try {
-    //   setCheckingOverlap(true);
-    //   const result = await checkDateOverlap(startDate, endDate, user?.id);
-    //   setOverlapCheck(result);
-    //
-    //   // Track event if there's an overlap
-    //   if (result.hasOverlap && typeof window !== 'undefined' && (window as any).posthog) {
-    //     (window as any).posthog.capture('pto_overlap_warned', {
-    //       userId: user?.id,
-    //       holidaysCount: result.holidays.length,
-    //       leavesCount: result.leaves.length,
-    //     });
-    //   }
-    // } catch (error) {
-    //   console.error('Failed to check date overlap:', error);
-    // } finally {
-    //   setCheckingOverlap(false);
-    // }
+    try {
+      setCheckingOverlap(true);
+      const result = await checkDateOverlap(startDate, endDate, user?.id);
+      setOverlapCheck(result);
+
+      // Track event if there's an overlap
+      if (result.hasOverlap && typeof window !== 'undefined' && (window as any).posthog) {
+        (window as any).posthog.capture('pto_overlap_warned', {
+          userId: user?.id,
+          holidaysCount: result.holidays.length,
+          leavesCount: result.leaves.length,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to check date overlap:', error);
+    } finally {
+      setCheckingOverlap(false);
+    }
   };
 
   return (
