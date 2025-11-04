@@ -244,7 +244,15 @@ export default function TimesheetReportsTab() {
         </div>
       </div>
 
-      <DataState loading={loading} error={error} empty={false} emptyMessage="">
+      <DataState
+        mode={
+          loading ? 'loading'
+          : error ? 'error'
+          : 'success'
+        }
+        error={error}
+        emptyMessage=""
+      >
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">

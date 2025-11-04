@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getTimesheet, getTimeEntries } from '@/lib/api/services/timesheets';
+import { timesheetsService } from '@/lib/api/services/timesheets';
+import { timeEntriesService } from '@/lib/api/services/time-entries';
 import { getWeekDates, formatDate, getDayName } from '@/lib/utils/date';
-import type { Timesheet, TimeEntry } from '@kairos/shared';
+import type { TimesheetDto, TimeEntryDto } from '@/lib/api/schemas';
+import TimesheetStatusBadge from './TimesheetStatusBadge';
 import '@/lib/i18n';
 
 interface TimesheetDetailModalProps {
@@ -19,19 +21,24 @@ export default function TimesheetDetailModal({
   onReject,
 }: TimesheetDetailModalProps) {
   const { t } = useTranslation();
-  const [timesheet, setTimesheet] = useState<Timesheet | null>(null);
-  const [entries, setEntries] = useState<TimeEntry[]>([]);
+  const [timesheet, setTimesheet] = useState<TimesheetDto | null>(null);
+  const [entries, setEntries] = useState<TimeEntryDto[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [timesheetData, entriesData] = await Promise.all([
-          getTimesheet(timesheetId),
-          getTimeEntries({ timesheetId }),
-        ]);
+        const timesheetData = await timesheetsService.getById(timesheetId);
         setTimesheet(timesheetData);
-        setEntries(entriesData);
+
+        // Load time entries for this timesheet's week
+        if (timesheetData.weekStartDate && timesheetData.userId) {
+          const entriesResponse = await timeEntriesService.getAll({
+            userId: timesheetData.userId,
+            weekStartDate: timesheetData.weekStartDate,
+          });
+          setEntries(entriesResponse.data);
+        }
       } catch (error) {
         console.error('Failed to load timesheet details:', error);
       } finally {
@@ -58,12 +65,12 @@ export default function TimesheetDetailModal({
     return null;
   }
 
-  const weekDates = getWeekDates(new Date(timesheet.weekStart));
+  const weekDates = getWeekDates(new Date(timesheet.weekStartDate));
 
   // Calculate daily totals
-  const dailyTotals = weekDates.map((date) => {
-    const dateStr = formatDate(date);
-    const dayEntries = entries.filter((e) => e.date === dateStr);
+  const dailyTotals = weekDates.map((date, idx) => {
+    const dayOfWeek = idx; // 0=Sunday, 6=Saturday
+    const dayEntries = entries.filter((e) => e.dayOfWeek === dayOfWeek);
     return dayEntries.reduce((sum, e) => sum + e.hours, 0);
   });
 
@@ -77,8 +84,7 @@ export default function TimesheetDetailModal({
               {t('timesheet.timesheetDetails')}
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {new Date(timesheet.weekStart).toLocaleDateString()} -{' '}
-              {new Date(timesheet.weekEnd).toLocaleDateString()}
+              {weekDates[0].toLocaleDateString()} - {weekDates[6].toLocaleDateString()}
             </p>
           </div>
           <button
@@ -92,25 +98,13 @@ export default function TimesheetDetailModal({
         {/* Status and Metadata */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{t('timesheet.status')}</p>
-            <span
-              className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-1 ${
-                timesheet.status === 'draft'
-                  ? 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-                  : timesheet.status === 'pending'
-                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                  : timesheet.status === 'approved'
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-              }`}
-            >
-              {t(`timesheet.status_${timesheet.status}`)}
-            </span>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t('timesheet.status')}</p>
+            <TimesheetStatusBadge status={timesheet.status} />
           </div>
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400">{t('timesheet.totalHours')}</p>
             <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-              {timesheet.totalHours}h
+              {timesheet.totalHours || 0}h
             </p>
           </div>
           <div>
@@ -149,26 +143,27 @@ export default function TimesheetDetailModal({
                 <tr key={entry.id} className="border-t border-gray-200 dark:border-gray-700">
                   <td className="px-4 py-3 border-r border-gray-200 dark:border-gray-700">
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {entry.projectName}
+                      Project: {entry.project_id}
                     </div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">
-                      {entry.taskName}
-                    </div>
-                    {entry.notes && (
+                    {entry.task_id && (
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                        Task: {entry.task_id}
+                      </div>
+                    )}
+                    {entry.note && (
                       <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                        {entry.notes}
+                        {entry.note}
                       </div>
                     )}
                   </td>
-                  {weekDates.map((date) => {
-                    const dateStr = formatDate(date);
-                    const isEntryDate = entry.date === dateStr;
+                  {weekDates.map((date, idx) => {
+                    const isEntryDay = entry.day_of_week === idx;
                     return (
                       <td
-                        key={dateStr}
+                        key={idx}
                         className="px-4 py-3 text-center border-r border-gray-200 dark:border-gray-700"
                       >
-                        {isEntryDate && (
+                        {isEntryDay && (
                           <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                             {entry.hours}h
                           </span>

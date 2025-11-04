@@ -157,11 +157,11 @@ export async function getWeekView(userId: string, weekStartDate: string): Promis
       totalHours: hours,
     })),
     weeklyTotal: backendResponse.weekly_total || 0,
-    // Transform projectBreakdown from object to array
-    projectBreakdown: Object.entries(backendResponse.by_project || {}).map(([projectId, data]: [string, any]) => ({
-      projectId,
-      projectName: data.project_name || data.projectName || 'Unknown Project',
-      totalHours: data.hours || data.totalHours || 0,
+    // Use projectBreakdown array from backend (new format)
+    projectBreakdown: (backendResponse.projectBreakdown || []).map((item: any) => ({
+      projectId: item.projectId,
+      projectName: item.projectName,
+      totalHours: item.totalHours,
     })),
   };
 

@@ -10,6 +10,7 @@ import { useAuthStore } from '@/lib/store';
 import { timesheetsService } from '@/lib/api/services/timesheets';
 import type { TimesheetDto, TimesheetStatus } from '@/lib/api/schemas';
 import TimesheetStatusBadge from './TimesheetStatusBadge';
+import TimesheetDetailModal from './TimesheetDetailModal';
 import DataState from '@/components/ui/DataState';
 import '@/lib/i18n';
 
@@ -31,6 +32,9 @@ export default function TimesheetHistoryTab() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const pageSize = 10;
+
+  // Modal state
+  const [viewingTimesheetId, setViewingTimesheetId] = useState<string | null>(null);
 
   useEffect(() => {
     loadTimesheets();
@@ -78,7 +82,10 @@ export default function TimesheetHistoryTab() {
   };
 
   const calculateTotalHours = (timesheet: TimesheetDto): number => {
-    // This would ideally come from the API, but we can calculate if time_entries are populated
+    // Use totalHours from API response if available, otherwise fallback to calculation
+    if (timesheet.totalHours !== undefined) {
+      return timesheet.totalHours;
+    }
     return (timesheet.time_entries?.length || 0) * 8; // Placeholder calculation
   };
 
@@ -169,9 +176,13 @@ export default function TimesheetHistoryTab() {
       {/* Timesheets Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <DataState
-          loading={loading}
+          mode={
+            loading ? 'loading'
+            : error ? 'error'
+            : timesheets.length === 0 ? 'empty'
+            : 'success'
+          }
           error={error}
-          empty={timesheets.length === 0}
           emptyMessage={t('timesheet.history.noTimesheets')}
         >
           <div className="overflow-x-auto">
@@ -225,10 +236,7 @@ export default function TimesheetHistoryTab() {
                     </td>
                     <td className="px-6 py-4 text-sm text-right">
                       <button
-                        onClick={() => {
-                          // Navigate to view details (could open a modal or navigate to the week)
-                          console.log('View timesheet:', timesheet.id);
-                        }}
+                        onClick={() => setViewingTimesheetId(timesheet.id)}
                         className="text-blue-600 dark:text-blue-400 hover:underline"
                       >
                         {t('common.view')}
@@ -265,6 +273,14 @@ export default function TimesheetHistoryTab() {
             {t('common.next')}
           </button>
         </div>
+      )}
+
+      {/* Timesheet Detail Modal */}
+      {viewingTimesheetId && (
+        <TimesheetDetailModal
+          timesheetId={viewingTimesheetId}
+          onClose={() => setViewingTimesheetId(null)}
+        />
       )}
     </div>
   );

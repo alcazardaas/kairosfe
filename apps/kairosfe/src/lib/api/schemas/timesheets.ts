@@ -8,18 +8,25 @@ import { createDataResponseSchema, TimesheetStatusSchema } from './common';
 // Timesheet DTO
 export const TimesheetDtoSchema = z.object({
   id: z.string().uuid(),
-  tenantId: z.string().uuid(),
+  tenantId: z.string().uuid().optional(), // Backend may not include this field
   userId: z.string().uuid(),
   weekStartDate: z.string(),
   status: TimesheetStatusSchema,
-  submittedAt: z.string().datetime().nullable(),
-  submittedByUserId: z.string().uuid().nullable(),
-  reviewedAt: z.string().datetime().nullable(),
-  reviewedByUserId: z.string().uuid().nullable(),
+  submittedAt: z.string().nullable(),
+  submittedByUserId: z.string().nullable(),
+  reviewedAt: z.string().nullable(),
+  reviewedByUserId: z.string().nullable(),
   reviewNote: z.string().nullable(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
   time_entries: z.array(z.string()).optional(),
+  // Additional fields from backend API response
+  user: z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+    email: z.string(),
+  }).optional(),
+  totalHours: z.number().optional(),
 });
 
 export type TimesheetDto = z.infer<typeof TimesheetDtoSchema>;

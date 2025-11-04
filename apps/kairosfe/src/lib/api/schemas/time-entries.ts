@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createDataResponseSchema, createPaginatedResponseSchema } from './common';
+import { createDataResponseSchema } from './common';
 
 /**
  * Time Entry-related schemas from OpenAPI spec
@@ -12,11 +12,11 @@ export const TimeEntryDtoSchema = z.object({
   user_id: z.string().uuid(),
   project_id: z.string().uuid(),
   task_id: z.string().uuid().nullable(),
-  week_start_date: z.string().datetime(),
+  week_start_date: z.string(),
   day_of_week: z.number().min(0).max(6),
   hours: z.number(),
   note: z.string().nullable(),
-  created_at: z.string().datetime(),
+  created_at: z.string(),
 });
 
 export type TimeEntryDto = z.infer<typeof TimeEntryDtoSchema>;
@@ -26,7 +26,13 @@ export const TimeEntryResponseSchema = createDataResponseSchema(TimeEntryDtoSche
 export type TimeEntryResponse = z.infer<typeof TimeEntryResponseSchema>;
 
 // Time Entry List Response
-export const TimeEntryListResponseSchema = createPaginatedResponseSchema(TimeEntryDtoSchema);
+// Using flat pagination structure to match backend format (same as timesheets)
+export const TimeEntryListResponseSchema = z.object({
+  data: z.array(TimeEntryDtoSchema),
+  page: z.number(),
+  page_size: z.number(),
+  total: z.number(),
+});
 export type TimeEntryListResponse = z.infer<typeof TimeEntryListResponseSchema>;
 
 // Weekly Hours DTO
@@ -70,8 +76,8 @@ export const WeekViewResponseSchema = z.object({
     userId: z.string().uuid(),
     weekStartDate: z.string(),
     status: z.enum(['draft', 'pending', 'approved', 'rejected']),
-    submittedAt: z.string().datetime().nullable(),
-    reviewedAt: z.string().datetime().nullable(),
+    submittedAt: z.string().nullable(),
+    reviewedAt: z.string().nullable(),
     reviewNote: z.string().nullable(),
   }).nullable(), // Timesheet can be null when no timesheet exists for the week
   entries: z.array(TimeEntryDtoSchema),

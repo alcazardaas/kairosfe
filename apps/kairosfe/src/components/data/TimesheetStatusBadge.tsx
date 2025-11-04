@@ -44,6 +44,18 @@ export default function TimesheetStatusBadge({ status, className = '' }: Timeshe
 
   const config = statusConfig[status];
 
+  // Handle undefined or unknown status
+  if (!config) {
+    console.error('TimesheetStatusBadge: Invalid or undefined status:', status);
+    return (
+      <span
+        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 ${className}`}
+      >
+        Unknown
+      </span>
+    );
+  }
+
   return (
     <span
       className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${config.bgColor} ${config.textColor} ${config.borderColor} ${className}`}

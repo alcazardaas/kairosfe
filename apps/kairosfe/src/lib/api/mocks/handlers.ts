@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw';
+import { randomUUID } from 'crypto';
 import type {
   User,
   LeaveRequest,
@@ -20,7 +21,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000
 
 // Mock data
 const mockUser: User = {
-  id: '1',
+  id: '1b440b57-1f8d-40f5-89a6-d2ec1f0b29e0',
   email: 'demo@kairos.com',
   name: 'Demo User',
   role: 'employee',
@@ -43,7 +44,7 @@ const mockUser: User = {
 };
 
 const mockManagerUser: User = {
-  id: '2',
+  id: '98445b90-ed9f-494c-9860-dd7a5c214881',
   email: 'manager@kairos.com',
   name: 'Manager User',
   role: 'manager',
@@ -238,9 +239,170 @@ const mockTimesheetPolicies = [
   },
 ];
 
+// Helper to get Monday of current week
+const getCurrentWeekStart = (): string => {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // If Sunday, go back 6 days, else go to Monday
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + diff);
+  return monday.toISOString().split('T')[0];
+};
+
+// Helper to get previous week's Monday
+const getPreviousWeekStart = (): string => {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const diff = dayOfWeek === 0 ? -13 : -6 - dayOfWeek; // Go back to previous Monday
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + diff);
+  return monday.toISOString().split('T')[0];
+};
+
+// Mock timesheets
+const mockTimesheets: Timesheet[] = [
+  {
+    id: 'ts-001',
+    userId: '3', // Bob Johnson
+    weekStart: getCurrentWeekStart(),
+    status: 'pending',
+    createdAt: Date.now() - 86400000, // 1 day ago
+    updatedAt: Date.now() - 86400000,
+    submittedAt: Date.now() - 3600000, // 1 hour ago
+    totalHours: 40,
+  },
+  {
+    id: 'ts-002',
+    userId: '4', // Alice Williams
+    weekStart: getCurrentWeekStart(),
+    status: 'pending',
+    createdAt: Date.now() - 86400000,
+    updatedAt: Date.now() - 86400000,
+    submittedAt: Date.now() - 7200000, // 2 hours ago
+    totalHours: 38,
+  },
+  {
+    id: 'ts-003',
+    userId: '1b440b57-1f8d-40f5-89a6-d2ec1f0b29e0', // Demo User (current user)
+    weekStart: getCurrentWeekStart(),
+    status: 'draft',
+    createdAt: Date.now() - 43200000, // 12 hours ago
+    updatedAt: Date.now() - 3600000,
+    totalHours: 24,
+  },
+  {
+    id: 'ts-004',
+    userId: '3', // Bob Johnson
+    weekStart: getPreviousWeekStart(),
+    status: 'approved',
+    createdAt: Date.now() - 604800000, // 7 days ago
+    updatedAt: Date.now() - 518400000, // 6 days ago
+    submittedAt: Date.now() - 604800000,
+    totalHours: 40,
+  },
+  {
+    id: 'ts-005',
+    userId: 'ae84a586-2ad2-4dc1-b77b-4633f44ce4a2', // Carol Developer
+    weekStart: getCurrentWeekStart(),
+    status: 'pending',
+    createdAt: Date.now() - 172800000, // 2 days ago
+    updatedAt: Date.now() - 172800000,
+    submittedAt: Date.now() - 86400000, // 1 day ago
+    totalHours: 40,
+  },
+  {
+    id: 'ts-006',
+    userId: 'ae84a586-2ad2-4dc1-b77b-4633f44ce4a2', // Carol Developer
+    weekStart: getPreviousWeekStart(),
+    status: 'approved',
+    createdAt: Date.now() - 1209600000, // 14 days ago
+    updatedAt: Date.now() - 864000000, // 10 days ago
+    submittedAt: Date.now() - 1209600000,
+    totalHours: 42,
+  },
+  {
+    id: 'ts-007',
+    userId: 'ae84a586-2ad2-4dc1-b77b-4633f44ce4a2', // Carol Developer
+    weekStart: (() => {
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      const diff = dayOfWeek === 0 ? -20 : -13 - dayOfWeek; // 2 weeks ago
+      const monday = new Date(today);
+      monday.setDate(today.getDate() + diff);
+      return monday.toISOString().split('T')[0];
+    })(),
+    status: 'approved',
+    createdAt: Date.now() - 1814400000, // 21 days ago
+    updatedAt: Date.now() - 1468800000, // 17 days ago
+    submittedAt: Date.now() - 1814400000,
+    totalHours: 40,
+  },
+];
+
+// Helper to get current week start (Monday)
+const getCurrentWeekStartForEntries = (): string => {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + diff);
+  return monday.toISOString().split('T')[0];
+};
+
+// Mock time entries
+const mockTimeEntries: TimeEntry[] = [
+  {
+    id: 'te-001',
+    userId: '1b440b57-1f8d-40f5-89a6-d2ec1f0b29e0', // Demo User
+    projectId: '1', // Kairos HR Platform
+    taskId: null,
+    weekStartDate: getCurrentWeekStartForEntries(),
+    dayOfWeek: 1, // Monday
+    hours: 8,
+    note: 'Working on dashboard features',
+    date: (() => {
+      const monday = new Date(getCurrentWeekStartForEntries());
+      monday.setDate(monday.getDate() + 1);
+      return monday.toISOString().split('T')[0];
+    })(),
+  },
+  {
+    id: 'te-002',
+    userId: '1b440b57-1f8d-40f5-89a6-d2ec1f0b29e0', // Demo User
+    projectId: '2', // Mobile App Development
+    taskId: null,
+    weekStartDate: getCurrentWeekStartForEntries(),
+    dayOfWeek: 2, // Tuesday
+    hours: 6.5,
+    note: 'Mobile UI components',
+    date: (() => {
+      const monday = new Date(getCurrentWeekStartForEntries());
+      monday.setDate(monday.getDate() + 2);
+      return monday.toISOString().split('T')[0];
+    })(),
+  },
+  {
+    id: 'te-003',
+    userId: '1b440b57-1f8d-40f5-89a6-d2ec1f0b29e0', // Demo User
+    projectId: '1', // Kairos HR Platform
+    taskId: null,
+    weekStartDate: getCurrentWeekStartForEntries(),
+    dayOfWeek: 3, // Wednesday
+    hours: 7.5,
+    note: null,
+    date: (() => {
+      const monday = new Date(getCurrentWeekStartForEntries());
+      monday.setDate(monday.getDate() + 3);
+      return monday.toISOString().split('T')[0];
+    })(),
+  },
+];
+
 // In-memory storage for timesheets and entries
 const timesheets: Map<string, Timesheet> = new Map();
+mockTimesheets.forEach((ts) => timesheets.set(ts.id, ts));
 const timeEntries: Map<string, TimeEntry> = new Map();
+mockTimeEntries.forEach((te) => timeEntries.set(te.id, te));
 
 // In-memory storage for leave requests
 const leaveRequests: Map<string, LeaveRequest> = new Map();
@@ -913,6 +1075,8 @@ export const handlers = [
     const url = new URL(request.url);
     const timesheetId = url.searchParams.get('timesheet_id');
     const userId = url.searchParams.get('user_id');
+    const weekStartDate = url.searchParams.get('week_start_date');
+    const weekEndDate = url.searchParams.get('week_end_date');
 
     let results = Array.from(timeEntries.values());
 
@@ -922,6 +1086,14 @@ export const handlers = [
     if (userId) {
       results = results.filter((entry) => entry.userId === userId);
     }
+    if (weekStartDate && weekEndDate) {
+      results = results.filter((entry) => {
+        const entryDate = new Date(entry.date);
+        const start = new Date(weekStartDate);
+        const end = new Date(weekEndDate);
+        return entryDate >= start && entryDate <= end;
+      });
+    }
 
     const entriesArray = results.map((e) => ({
       id: e.id,
@@ -929,7 +1101,7 @@ export const handlers = [
       user_id: e.userId,
       project_id: e.projectId,
       task_id: e.taskId || null,
-      week_start_date: new Date(e.date).toISOString(), // Convert to ISO datetime
+      week_start_date: new Date(e.date).toISOString().split('T')[0], // Convert to date-only string
       day_of_week: new Date(e.date).getDay(),
       hours: e.hours,
       note: e.notes || null,
@@ -938,11 +1110,9 @@ export const handlers = [
 
     return HttpResponse.json({
       data: entriesArray,
-      meta: {
-        page: 1,
-        limit: 20,
-        total: entriesArray.length,
-      },
+      page: 1,
+      page_size: 20,
+      total: entriesArray.length,
     });
   }),
 
@@ -1202,11 +1372,108 @@ export const handlers = [
     });
   }),
 
+  // 27. Get week view (optimized endpoint for Epic 1 Story 1)
+  http.get(`${API_BASE_URL}/api/v1/time-entries/week/:userId/:weekStartDate`, ({ request, params }) => {
+    if (!checkAuth(request)) {
+      return HttpResponse.json({
+        error: 'Unauthorized',
+        message: 'Invalid or expired session token',
+        statusCode: 401
+      }, { status: 401 });
+    }
+
+    const { userId, weekStartDate } = params;
+
+    // Get or create draft timesheet for this week
+    let timesheet = Array.from(timesheets.values()).find(
+      (ts) => ts.userId === userId && ts.weekStart === weekStartDate
+    );
+
+    if (!timesheet) {
+      // Create a draft timesheet for this week
+      timesheet = {
+        id: randomUUID(),
+        userId: userId as string,
+        weekStart: weekStartDate as string,
+        status: 'draft',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        totalHours: 0,
+      };
+      timesheets.set(timesheet.id, timesheet);
+    }
+
+    // Get entries for this week
+    const entries = Array.from(timeEntries.values()).filter(
+      (entry) => entry.userId === userId && entry.weekStartDate === weekStartDate
+    );
+
+    // Calculate daily totals
+    const dailyTotals = Array.from({ length: 7 }, (_, dayOfWeek) => ({
+      dayOfWeek,
+      totalHours: entries
+        .filter((e) => e.dayOfWeek === dayOfWeek)
+        .reduce((sum, e) => sum + e.hours, 0),
+    }));
+
+    // Calculate weekly total
+    const weeklyTotal = entries.reduce((sum, e) => sum + e.hours, 0);
+
+    // Calculate project breakdown
+    const projectMap = new Map<string, { projectId: string; projectName: string; totalHours: number }>();
+    entries.forEach((entry) => {
+      const existing = projectMap.get(entry.projectId);
+      const project = projects.get(entry.projectId);
+      if (existing) {
+        existing.totalHours += entry.hours;
+      } else {
+        projectMap.set(entry.projectId, {
+          projectId: entry.projectId,
+          projectName: project?.name || 'Unknown Project',
+          totalHours: entry.hours,
+        });
+      }
+    });
+
+    // Update timesheet total hours
+    timesheet.totalHours = weeklyTotal;
+
+    // Transform entries to match schema (snake_case)
+    const transformedEntries = entries.map((entry) => ({
+      id: entry.id,
+      tenant_id: '11111111-1111-1111-1111-111111111111',
+      user_id: entry.userId,
+      project_id: entry.projectId,
+      task_id: entry.taskId,
+      week_start_date: entry.weekStartDate,
+      day_of_week: entry.dayOfWeek,
+      hours: entry.hours,
+      note: entry.note,
+      created_at: new Date().toISOString(),
+    }));
+
+    return HttpResponse.json({
+      timesheet: {
+        id: timesheet.id,
+        userId: timesheet.userId,
+        weekStartDate: timesheet.weekStart,
+        status: timesheet.status,
+        submittedAt: timesheet.submittedAt ? new Date(timesheet.submittedAt).toISOString() : null,
+        reviewedAt: null,
+        reviewNote: null,
+      },
+      entries: transformedEntries,
+      dailyTotals,
+      weeklyTotal,
+      projectBreakdown: Array.from(projectMap.values()),
+    });
+  }),
+
   // ========================================
   // TIMESHEETS ENDPOINTS (7)
   // ========================================
 
-  // 27. List timesheets
+  // 28. List timesheets
   http.get(`${API_BASE_URL}/api/v1/timesheets`, ({ request }) => {
     if (!checkAuth(request)) {
       return HttpResponse.json({
@@ -1220,6 +1487,7 @@ export const handlers = [
     const weekStart = url.searchParams.get('week_start');
     const userId = url.searchParams.get('user_id');
     const status = url.searchParams.get('status');
+    const team = url.searchParams.get('team');
 
     let results = Array.from(timesheets.values());
 
@@ -1231,6 +1499,10 @@ export const handlers = [
     }
     if (status) {
       results = results.filter((ts) => ts.status === status);
+    }
+    if (team === 'true') {
+      // Filter to show team members' timesheets (exclude current user's)
+      results = results.filter((ts) => ts.userId !== getUserFromToken(request).id);
     }
 
     const timesheetsArray = results.map((ts) => ({
@@ -1247,6 +1519,7 @@ export const handlers = [
       createdAt: new Date(ts.createdAt).toISOString(),
       updatedAt: new Date(ts.updatedAt).toISOString(),
       time_entries: [],
+      totalHours: ts.totalHours || 0,
     }));
 
     return HttpResponse.json({
@@ -1268,7 +1541,7 @@ export const handlers = [
     }
 
     const body = (await request.json()) as { weekStart: string };
-    const id = `ts-${Date.now()}`;
+    const id = randomUUID();
 
     const weekStartDate = new Date(body.weekStart);
     const weekEndDate = new Date(weekStartDate);

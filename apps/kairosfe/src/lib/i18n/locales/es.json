@@ -87,9 +87,11 @@
     "close": "Cerrar",
     "delete": "Eliminar",
     "edit": "Editar",
+    "view": "Ver",
     "back": "Atrás",
     "next": "Siguiente",
     "previous": "Anterior",
+    "actions": "Acciones",
     "selectAll": "Seleccionar Todo",
     "deselectAll": "Deseleccionar Todo"
   },
