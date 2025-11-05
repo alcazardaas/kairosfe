@@ -875,7 +875,7 @@ export default function ProjectsManagementContent() {
                 <button
                   onClick={handleAddMember}
                   disabled={!selectedUserId}
-                  className="inline-flex items-center justify-center rounded-md bg-primary-light px-4 py-2 text-sm font-semibold text-white hover:bg-primary-light/90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-dark dark:hover:bg-primary-dark/90"
+                  className="inline-flex items-center justify-center rounded-md bg-primary-light px-4 py-2 text-sm font-semibold hover:bg-primary-light/90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-dark dark:hover:bg-primary-dark/90"
                 >
                   <span className="material-symbols-outlined mr-1 text-sm">add</span>
                   Add
