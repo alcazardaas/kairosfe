@@ -122,27 +122,63 @@ const mockTeamMembers: TeamMember[] = [
   },
 ];
 
-const mockProjects: Project[] = [
+// Updated mock projects with all new fields matching backend API
+const mockProjects = [
   {
     id: '1',
+    tenantId: 'tenant-1',
     name: 'Kairos HR Platform',
     code: 'KAI-HR',
-    description: 'Main HR management platform',
-    isActive: true,
+    active: true,
+    description: 'Main HR management platform development with modern UI/UX',
+    startDate: '2025-01-01',
+    endDate: '2025-12-31',
+    clientName: 'Internal',
+    budgetHours: '2000.00',
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-20T15:30:00.000Z',
   },
   {
     id: '2',
+    tenantId: 'tenant-1',
     name: 'Mobile App Development',
     code: 'KAI-MOB',
-    description: 'Mobile application for employees',
-    isActive: true,
+    active: true,
+    description: 'Mobile application for employees with cross-platform support',
+    startDate: '2025-02-01',
+    endDate: '2025-08-31',
+    clientName: 'Acme Corporation',
+    budgetHours: '1500.00',
+    createdAt: '2025-01-15T00:00:00.000Z',
+    updatedAt: '2025-02-05T10:00:00.000Z',
   },
   {
     id: '3',
+    tenantId: 'tenant-1',
     name: 'Analytics Dashboard',
     code: 'KAI-ANA',
-    description: 'Data analytics and reporting',
-    isActive: true,
+    active: true,
+    description: 'Data analytics and reporting dashboard with real-time insights',
+    startDate: '2025-03-01',
+    endDate: '2025-11-30',
+    clientName: 'TechStart Inc',
+    budgetHours: '1200.00',
+    createdAt: '2025-02-10T00:00:00.000Z',
+    updatedAt: '2025-03-01T12:00:00.000Z',
+  },
+  {
+    id: '4',
+    tenantId: 'tenant-1',
+    name: 'Legacy System Migration',
+    code: 'KAI-LEG',
+    active: false,
+    description: 'Migration of legacy systems to modern architecture (completed)',
+    startDate: '2024-06-01',
+    endDate: '2024-12-31',
+    clientName: null,
+    budgetHours: '800.00',
+    createdAt: '2024-05-15T00:00:00.000Z',
+    updatedAt: '2025-01-05T09:00:00.000Z',
   },
 ];
 
@@ -647,7 +683,7 @@ export const handlers = [
   // PROJECTS ENDPOINTS (8)
   // ========================================
 
-  // 6. List all projects
+  // 6. List all projects (with pagination, filtering, sorting)
   http.get(`${API_BASE_URL}/api/v1/projects`, ({ request }) => {
     if (!checkAuth(request)) {
       return HttpResponse.json({
@@ -657,22 +693,54 @@ export const handlers = [
       }, { status: 401 });
     }
 
-    const projectsArray = Array.from(projects.values()).map((p) => ({
-      id: p.id,
-      tenant_id: 'tenant-1',
-      name: p.name,
-      code: p.code,
-      active: p.isActive,
-      created_at: '2025-01-15T10:00:00.000Z',
-      updated_at: '2025-01-20T15:30:00.000Z',
-    }));
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const limit = parseInt(url.searchParams.get('limit') || '20');
+    const activeFilter = url.searchParams.get('active');
+    const searchQuery = url.searchParams.get('search');
+    const sort = url.searchParams.get('sort');
+
+    let projectsArray = Array.from(projects.values());
+
+    // Apply active filter
+    if (activeFilter !== null) {
+      const isActive = activeFilter === 'true';
+      projectsArray = projectsArray.filter((p) => p.active === isActive);
+    }
+
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      projectsArray = projectsArray.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          (p.code && p.code.toLowerCase().includes(query))
+      );
+    }
+
+    // Apply sorting
+    if (sort) {
+      const [field, order] = sort.split(':');
+      projectsArray.sort((a, b) => {
+        const aVal = a[field];
+        const bVal = b[field];
+        if (aVal < bVal) return order === 'asc' ? -1 : 1;
+        if (aVal > bVal) return order === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // Pagination
+    const total = projectsArray.length;
+    const start = (page - 1) * limit;
+    const paginatedProjects = projectsArray.slice(start, start + limit);
 
     return HttpResponse.json({
-      data: projectsArray,
+      data: paginatedProjects,
       meta: {
-        page: 1,
-        limit: 20,
-        total: projectsArray.length,
+        page,
+        limit,
+        total,
       },
     });
   }),
@@ -693,12 +761,17 @@ export const handlers = [
 
     const newProject = {
       id,
-      tenant_id: 'tenant-1',
+      tenantId: 'tenant-1',
       name: body.name,
       code: body.code || null,
-      active: true,
-      created_at: now,
-      updated_at: now,
+      active: body.active !== undefined ? body.active : true,
+      description: body.description || null,
+      startDate: body.startDate || null,
+      endDate: body.endDate || null,
+      clientName: body.clientName || null,
+      budgetHours: body.budgetHours ? body.budgetHours.toString() : null,
+      createdAt: now,
+      updatedAt: now,
     };
 
     projects.set(id, newProject);
@@ -751,7 +824,7 @@ export const handlers = [
     const updated = {
       ...project,
       ...body,
-      updated_at: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     projects.set(params.id as string, updated);
@@ -877,6 +950,63 @@ export const handlers = [
     }
 
     return new HttpResponse(null, { status: 204 });
+  }),
+
+  // 13b. Bulk assign members to project
+  http.post(`${API_BASE_URL}/api/v1/projects/:id/members/bulk`, async ({ request, params }) => {
+    if (!checkAuth(request)) {
+      return HttpResponse.json({
+        error: 'Unauthorized',
+        message: 'Invalid or expired session token',
+        statusCode: 401
+      }, { status: 401 });
+    }
+
+    const project = projects.get(params.id as string);
+    if (!project) {
+      return HttpResponse.json({
+        error: 'Not Found',
+        message: 'Project not found',
+        statusCode: 404
+      }, { status: 404 });
+    }
+
+    const body = (await request.json()) as any;
+    const { userIds, role = 'member' } = body;
+
+    const success: Array<{ userId: string; membershipId: string }> = [];
+    const failed: Array<{ userId: string; reason: string }> = [];
+
+    // Simulate bulk assignment with some potential failures
+    userIds.forEach((userId: string) => {
+      // Simulate 90% success rate for demo purposes
+      if (Math.random() > 0.1) {
+        const membershipId = `pm-${Date.now()}-${userId.slice(0, 8)}`;
+        success.push({ userId, membershipId });
+      } else {
+        // Simulate various failure reasons
+        const reasons = [
+          'User not found in this tenant',
+          'User is already a member of this project',
+        ];
+        failed.push({
+          userId,
+          reason: reasons[Math.floor(Math.random() * reasons.length)],
+        });
+      }
+    });
+
+    return HttpResponse.json({
+      data: {
+        success,
+        failed,
+      },
+      summary: {
+        total: userIds.length,
+        succeeded: success.length,
+        failed: failed.length,
+      },
+    }, { status: 201 });
   }),
 
   // ========================================

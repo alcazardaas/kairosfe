@@ -7,14 +7,18 @@ import { usersService } from '@/lib/api/services/users';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
-import type { ProjectResponse } from '@/lib/api/schemas/projects';
+import type { ProjectResponse, ProjectDto } from '@/lib/api/schemas/projects';
 
-// Validation schema for project form
+// Validation schema for project form - using camelCase to match backend
 const projectSchema = z.object({
   name: z.string().min(1, 'Project name is required'),
-  description: z.string().nullable().optional(),
+  description: z.string().max(2000).nullable().optional(),
   code: z.string().min(1, 'Project code is required'),
   active: z.boolean(),
+  startDate: z.string().nullable().optional(),
+  endDate: z.string().nullable().optional(),
+  clientName: z.string().max(255).nullable().optional(),
+  budgetHours: z.string().nullable().optional(), // String input, will convert to number
 });
 
 type ProjectFormData = z.infer<typeof projectSchema>;
@@ -34,10 +38,10 @@ interface User {
 }
 
 export default function ProjectsManagementContent() {
-  const { t } = useTranslation();
+  const { t} = useTranslation();
   const [loading, setLoading] = useState(true);
-  const [projects, setProjects] = useState<ProjectResponse[]>([]);
-  const [filteredProjects, setFilteredProjects] = useState<ProjectResponse[]>([]);
+  const [projects, setProjects] = useState<ProjectDto[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<ProjectDto[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
 
@@ -45,7 +49,7 @@ export default function ProjectsManagementContent() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<ProjectResponse | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectDto | null>(null);
   const [saving, setSaving] = useState(false);
 
   // Members management
@@ -123,22 +127,30 @@ export default function ProjectsManagementContent() {
       description: '',
       code: '',
       active: true,
+      startDate: '',
+      endDate: '',
+      clientName: '',
+      budgetHours: '',
     });
     setIsCreateModalOpen(true);
   };
 
-  const openEditModal = (project: ProjectResponse) => {
+  const openEditModal = (project: ProjectDto) => {
     setSelectedProject(project);
     reset({
       name: project.name,
       description: project.description || '',
       code: project.code,
       active: project.active,
+      startDate: project.startDate || '',
+      endDate: project.endDate || '',
+      clientName: project.clientName || '',
+      budgetHours: project.budgetHours || '',
     });
     setIsEditModalOpen(true);
   };
 
-  const openMembersModal = async (project: ProjectResponse) => {
+  const openMembersModal = async (project: ProjectDto) => {
     setSelectedProject(project);
     setIsMembersModalOpen(true);
     await loadProjectMembers(project.id);
@@ -174,8 +186,12 @@ export default function ProjectsManagementContent() {
       await projectsService.create({
         name: data.name,
         description: data.description || null,
-        code: data.code,
+        code: data.code || null,
         active: data.active,
+        startDate: data.startDate || null,
+        endDate: data.endDate || null,
+        clientName: data.clientName || null,
+        budgetHours: data.budgetHours ? parseFloat(data.budgetHours) : null,
       });
 
       toast.success('Project created successfully');
@@ -202,13 +218,17 @@ export default function ProjectsManagementContent() {
   const onEditSubmit = async (data: ProjectFormData) => {
     if (!selectedProject) return;
 
-    try {
+    try{
       setSaving(true);
       await projectsService.update(selectedProject.id, {
         name: data.name,
         description: data.description || null,
-        code: data.code,
+        code: data.code || null,
         active: data.active,
+        startDate: data.startDate || null,
+        endDate: data.endDate || null,
+        clientName: data.clientName || null,
+        budgetHours: data.budgetHours ? parseFloat(data.budgetHours) : null,
       });
 
       toast.success('Project updated successfully');
@@ -233,7 +253,7 @@ export default function ProjectsManagementContent() {
     }
   };
 
-  const handleDelete = async (project: ProjectResponse) => {
+  const handleDelete = async (project: ProjectDto) => {
     if (!confirm(`Are you sure you want to delete project "${project.name}"? This action cannot be undone.`)) {
       return;
     }
@@ -518,18 +538,74 @@ export default function ProjectsManagementContent() {
 
               <div>
                 <label htmlFor="create-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Description
+                  {t('projectDescription')}
                 </label>
                 <textarea
                   id="create-description"
                   {...register('description')}
                   rows={3}
+                  maxLength={2000}
                   className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-                  placeholder="Brief description of the project..."
+                  placeholder={t('descriptionPlaceholder')}
                 />
                 {errors.description && (
                   <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.description.message}</p>
                 )}
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="create-start-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('projectStartDate')}
+                  </label>
+                  <input
+                    type="date"
+                    id="create-start-date"
+                    {...register('startDate')}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="create-end-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('projectEndDate')}
+                  </label>
+                  <input
+                    type="date"
+                    id="create-end-date"
+                    {...register('endDate')}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="create-client" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('clientOptional')}
+                </label>
+                <input
+                  type="text"
+                  id="create-client"
+                  {...register('clientName')}
+                  maxLength={255}
+                  className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                  placeholder="Acme Corporation"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="create-budget" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('projectBudget')}
+                </label>
+                <input
+                  type="number"
+                  id="create-budget"
+                  {...register('budgetHours')}
+                  step="0.5"
+                  min="0"
+                  className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                  placeholder={t('budgetHoursPlaceholder')}
+                />
               </div>
 
               <div className="flex items-center">
@@ -630,17 +706,74 @@ export default function ProjectsManagementContent() {
 
               <div>
                 <label htmlFor="edit-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Description
+                  {t('projectDescription')}
                 </label>
                 <textarea
                   id="edit-description"
                   {...register('description')}
                   rows={3}
+                  maxLength={2000}
                   className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                  placeholder={t('descriptionPlaceholder')}
                 />
                 {errors.description && (
                   <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.description.message}</p>
                 )}
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="edit-start-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('projectStartDate')}
+                  </label>
+                  <input
+                    type="date"
+                    id="edit-start-date"
+                    {...register('startDate')}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="edit-end-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('projectEndDate')}
+                  </label>
+                  <input
+                    type="date"
+                    id="edit-end-date"
+                    {...register('endDate')}
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="edit-client" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('clientOptional')}
+                </label>
+                <input
+                  type="text"
+                  id="edit-client"
+                  {...register('clientName')}
+                  maxLength={255}
+                  className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                  placeholder="Acme Corporation"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="edit-budget" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('projectBudget')}
+                </label>
+                <input
+                  type="number"
+                  id="edit-budget"
+                  {...register('budgetHours')}
+                  step="0.5"
+                  min="0"
+                  className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                  placeholder={t('budgetHoursPlaceholder')}
+                />
               </div>
 
               <div className="flex items-center">

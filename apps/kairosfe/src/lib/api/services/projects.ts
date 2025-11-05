@@ -12,16 +12,31 @@ import {
   getProjectMembers,
   addProjectMember,
   removeProjectMember,
+  bulkAssignMembers,
 } from '../endpoints/projects';
 import { searchProjects as searchProjectsEndpoint } from '../endpoints/search';
-import type { ProjectListResponse, ProjectResponse, CreateProjectDto, UpdateProjectDto } from '../schemas/projects';
+import type {
+  ProjectListResponse,
+  ProjectResponse,
+  CreateProjectDto,
+  UpdateProjectDto,
+  AssignProjectMemberDto,
+  BulkAssignMembersDto,
+  BulkAssignmentResponse,
+} from '../schemas/projects';
 
 export const projectsService = {
   /**
-   * Get all projects
+   * Get all projects with optional filtering and pagination
    */
-  async getAll(): Promise<ProjectListResponse> {
-    return findAllProjects();
+  async getAll(params?: {
+    page?: number;
+    limit?: number;
+    sort?: string;
+    active?: boolean;
+    search?: string;
+  }): Promise<ProjectListResponse> {
+    return findAllProjects(params);
   },
 
   /**
@@ -62,8 +77,12 @@ export const projectsService = {
   /**
    * Add a member to a project
    */
-  async addMember(projectId: string, userId: string, role?: string) {
-    return addProjectMember(projectId, { user_id: userId, role: role || null });
+  async addMember(projectId: string, userId: string, role?: 'member' | 'lead' | 'observer') {
+    const data: AssignProjectMemberDto = {
+      userId,
+      role,
+    };
+    return addProjectMember(projectId, data);
   },
 
   /**
@@ -95,5 +114,20 @@ export const projectsService = {
         id: p.id,
         name: p.name,
       }));
+  },
+
+  /**
+   * Bulk assign multiple users to a project
+   */
+  async bulkAssignMembers(
+    projectId: string,
+    userIds: string[],
+    role?: 'member' | 'lead' | 'observer',
+  ): Promise<BulkAssignmentResponse> {
+    const data: BulkAssignMembersDto = {
+      userIds,
+      role,
+    };
+    return bulkAssignMembers(projectId, data);
   },
 };
