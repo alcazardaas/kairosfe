@@ -10,7 +10,6 @@ Modern HR Management System built with Astro, React, TypeScript, and Tailwind CS
 - **State Management**: Zustand
 - **Forms**: React Hook Form + Zod
 - **i18n**: i18next (en, es, pt-PT, de)
-- **API Mocking**: MSW
 - **Testing**: Vitest + Playwright
 - **Analytics**: PostHog
 - **Error Tracking**: Sentry
@@ -36,7 +35,7 @@ kairosfe/
 │       │   │   └── charts/     # Chart components
 │       │   ├── lib/
 │       │   │   ├── auth/       # Auth utilities
-│       │   │   ├── api/        # API client & mocks
+│       │   │   ├── api/        # API client
 │       │   │   ├── i18n/       # Internationalization
 │       │   │   ├── store/      # Zustand stores
 │       │   │   └── test/       # Test utilities
@@ -167,12 +166,13 @@ Custom Tailwind config located at `apps/kairosfe/tailwind.config.mjs`:
 - Custom spacing, border radius, and shadows
 - Form plugin for better form styling
 
-### API & Mocking
+### API Integration
 
 - **API Base URL**: `http://localhost:3000` (configurable via .env)
-- MSW (Mock Service Worker) for API mocking in development (optional)
-- API client ready for real backend integration
+- Production-ready API client with authentication
 - Supports GET, POST, PUT, PATCH, DELETE methods
+- Automatic token refresh on 401 errors
+- Error handling with Sentry integration
 
 ### Testing
 
@@ -751,43 +751,36 @@ This section tracks the implementation status of all features and provides manua
 
 ---
 
-### **Story 10: Wiring MSW → API** ✅ COMPLETE
+### **Story 10: Real API Integration** ✅ COMPLETE
 
-**Status**: Infrastructure ready for real API integration
+**Status**: Application uses real backend API only
 
-**User Story**: As a developer, I want a smooth switch from mocks to real API so that I can ship incrementally.
+**User Story**: As a developer, I want to use the real backend API for all requests.
 
 **Implementation Checklist**:
 - [x] API client infrastructure ready at [src/lib/api/client.ts](apps/kairosfe/src/lib/api/client.ts)
 - [x] API base URL configurable via `VITE_API_BASE_URL` environment variable
-- [x] MSW configured in [src/lib/api/mocks/](apps/kairosfe/src/lib/api/mocks/) directory
-- [x] MSW can be enabled/disabled via browser dev tools or environment flag
 - [x] All service functions in [src/lib/api/services/](apps/kairosfe/src/lib/api/services/) use the API client
-- [x] To switch to real API: Simply update `VITE_API_BASE_URL` in .env and disable MSW
-- [x] MSW handlers follow the same API contract as the real backend
-- [x] API errors automatically reported to Sentry (existing error boundary setup)
+- [x] Authentication with JWT tokens and automatic refresh
+- [x] API errors automatically reported to Sentry
+- [x] Removed MSW (Mock Service Worker) infrastructure
 
 **Manual Testing**:
 1. **Real API**:
-   - Set `VITE_API_BASE_URL=http://localhost:8080`
+   - Set `VITE_API_BASE_URL=http://localhost:3000`
    - Start backend
-   - ✅ All requests should hit real API
+   - ✅ All requests hit real API
 
-2. **Partial Mocking**:
-   - Backend doesn't have `/holidays` endpoint yet
-   - ✅ MSW should intercept `/holidays` only
-   - ✅ Other endpoints go to real API
-
-3. **API Down Banner**:
+2. **Error Handling**:
    - Stop backend
    - Refresh app
-   - ✅ Should show banner: "API unavailable. Some features limited."
+   - ✅ Should show appropriate error messages
    - Start backend
-   - ✅ Banner should disappear
+   - ✅ Application recovers gracefully
 
 **Acceptance Criteria**:
-- ✅ Real endpoints hit in dev/preview; mock only for gaps
-- ✅ Clear banner when API is down (no silent failures)
+- ✅ All endpoints use real backend API
+- ✅ No mocking infrastructure in production build
 
 ---
 

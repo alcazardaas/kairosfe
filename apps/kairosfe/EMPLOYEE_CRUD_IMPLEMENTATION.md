@@ -265,7 +265,7 @@
 ---
 
 ### Phase 13: Testing & Validation ❌
-- [ ] **Task 13.1**: Test with MSW (VITE_ENABLE_MSW=true)
+- [ ] **Task 13.1**: Test with real backend API
   - [ ] Create employee with all fields
   - [ ] Create employee with minimal fields
   - [ ] Edit employee (partial update)
@@ -273,13 +273,11 @@
   - [ ] Deactivate employee
   - [ ] Try duplicate email (should show 409)
   - [ ] Verify table refresh
-
-- [ ] **Task 13.2**: Test with real backend (VITE_ENABLE_MSW=false)
   - [ ] All CRUD operations
   - [ ] Error handling (401, 403, 404, 409)
   - [ ] Invitation email sent (if supported)
 
-- [ ] **Task 13.3**: Test edge cases
+- [ ] **Task 13.2**: Test edge cases
   - [ ] Long names/emails (UI overflow)
   - [ ] Invalid phone formats
   - [ ] Circular manager hierarchy
@@ -358,8 +356,7 @@
 **Ready for:**
 
 - User acceptance testing
-- Testing with MSW mocks (VITE_ENABLE_MSW=true)
-- Testing with real backend (VITE_ENABLE_MSW=false)
+- Testing with real backend API
 
 **Optional Future Enhancements:**
 

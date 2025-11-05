@@ -123,9 +123,6 @@ importers:
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
-      msw:
-        specifier: ^2.6.0
-        version: 2.11.5(typescript@5.9.3)
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
@@ -4232,12 +4229,14 @@ snapshots:
   '@img/sharp-win32-x64@0.33.5':
     optional: true
 
-  '@inquirer/ansi@1.0.0': {}
+  '@inquirer/ansi@1.0.0':
+    optional: true
 
   '@inquirer/confirm@5.1.18':
     dependencies:
       '@inquirer/core': 10.2.2
       '@inquirer/type': 3.0.8
+    optional: true
 
   '@inquirer/core@10.2.2':
     dependencies:
@@ -4249,10 +4248,13 @@ snapshots:
       signal-exit: 4.1.0
       wrap-ansi: 6.2.0
       yoctocolors-cjs: 2.1.3
+    optional: true
 
-  '@inquirer/figures@1.0.13': {}
+  '@inquirer/figures@1.0.13':
+    optional: true
 
-  '@inquirer/type@3.0.8': {}
+  '@inquirer/type@3.0.8':
+    optional: true
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -4307,6 +4309,7 @@ snapshots:
       is-node-process: 1.2.0
       outvariant: 1.4.3
       strict-event-emitter: 0.5.1
+    optional: true
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -4320,14 +4323,17 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@open-draft/deferred-promise@2.2.0': {}
+  '@open-draft/deferred-promise@2.2.0':
+    optional: true
 
   '@open-draft/logger@0.3.0':
     dependencies:
       is-node-process: 1.2.0
       outvariant: 1.4.3
+    optional: true
 
-  '@open-draft/until@2.1.0': {}
+  '@open-draft/until@2.1.0':
+    optional: true
 
   '@oslojs/encoding@1.1.0': {}
 
@@ -4631,7 +4637,8 @@ snapshots:
       '@types/prop-types': 15.7.15
       csstype: 3.1.3
 
-  '@types/statuses@2.0.6': {}
+  '@types/statuses@2.0.6':
+    optional: true
 
   '@types/unist@3.0.3': {}
 
@@ -5146,7 +5153,8 @@ snapshots:
       slice-ansi: 5.0.0
       string-width: 7.2.0
 
-  cli-width@4.1.0: {}
+  cli-width@4.1.0:
+    optional: true
 
   cliui@8.0.1:
     dependencies:
@@ -5196,7 +5204,8 @@ snapshots:
 
   cookie@0.7.2: {}
 
-  cookie@1.0.2: {}
+  cookie@1.0.2:
+    optional: true
 
   cross-spawn@7.0.6:
     dependencies:
@@ -5616,7 +5625,8 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  graphql@16.11.0: {}
+  graphql@16.11.0:
+    optional: true
 
   gray-matter@4.0.3:
     dependencies:
@@ -5724,7 +5734,8 @@ snapshots:
       property-information: 7.1.0
       space-separated-tokens: 2.0.2
 
-  headers-polyfill@4.0.3: {}
+  headers-polyfill@4.0.3:
+    optional: true
 
   html-encoding-sniffer@4.0.0:
     dependencies:
@@ -5823,7 +5834,8 @@ snapshots:
 
   is-interactive@2.0.0: {}
 
-  is-node-process@1.2.0: {}
+  is-node-process@1.2.0:
+    optional: true
 
   is-number@7.0.0: {}
 
@@ -6389,10 +6401,12 @@ snapshots:
       typescript: 5.9.3
     transitivePeerDependencies:
       - '@types/node'
+    optional: true
 
   muggle-string@0.4.1: {}
 
-  mute-stream@2.0.0: {}
+  mute-stream@2.0.0:
+    optional: true
 
   mz@2.7.0:
     dependencies:
@@ -6478,7 +6492,8 @@ snapshots:
       string-width: 7.2.0
       strip-ansi: 7.1.2
 
-  outvariant@1.4.3: {}
+  outvariant@1.4.3:
+    optional: true
 
   p-limit@2.3.0:
     dependencies:
@@ -6545,7 +6560,8 @@ snapshots:
       lru-cache: 10.4.3
       minipass: 7.1.2
 
-  path-to-regexp@6.3.0: {}
+  path-to-regexp@6.3.0:
+    optional: true
 
   path-type@4.0.0: {}
 
@@ -6831,7 +6847,8 @@ snapshots:
       retext-stringify: 4.0.0
       unified: 11.0.5
 
-  rettime@0.7.0: {}
+  rettime@0.7.0:
+    optional: true
 
   reusify@1.1.0: {}
 
@@ -6991,13 +7008,15 @@ snapshots:
 
   stackback@0.0.2: {}
 
-  statuses@2.0.2: {}
+  statuses@2.0.2:
+    optional: true
 
   std-env@3.9.0: {}
 
   stdin-discarder@0.2.2: {}
 
-  strict-event-emitter@0.5.1: {}
+  strict-event-emitter@0.5.1:
+    optional: true
 
   string-argv@0.3.2: {}
 
@@ -7128,7 +7147,8 @@ snapshots:
 
   tldts-core@6.1.86: {}
 
-  tldts-core@7.0.17: {}
+  tldts-core@7.0.17:
+    optional: true
 
   tldts@6.1.86:
     dependencies:
@@ -7137,6 +7157,7 @@ snapshots:
   tldts@7.0.17:
     dependencies:
       tldts-core: 7.0.17
+    optional: true
 
   to-regex-range@5.0.1:
     dependencies:
@@ -7151,6 +7172,7 @@ snapshots:
   tough-cookie@6.0.0:
     dependencies:
       tldts: 7.0.17
+    optional: true
 
   tr46@0.0.3: {}
 
@@ -7245,7 +7267,8 @@ snapshots:
       unist-util-is: 6.0.0
       unist-util-visit-parents: 6.0.1
 
-  until-async@3.0.2: {}
+  until-async@3.0.2:
+    optional: true
 
   update-browserslist-db@1.1.3(browserslist@4.26.3):
     dependencies:
@@ -7507,6 +7530,7 @@ snapshots:
       ansi-styles: 4.3.0
       string-width: 4.2.3
       strip-ansi: 6.0.1
+    optional: true
 
   wrap-ansi@7.0.0:
     dependencies:
@@ -7577,7 +7601,8 @@ snapshots:
 
   yocto-queue@1.2.1: {}
 
-  yoctocolors-cjs@2.1.3: {}
+  yoctocolors-cjs@2.1.3:
+    optional: true
 
   zod-to-json-schema@3.24.6(zod@3.25.76):
     dependencies:

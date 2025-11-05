@@ -32,16 +32,6 @@ const { title = 'Kairos', description = 'HR Management System' } = Astro.props;
     <slot />
     <ToastProvider client:only="react" />
     <script>
-      // Initialize MSW in development (disabled by default - set VITE_ENABLE_MSW=true to enable)
-      if (import.meta.env.DEV && import.meta.env.VITE_ENABLE_MSW === 'true') {
-        import('@/lib/api/mocks/browser').then(({ worker }) => {
-          worker.start({
-            onUnhandledRequest: 'bypass',
-          });
-          console.log('🔶 MSW enabled - API requests will be mocked');
-        });
-      }
-
       // Initialize PostHog and Sentry
       import('@/lib/analytics/posthog').then(({ initPostHog }) => {
         initPostHog();

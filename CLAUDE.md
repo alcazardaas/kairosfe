@@ -14,7 +14,6 @@ Forms: React Hook Form
 i18n: i18next (en, es, pt-PT, de)
 Auth: JWT (placeholder for BTM backend) - CURRENTLY DISABLED
 Linting: ESLint + Prettier + Husky + lint-staged
-Mocking: MSW
 Testing: Vitest + Playwright
 Analytics: PostHog (events) + Sentry (errors)
 CI: GitHub Actions (draft only)
@@ -181,11 +180,10 @@ API AND MOCKING
 
 
 Base URL from env:
-VITE_API_BASE_URL=https://localhost:8080
+VITE_API_BASE_URL=http://localhost:3000
 
 All requests go through src/lib/api/client.ts
-Use MSW for mocking in dev mode
-Mock endpoints based on Kairos_HR_Management_API.postman_collection.json from referenceFE
+Application uses real backend API only (no mocking)
 
 ------------------------------------------------------------
 
@@ -337,7 +335,7 @@ PAGE REQUIREMENTS
 
 /team-management:
   - Protected
-  - List of teammates (mocked)
+  - List of teammates from API
   - Search and filters
 
 /leave-requests:
@@ -391,7 +389,7 @@ DELIVERABLES CHECKLIST
 - SCSS tokens and mixins (light/dark)
 - Zustand stores and RHF forms
 - i18next setup (en/es/pt-PT/de)
-- MSW with handlers
+- Real backend API integration
 - PostHog and Sentry setup
 - ESLint + Prettier + Husky + lint-staged
 - Vitest and Playwright tests

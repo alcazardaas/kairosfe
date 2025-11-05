@@ -5,7 +5,6 @@ import { ErrorResponseSchema } from './schemas';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
 const IS_DEV = import.meta.env.DEV;
-const USE_MSW = import.meta.env.VITE_USE_MSW === 'true';
 
 // Define custom API error class
 export class ApiError extends Error {
@@ -58,7 +57,7 @@ class ApiClient {
   }
 
   private log(level: 'info' | 'error' | 'warn', message: string, data?: unknown): void {
-    if (IS_DEV || USE_MSW) {
+    if (IS_DEV) {
       const prefix = '[API Client]';
       switch (level) {
         case 'info':
