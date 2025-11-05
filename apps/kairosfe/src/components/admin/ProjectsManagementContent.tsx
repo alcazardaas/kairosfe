@@ -803,7 +803,7 @@ export default function ProjectsManagementContent() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="inline-flex items-center rounded-md bg-primary-light px-4 py-2 text-sm font-semibold text-white hover:bg-primary-light/90 disabled:opacity-50 dark:bg-primary-dark dark:hover:bg-primary-dark/90"
+                  className="inline-flex items-center rounded-md bg-primary-light px-4 py-2 text-sm font-semibold hover:bg-primary-light/90 disabled:opacity-50 dark:bg-primary-dark dark:hover:bg-primary-dark/90"
                 >
                   {saving ? (
                     <>
