@@ -16,7 +16,11 @@ export function setAuthCookie(token: string): void {
   const expires = new Date();
   expires.setDate(expires.getDate() + 30); // 30 days
 
-  document.cookie = `${COOKIE_NAME}=${token}; path=/; expires=${expires.toUTCString()}; SameSite=Strict; Secure`;
+  // Only use Secure flag in production (HTTPS)
+  const isProduction = window.location.protocol === 'https:';
+  const secureFlag = isProduction ? '; Secure' : '';
+
+  document.cookie = `${COOKIE_NAME}=${token}; path=/; expires=${expires.toUTCString()}; SameSite=Strict${secureFlag}`;
 }
 
 /**
