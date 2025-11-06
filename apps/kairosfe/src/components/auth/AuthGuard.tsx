@@ -12,13 +12,28 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
   useEffect(() => {
     const initAuth = async () => {
-      const { isAuthenticated: currentAuth, hydrate } = useAuthStore.getState();
+      try {
+        console.log('[AuthGuard] Starting auth check...');
+        const { isAuthenticated: currentAuth, token, hydrate } = useAuthStore.getState();
+        console.log('[AuthGuard] Current state:', { isAuthenticated: currentAuth, hasToken: !!token });
 
-      // Only hydrate if not already authenticated
-      if (!currentAuth) {
-        await hydrate();
+        // Only hydrate if we have a token but not authenticated yet
+        if (token && !currentAuth) {
+          console.log('[AuthGuard] Calling hydrate...');
+          await hydrate();
+          console.log('[AuthGuard] Hydrate completed');
+        } else if (!token) {
+          console.log('[AuthGuard] No token found');
+        } else {
+          console.log('[AuthGuard] Already authenticated, skipping hydrate');
+        }
+      } catch (error) {
+        console.error('[AuthGuard] Error during auth check:', error);
+      } finally {
+        // ALWAYS set isReady, even if there's an error
+        console.log('[AuthGuard] Setting isReady to true');
+        setIsReady(true);
       }
-      setIsReady(true);
     };
 
     initAuth();
