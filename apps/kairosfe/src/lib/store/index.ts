@@ -108,6 +108,7 @@ export const useAuthStore = create<AuthState>()(
         set({
           token,
           refreshToken,
+          isAuthenticated: !!token, // Set isAuthenticated based on token presence
           ...(expiresIn !== undefined && { tokenExpiresIn: expiresIn })
         });
 

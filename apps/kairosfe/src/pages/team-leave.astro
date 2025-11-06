@@ -1,10 +1,13 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
 import TeamLeaveQueueContent from '@/components/data/TeamLeaveQueueContent';
+import AuthGuard from '@/components/auth/AuthGuard';
 
 export const prerender = false;
 ---
 
 <AppLayout title="Team Leave Requests - Kairos">
-  <TeamLeaveQueueContent client:load />
+  <AuthGuard client:load>
+    <TeamLeaveQueueContent client:load />
+  </AuthGuard>
 </AppLayout>
