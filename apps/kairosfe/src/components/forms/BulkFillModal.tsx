@@ -141,7 +141,7 @@ export default function BulkFillModal({ onSubmit, onCancel, weekStartDate }: Bul
                   <AsyncCombobox
                     value={field.value}
                     onChange={field.onChange}
-                    loadOptions={searchProjects}
+                    onSearch={searchProjects}
                     placeholder={t('timesheet.form.projectPlaceholder')}
                     error={errors.projectId?.message}
                   />
@@ -161,7 +161,7 @@ export default function BulkFillModal({ onSubmit, onCancel, weekStartDate }: Bul
                   <AsyncCombobox
                     value={field.value || ''}
                     onChange={field.onChange}
-                    loadOptions={searchTasks}
+                    onSearch={searchTasks}
                     placeholder={t('timesheet.form.taskPlaceholder')}
                     disabled={!projectId}
                     error={errors.taskId?.message}
