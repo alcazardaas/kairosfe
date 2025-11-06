@@ -14,18 +14,18 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     const initAuth = async () => {
       try {
         console.log('[AuthGuard] Starting auth check...');
-        const { isAuthenticated: currentAuth, token, hydrate } = useAuthStore.getState();
-        console.log('[AuthGuard] Current state:', { isAuthenticated: currentAuth, hasToken: !!token });
+        const { isAuthenticated: currentAuth, token, user, hydrate } = useAuthStore.getState();
+        console.log('[AuthGuard] Current state:', { isAuthenticated: currentAuth, hasToken: !!token, hasUser: !!user });
 
-        // Only hydrate if we have a token but not authenticated yet
-        if (token && !currentAuth) {
-          console.log('[AuthGuard] Calling hydrate...');
+        // Hydrate if we have a token but no user data (need to fetch from /auth/me)
+        if (token && !user) {
+          console.log('[AuthGuard] Have token but no user data, calling hydrate...');
           await hydrate();
           console.log('[AuthGuard] Hydrate completed');
         } else if (!token) {
           console.log('[AuthGuard] No token found');
         } else {
-          console.log('[AuthGuard] Already authenticated, skipping hydrate');
+          console.log('[AuthGuard] Already authenticated with user data, skipping hydrate');
         }
       } catch (error) {
         console.error('[AuthGuard] Error during auth check:', error);
@@ -48,6 +48,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
   // Show loading state while checking authentication
   if (!isReady || isHydrating) {
+    console.log('[AuthGuard] Showing loading screen:', { isReady, isHydrating });
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -57,6 +58,8 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       </div>
     );
   }
+
+  console.log('[AuthGuard] Loading complete, checking auth:', { isReady, isAuthenticated, isHydrating });
 
   // Show nothing while redirecting
   if (!isAuthenticated) {
