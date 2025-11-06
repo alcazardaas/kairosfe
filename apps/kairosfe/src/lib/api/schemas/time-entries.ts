@@ -86,9 +86,8 @@ export const ProjectBreakdownDtoSchema = z.object({
 
 export type ProjectBreakdownDto = z.infer<typeof ProjectBreakdownDtoSchema>;
 
-// Week View Response (optimized endpoint for Epic 1 Story 1)
-// Updated to match actual backend OpenAPI spec
-export const WeekViewResponseSchema = z.object({
+// Week View Data (the actual data structure)
+export const WeekViewDataSchema = z.object({
   weekStartDate: z.string(),
   weekEndDate: z.string(),
   userId: z.string().uuid(),
@@ -99,6 +98,12 @@ export const WeekViewResponseSchema = z.object({
   projectBreakdown: z.array(ProjectBreakdownDtoSchema),
   timesheet: z.record(z.unknown()).nullable().optional(), // Generic timesheet object or null
 });
+
+export type WeekViewData = z.infer<typeof WeekViewDataSchema>;
+
+// Week View Response (wrapped in data envelope)
+// Backend wraps response in { data: ... } despite OpenAPI spec showing unwrapped
+export const WeekViewResponseSchema = createDataResponseSchema(WeekViewDataSchema);
 
 export type WeekViewResponse = z.infer<typeof WeekViewResponseSchema>;
 

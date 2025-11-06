@@ -106,12 +106,12 @@ export default function TimesheetWeekTab() {
       // Use the new optimized endpoint
       const weekView = await timeEntriesService.getWeekView(user.id, weekStartDate);
 
-      // Update store with all data (now properly typed after transformation)
-      setCurrentTimesheet(weekView.timesheet);
-      setTimeEntries(weekView.entries);
-      setDailyTotals(weekView.dailyTotals);
-      setWeeklyTotal(weekView.weeklyTotal);
-      setProjectBreakdown(weekView.projectBreakdown);
+      // Update store with all data (accessed through .data envelope)
+      setCurrentTimesheet(weekView.data.timesheet);
+      setTimeEntries(weekView.data.entries);
+      setDailyTotals(weekView.data.dailyTotals);
+      setWeeklyTotal(weekView.data.weeklyTotal);
+      setProjectBreakdown(weekView.data.projectBreakdown);
     } catch (err) {
       console.error('Failed to load week view:', err);
       setError(t('timesheet.errorLoadingEntries'));
