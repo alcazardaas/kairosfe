@@ -17,7 +17,8 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     };
 
     initAuth();
-  }, [hydrate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
 
   useEffect(() => {
     // Redirect to login if not authenticated after hydration
