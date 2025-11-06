@@ -20,6 +20,8 @@ interface LeaveRequestDto {
   id: string;
   tenantId: string;
   userId: string;
+  userName: string | null;
+  userEmail: string;
   benefitTypeId: string;
   startDate: string;
   endDate: string;
@@ -35,7 +37,8 @@ function mapDtoToLeaveRequest(dto: LeaveRequestDto): LeaveRequest {
   return {
     id: dto.id,
     userId: dto.userId,
-    userName: undefined, // Not provided by API yet
+    userName: dto.userName || undefined,
+    userEmail: dto.userEmail || undefined,
     type: 'vacation', // Default - should be mapped from benefitTypeId in real implementation
     startDate: dto.startDate,
     endDate: dto.endDate,

@@ -56,6 +56,7 @@ export interface LeaveRequest {
   id: string;
   userId: string;
   userName?: string;
+  userEmail?: string;
   type: LeaveType;
   startDate: string;
   endDate: string;
