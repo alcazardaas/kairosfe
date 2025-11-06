@@ -212,7 +212,7 @@ export default function TeamLeaveQueueContent() {
                         <tr key={request.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                              {request.userName || request.userId}
+                              {request.userName || request.userEmail || request.userId}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
