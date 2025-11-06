@@ -91,12 +91,12 @@ export const reportsService = {
     // Filter by users if specified
     let filteredEntries = entries;
     if (filters.userIds && filters.userIds.length > 0) {
-      filteredEntries = entries.filter((e) => filters.userIds!.includes(e.user_id));
+      filteredEntries = entries.filter((e) => filters.userIds!.includes(e.userId));
     }
 
     // Filter by projects if specified
     if (filters.projectIds && filters.projectIds.length > 0) {
-      filteredEntries = filteredEntries.filter((e) => filters.projectIds!.includes(e.project_id));
+      filteredEntries = filteredEntries.filter((e) => filters.projectIds!.includes(e.projectId));
     }
 
     // Calculate total hours
@@ -114,15 +114,15 @@ export const reportsService = {
     // Calculate project allocations
     const projectMap = new Map<string, { hours: number; users: Set<string> }>();
     filteredEntries.forEach((entry) => {
-      if (!entry.project_id || !entry.hours) return;
+      if (!entry.projectId || !entry.hours) return;
 
-      if (!projectMap.has(entry.project_id)) {
-        projectMap.set(entry.project_id, { hours: 0, users: new Set() });
+      if (!projectMap.has(entry.projectId)) {
+        projectMap.set(entry.projectId, { hours: 0, users: new Set() });
       }
 
-      const proj = projectMap.get(entry.project_id)!;
+      const proj = projectMap.get(entry.projectId)!;
       proj.hours += entry.hours;
-      proj.users.add(entry.user_id);
+      proj.users.add(entry.userId);
     });
 
     // Load project names
@@ -145,16 +145,16 @@ export const reportsService = {
     // Calculate user stats
     const userMap = new Map<string, { hours: number; weeks: Set<string>; projects: Set<string> }>();
     filteredEntries.forEach((entry) => {
-      if (!entry.user_id || !entry.hours) return;
+      if (!entry.userId || !entry.hours) return;
 
-      if (!userMap.has(entry.user_id)) {
-        userMap.set(entry.user_id, { hours: 0, weeks: new Set(), projects: new Set() });
+      if (!userMap.has(entry.userId)) {
+        userMap.set(entry.userId, { hours: 0, weeks: new Set(), projects: new Set() });
       }
 
-      const user = userMap.get(entry.user_id)!;
+      const user = userMap.get(entry.userId)!;
       user.hours += entry.hours;
-      user.weeks.add(entry.week_start_date);
-      user.projects.add(entry.project_id);
+      user.weeks.add(entry.weekStartDate);
+      user.projects.add(entry.projectId);
     });
 
     // Load user names
@@ -211,7 +211,7 @@ export const reportsService = {
     // Filter by users if specified
     let filteredLeaves = leaves;
     if (filters.userIds && filters.userIds.length > 0) {
-      filteredLeaves = leaves.filter((l) => filters.userIds!.includes(l.user_id));
+      filteredLeaves = leaves.filter((l) => filters.userIds!.includes(l.userId));
     }
 
     // Calculate user leave stats
@@ -221,14 +221,14 @@ export const reportsService = {
     >();
 
     filteredLeaves.forEach((leave) => {
-      if (!leave.user_id) return;
+      if (!leave.userId) return;
 
-      if (!userMap.has(leave.user_id)) {
-        userMap.set(leave.user_id, { pending: 0, approved: 0, rejected: 0, total: 0 });
+      if (!userMap.has(leave.userId)) {
+        userMap.set(leave.userId, { pending: 0, approved: 0, rejected: 0, total: 0 });
       }
 
-      const user = userMap.get(leave.user_id)!;
-      const days = leave.total_days || 0;
+      const user = userMap.get(leave.userId)!;
+      const days = leave.amount || 0;
 
       user.total += days;
       if (leave.status === 'pending') user.pending += days;
@@ -255,13 +255,13 @@ export const reportsService = {
     // Calculate totals
     const totalPending = filteredLeaves
       .filter((l) => l.status === 'pending')
-      .reduce((sum, l) => sum + (l.total_days || 0), 0);
+      .reduce((sum, l) => sum + (l.amount || 0), 0);
     const totalApproved = filteredLeaves
       .filter((l) => l.status === 'approved')
-      .reduce((sum, l) => sum + (l.total_days || 0), 0);
+      .reduce((sum, l) => sum + (l.amount || 0), 0);
     const totalRejected = filteredLeaves
       .filter((l) => l.status === 'rejected')
-      .reduce((sum, l) => sum + (l.total_days || 0), 0);
+      .reduce((sum, l) => sum + (l.amount || 0), 0);
 
     return {
       leaveStats: leaveStats.sort((a, b) => b.totalDays - a.totalDays),

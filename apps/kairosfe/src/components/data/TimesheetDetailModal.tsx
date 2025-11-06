@@ -143,11 +143,11 @@ export default function TimesheetDetailModal({
                 <tr key={entry.id} className="border-t border-gray-200 dark:border-gray-700">
                   <td className="px-4 py-3 border-r border-gray-200 dark:border-gray-700">
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      Project: {entry.project_id}
+                      Project: {entry.projectId}
                     </div>
-                    {entry.task_id && (
+                    {entry.taskId && (
                       <div className="text-xs text-gray-600 dark:text-gray-400">
-                        Task: {entry.task_id}
+                        Task: {entry.taskId}
                       </div>
                     )}
                     {entry.note && (
@@ -157,7 +157,7 @@ export default function TimesheetDetailModal({
                     )}
                   </td>
                   {weekDates.map((date, idx) => {
-                    const isEntryDay = entry.day_of_week === idx;
+                    const isEntryDay = entry.dayOfWeek === idx;
                     return (
                       <td
                         key={idx}

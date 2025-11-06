@@ -31,7 +31,7 @@ export type LeaveRequestResponse = z.infer<typeof LeaveRequestResponseSchema>;
 export const LeaveRequestListResponseSchema = z.object({
   data: z.array(LeaveRequestDtoSchema),
   page: z.number(),
-  page_size: z.number(),
+  limit: z.number(),
   total: z.number(),
 });
 

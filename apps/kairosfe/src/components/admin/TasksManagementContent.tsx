@@ -12,8 +12,8 @@ import type { TaskDto } from '@/lib/api/schemas/tasks';
 // Validation schema for task form
 const taskSchema = z.object({
   name: z.string().min(1, 'Task name is required'),
-  project_id: z.string().uuid('Please select a project'),
-  parent_task_id: z.string().uuid().nullable().optional(),
+  projectId: z.string().uuid('Please select a project'),
+  parentTaskId: z.string().uuid().nullable().optional(),
 });
 
 type TaskFormData = z.infer<typeof taskSchema>;
@@ -57,7 +57,7 @@ export default function TasksManagementContent() {
     resolver: zodResolver(taskSchema),
   });
 
-  const selectedProjectId = watch('project_id');
+  const selectedProjectId = watch('projectId');
 
   // Load tasks and projects on mount
   useEffect(() => {
@@ -99,7 +99,7 @@ export default function TasksManagementContent() {
 
     // Create map with project names
     tasksList.forEach((task) => {
-      const project = projectsList.find((p) => p.id === task.project_id);
+      const project = projectsList.find((p) => p.id === task.projectId);
       taskMap.set(task.id, {
         ...task,
         children: [],
@@ -111,8 +111,8 @@ export default function TasksManagementContent() {
     // Build hierarchy
     tasksList.forEach((task) => {
       const taskWithHierarchy = taskMap.get(task.id)!;
-      if (task.parent_task_id && taskMap.has(task.parent_task_id)) {
-        const parent = taskMap.get(task.parent_task_id)!;
+      if (task.parentTaskId && taskMap.has(task.parentTaskId)) {
+        const parent = taskMap.get(task.parentTaskId)!;
         taskWithHierarchy.level = parent.level + 1;
         parent.children.push(taskWithHierarchy);
       } else {
@@ -139,7 +139,7 @@ export default function TasksManagementContent() {
 
     // Apply project filter
     if (filterProjectId && filterProjectId !== 'all') {
-      filtered = filtered.filter((t) => t.project_id === filterProjectId);
+      filtered = filtered.filter((t) => t.projectId === filterProjectId);
     }
 
     // Apply search filter
@@ -161,14 +161,14 @@ export default function TasksManagementContent() {
     if (!projectId) return [];
 
     // Filter tasks by selected project
-    let available = tasks.filter((t) => t.project_id === projectId);
+    let available = tasks.filter((t) => t.projectId === projectId);
 
     // If editing, exclude current task and its descendants
     if (currentTaskId) {
       const excludeIds = new Set<string>();
       const addDescendants = (taskId: string) => {
         excludeIds.add(taskId);
-        tasks.filter((t) => t.parent_task_id === taskId).forEach((child) => addDescendants(child.id));
+        tasks.filter((t) => t.parentTaskId === taskId).forEach((child) => addDescendants(child.id));
       };
       addDescendants(currentTaskId);
       available = available.filter((t) => !excludeIds.has(t.id));
@@ -180,8 +180,8 @@ export default function TasksManagementContent() {
   const openCreateModal = () => {
     reset({
       name: '',
-      project_id: filterProjectId !== 'all' ? filterProjectId : '',
-      parent_task_id: null,
+      projectId: filterProjectId !== 'all' ? filterProjectId : '',
+      parentTaskId: null,
     });
     setIsCreateModalOpen(true);
   };
@@ -190,8 +190,8 @@ export default function TasksManagementContent() {
     setSelectedTask(task);
     reset({
       name: task.name,
-      project_id: task.project_id,
-      parent_task_id: task.parent_task_id,
+      projectId: task.projectId,
+      parentTaskId: task.parentTaskId,
     });
     setIsEditModalOpen(true);
   };
@@ -201,8 +201,8 @@ export default function TasksManagementContent() {
       setSaving(true);
       const createData: CreateTaskDto = {
         name: data.name,
-        project_id: data.project_id,
-        parent_task_id: data.parent_task_id || null,
+        projectId: data.projectId,
+        parentTaskId: data.parentTaskId || null,
       };
 
       await tasksService.create(createData);
@@ -234,8 +234,8 @@ export default function TasksManagementContent() {
       setSaving(true);
       const updateData: UpdateTaskDto = {
         name: data.name,
-        project_id: data.project_id,
-        parent_task_id: data.parent_task_id || null,
+        projectId: data.projectId,
+        parentTaskId: data.parentTaskId || null,
       };
 
       await tasksService.update(selectedTask.id, updateData);
@@ -263,7 +263,7 @@ export default function TasksManagementContent() {
 
   const handleDelete = async (task: TaskDto) => {
     // Check if task has children
-    const hasChildren = tasks.some((t) => t.parent_task_id === task.id);
+    const hasChildren = tasks.some((t) => t.parentTaskId === task.id);
     if (hasChildren) {
       toast.error('Cannot delete task with subtasks. Please delete subtasks first.');
       return;
@@ -404,8 +404,8 @@ export default function TasksManagementContent() {
                 </tr>
               ) : (
                 filteredTasks.map((task) => {
-                  const parentTask = task.parent_task_id
-                    ? tasks.find((t) => t.id === task.parent_task_id)
+                  const parentTask = task.parentTaskId
+                    ? tasks.find((t) => t.id === task.parentTaskId)
                     : null;
 
                   return (
@@ -486,7 +486,7 @@ export default function TasksManagementContent() {
                 </label>
                 <select
                   id="create-project"
-                  {...register('project_id')}
+                  {...register('projectId')}
                   className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                 >
                   <option value="">Select a project...</option>
@@ -498,8 +498,8 @@ export default function TasksManagementContent() {
                       </option>
                     ))}
                 </select>
-                {errors.project_id && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.project_id.message}</p>
+                {errors.projectId && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.projectId.message}</p>
                 )}
               </div>
 
@@ -525,7 +525,7 @@ export default function TasksManagementContent() {
                 </label>
                 <select
                   id="create-parent"
-                  {...register('parent_task_id')}
+                  {...register('parentTaskId')}
                   disabled={!selectedProjectId}
                   className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                 >
@@ -604,7 +604,7 @@ export default function TasksManagementContent() {
                 </label>
                 <select
                   id="edit-project"
-                  {...register('project_id')}
+                  {...register('projectId')}
                   className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                 >
                   <option value="">Select a project...</option>
@@ -616,8 +616,8 @@ export default function TasksManagementContent() {
                       </option>
                     ))}
                 </select>
-                {errors.project_id && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.project_id.message}</p>
+                {errors.projectId && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.projectId.message}</p>
                 )}
               </div>
 
@@ -642,7 +642,7 @@ export default function TasksManagementContent() {
                 </label>
                 <select
                   id="edit-parent"
-                  {...register('parent_task_id')}
+                  {...register('parentTaskId')}
                   disabled={!selectedProjectId}
                   className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                 >

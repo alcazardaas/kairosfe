@@ -179,8 +179,8 @@ export default function TeamCalendarContent() {
     const dateStr = formatDateISO(date);
     const dayHolidays = calendarData?.holidays.filter((h) => h.date === dateStr) || [];
     const dayLeaves = calendarData?.leaves.filter((l) => {
-      const start = new Date(l.start_date);
-      const end = new Date(l.end_date);
+      const start = new Date(l.startDate);
+      const end = new Date(l.endDate);
       const current = new Date(date);
       current.setHours(0, 0, 0, 0);
       start.setHours(0, 0, 0, 0);
@@ -242,17 +242,17 @@ export default function TeamCalendarContent() {
           'Holiday',
           holiday.name,
           '-',
-          holiday.is_recurring ? 'Recurring' : 'One-Time',
+          holiday.isRecurring ? 'Recurring' : 'One-Time',
         ]);
       });
 
       // Add leaves
       calendarData.leaves.forEach((leave) => {
         rows.push([
-          `${leave.start_date} to ${leave.end_date}`,
+          `${leave.startDate} to ${leave.endDate}`,
           'Leave',
-          leave.benefit_type_name || 'Leave',
-          leave.user_name || leave.user_id,
+          leave.benefitTypeName || 'Leave',
+          leave.userName || leave.userId,
           leave.status,
         ]);
       });
@@ -546,9 +546,9 @@ export default function TeamCalendarContent() {
                           <div
                             key={leave.id}
                             className={`truncate rounded ${bgColor} px-1.5 py-0.5 text-xs text-white`}
-                            title={`${leave.user_name || 'User'} - ${leave.benefit_type_name || 'Leave'}`}
+                            title={`${leave.userName || 'User'} - ${leave.benefitTypeName || 'Leave'}`}
                           >
-                            {leave.user_name || 'User'}
+                            {leave.userName || 'User'}
                           </div>
                         );
                       })}
@@ -609,7 +609,7 @@ export default function TeamCalendarContent() {
                           <div className="font-medium text-blue-900 dark:text-blue-100">
                             {holiday.name}
                           </div>
-                          {holiday.is_recurring && (
+                          {holiday.isRecurring && (
                             <div className="mt-1 text-xs text-blue-700 dark:text-blue-300">
                               {t('teamCalendar.recurring')}
                             </div>
@@ -655,14 +655,14 @@ export default function TeamCalendarContent() {
                             className={`rounded-lg border ${borderColor} ${bgColor} p-3`}
                           >
                             <div className={`font-medium ${textColor}`}>
-                              {leave.user_name || 'User'}
+                              {leave.userName || 'User'}
                             </div>
                             <div className={`mt-1 text-sm ${textColor}`}>
-                              {leave.benefit_type_name || 'Leave'}
+                              {leave.benefitTypeName || 'Leave'}
                             </div>
                             <div className={`mt-1 text-xs ${textColor}`}>
-                              {new Date(leave.start_date).toLocaleDateString()} -{' '}
-                              {new Date(leave.end_date).toLocaleDateString()}
+                              {new Date(leave.startDate).toLocaleDateString()} -{' '}
+                              {new Date(leave.endDate).toLocaleDateString()}
                             </div>
                             <div className="mt-2 flex items-center gap-2">
                               <span

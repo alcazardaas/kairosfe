@@ -8,13 +8,14 @@ import { createDataResponseSchema, createPaginatedResponseSchema, UnitSchema } f
 // Benefit Type DTO
 export const BenefitTypeDtoSchema = z.object({
   id: z.string().uuid(),
-  tenant_id: z.string().uuid(),
+  tenantId: z.string().uuid(),
   key: z.string(),
   name: z.string(),
   unit: UnitSchema,
-  requires_approval: z.boolean(),
-  created_at: z.string().datetime().optional(),
-  updated_at: z.string().datetime().optional(),
+  requiresApproval: z.boolean(),
+  allowNegativeBalance: z.boolean(),
+  createdAt: z.string().datetime().optional(),
+  updatedAt: z.string().datetime().optional(),
 });
 
 export type BenefitTypeDto = z.infer<typeof BenefitTypeDtoSchema>;

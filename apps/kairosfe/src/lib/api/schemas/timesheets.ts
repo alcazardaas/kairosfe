@@ -19,7 +19,7 @@ export const TimesheetDtoSchema = z.object({
   reviewNote: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
-  time_entries: z.array(z.string()).optional(),
+  timeEntries: z.array(z.string()).optional(),
   // Additional fields from backend API response
   user: z.object({
     id: z.string().uuid(),
@@ -39,7 +39,7 @@ export type TimesheetResponse = z.infer<typeof TimesheetResponseSchema>;
 export const TimesheetListResponseSchema = z.object({
   data: z.array(TimesheetDtoSchema),
   page: z.number(),
-  page_size: z.number(),
+  limit: z.number(),
   total: z.number(),
 });
 

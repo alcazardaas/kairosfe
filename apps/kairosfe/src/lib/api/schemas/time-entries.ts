@@ -8,15 +8,15 @@ import { createDataResponseSchema } from './common';
 // Time Entry DTO
 export const TimeEntryDtoSchema = z.object({
   id: z.string().uuid(),
-  tenant_id: z.string().uuid(),
-  user_id: z.string().uuid(),
-  project_id: z.string().uuid(),
-  task_id: z.string().uuid().nullable(),
-  week_start_date: z.string(),
-  day_of_week: z.number().min(0).max(6),
+  tenantId: z.string().uuid(),
+  userId: z.string().uuid(),
+  projectId: z.string().uuid(),
+  taskId: z.string().uuid().nullable(),
+  weekStartDate: z.string(),
+  dayOfWeek: z.number().min(0).max(6),
   hours: z.number(),
   note: z.string().nullable(),
-  created_at: z.string(),
+  createdAt: z.string(),
 });
 
 export type TimeEntryDto = z.infer<typeof TimeEntryDtoSchema>;
@@ -30,7 +30,7 @@ export type TimeEntryResponse = z.infer<typeof TimeEntryResponseSchema>;
 export const TimeEntryListResponseSchema = z.object({
   data: z.array(TimeEntryDtoSchema),
   page: z.number(),
-  page_size: z.number(),
+  limit: z.number(),
   total: z.number(),
 });
 export type TimeEntryListResponse = z.infer<typeof TimeEntryListResponseSchema>;

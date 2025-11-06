@@ -20,7 +20,7 @@ interface SearchProjectsParams {
 
 interface SearchTasksParams {
   q: string;
-  project_id?: string;
+  projectId?: string;
   limit?: string;
 }
 
@@ -52,8 +52,8 @@ export async function searchProjects(params: SearchProjectsParams): Promise<Sear
 export async function searchTasks(params: SearchTasksParams): Promise<SearchTasksResponse> {
   const searchParams = new URLSearchParams();
   searchParams.append('q', params.q);
-  if (params.project_id) {
-    searchParams.append('project_id', params.project_id);
+  if (params.projectId) {
+    searchParams.append('projectId', params.projectId);
   }
   if (params.limit) {
     searchParams.append('limit', params.limit);

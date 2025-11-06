@@ -139,7 +139,7 @@ export default function TimesheetWeekTab() {
   };
 
   const getEntriesForDay = (dayOfWeek: number): TimeEntryDto[] => {
-    return timeEntries.filter((entry) => entry.day_of_week === dayOfWeek);
+    return timeEntries.filter((entry) => entry.dayOfWeek === dayOfWeek);
   };
 
   const getDayTotal = (dayOfWeek: number): number => {
@@ -153,7 +153,7 @@ export default function TimesheetWeekTab() {
   };
 
   const handleEditEntry = (entry: TimeEntryDto) => {
-    setSelectedDay(entry.day_of_week);
+    setSelectedDay(entry.dayOfWeek);
     setEditingEntry(entry);
     setShowForm(true);
   };
@@ -550,7 +550,7 @@ export default function TimesheetWeekTab() {
                           )}
                           <td className="px-6 py-4">
                             <div className="text-sm text-gray-900 dark:text-gray-100">
-                              {entry.project_id}
+                              {entry.projectId}
                             </div>
                             {entry.note && (
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -618,8 +618,8 @@ export default function TimesheetWeekTab() {
           weekStartDate={weekStartDate}
           isEditing={!!editingEntry}
           initialData={editingEntry ? {
-            projectId: editingEntry.project_id,
-            taskId: editingEntry.task_id,
+            projectId: editingEntry.projectId,
+            taskId: editingEntry.taskId,
             hours: editingEntry.hours,
             note: editingEntry.note || '',
           } : undefined}

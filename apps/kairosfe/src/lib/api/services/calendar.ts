@@ -19,7 +19,7 @@ export async function getCalendarData(params: CalendarParams): Promise<CalendarD
   });
 
   if (params.userId) {
-    queryParams.append('user_id', params.userId);
+    queryParams.append('userId', params.userId);
   }
 
   if (params.include && params.include.length > 0) {
@@ -49,10 +49,10 @@ export async function getCalendarData(params: CalendarParams): Promise<CalendarD
         events.push({
           id: item.id,
           type: 'leave',
-          date: item.start_date,
-          title: `${item.user_name || 'Leave'} - ${item.benefit_type_name || 'Leave'}`,
-          userId: item.user_id,
-          userName: item.user_name,
+          date: item.startDate,
+          title: `${item.userName || 'Leave'} - ${item.benefitTypeName || 'Leave'}`,
+          userId: item.userId,
+          userName: item.userName,
         });
       }
     });
@@ -134,8 +134,8 @@ export async function getHolidays(params?: HolidaysParams): Promise<HolidaysResp
   if (params?.page) queryParams.append('page', params.page.toString());
   if (params?.limit) queryParams.append('limit', params.limit.toString());
   if (params?.sort) queryParams.append('sort', params.sort);
-  if (params?.tenant_id) queryParams.append('tenant_id', params.tenant_id);
-  if (params?.country_code) queryParams.append('country_code', params.country_code);
+  if (params?.tenantId) queryParams.append('tenantId', params.tenantId);
+  if (params?.countryCode) queryParams.append('countryCode', params.countryCode);
   if (params?.type) queryParams.append('type', params.type);
   if (params?.startDate) queryParams.append('startDate', params.startDate);
   if (params?.endDate) queryParams.append('endDate', params.endDate);
@@ -165,12 +165,12 @@ export async function checkDateOverlap(
   userId?: string
 ): Promise<OverlapCheck> {
   const queryParams = new URLSearchParams({
-    start_date: startDate,
-    end_date: endDate,
+    startDate: startDate,
+    endDate: endDate,
   });
 
   if (userId) {
-    queryParams.append('user_id', userId);
+    queryParams.append('userId', userId);
   }
 
   return apiClient.get<OverlapCheck>(`/calendar/check-overlap?${queryParams.toString()}`, true);

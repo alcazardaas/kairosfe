@@ -8,12 +8,12 @@ import { createDataResponseSchema, createPaginatedResponseSchema } from './commo
 // Task DTO
 export const TaskDtoSchema = z.object({
   id: z.string().uuid(),
-  tenant_id: z.string().uuid(),
-  project_id: z.string().uuid(),
+  tenantId: z.string().uuid(),
+  projectId: z.string().uuid(),
   name: z.string(),
-  parent_task_id: z.string().uuid().nullable(),
-  created_at: z.string().datetime().optional(),
-  updated_at: z.string().datetime().optional(),
+  parentTaskId: z.string().uuid().nullable(),
+  createdAt: z.string().datetime().optional(),
+  updatedAt: z.string().datetime().optional(),
 });
 
 export type TaskDto = z.infer<typeof TaskDtoSchema>;
