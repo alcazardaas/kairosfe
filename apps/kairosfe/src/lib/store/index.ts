@@ -13,6 +13,7 @@ import type {
   ProjectBreakdownDto,
   ValidationResult,
 } from '../api/schemas';
+import { cookieStorage } from './cookieStorage';
 
 interface AuthState {
   user: User | null;
@@ -233,6 +234,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'kairos-auth',
+      storage: cookieStorage,
     }
   )
 );
