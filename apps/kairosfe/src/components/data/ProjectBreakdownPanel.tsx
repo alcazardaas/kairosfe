@@ -15,7 +15,7 @@ interface ProjectBreakdownPanelProps {
 
 export default function ProjectBreakdownPanel({
   breakdown,
-  totalHours,
+  totalHours = 0,
   className = '',
 }: ProjectBreakdownPanelProps) {
   const { t } = useTranslation();
