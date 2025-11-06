@@ -1,10 +1,13 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ProfileContentNew from '@/components/data/ProfileContentNew';
+import AuthGuard from '@/components/auth/AuthGuard';
 
 export const prerender = false;
 ---
 
 <BaseLayout title="Profile - Kairos">
-  <ProfileContentNew client:load />
+  <AuthGuard client:load>
+    <ProfileContentNew client:load />
+  </AuthGuard>
 </BaseLayout>

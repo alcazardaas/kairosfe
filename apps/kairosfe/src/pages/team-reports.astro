@@ -5,10 +5,13 @@
  */
 import AppLayout from '@/layouts/AppLayout.astro';
 import TeamReportsContent from '@/components/data/TeamReportsContent';
+import AuthGuard from '@/components/auth/AuthGuard';
 
 export const prerender = false;
 ---
 
 <AppLayout title="Team Reports - Kairos">
-  <TeamReportsContent client:load />
+  <AuthGuard client:load>
+    <TeamReportsContent client:load />
+  </AuthGuard>
 </AppLayout>

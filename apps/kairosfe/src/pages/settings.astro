@@ -1,10 +1,13 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SettingsContentNew from '@/components/data/SettingsContentNew';
+import AuthGuard from '@/components/auth/AuthGuard';
 
 export const prerender = false;
 ---
 
 <BaseLayout title="Settings - Kairos">
-  <SettingsContentNew client:load />
+  <AuthGuard client:load>
+    <SettingsContentNew client:load />
+  </AuthGuard>
 </BaseLayout>

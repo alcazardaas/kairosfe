@@ -31,6 +31,21 @@ export default function LoginFormNew() {
       // Then call hydrate to get full user data from /auth/me
       await hydrate();
 
+      // Wait for Zustand persist to write to storage and cookies
+      // Poll until we can verify the cookie is set
+      let cookieSet = false;
+      for (let i = 0; i < 10; i++) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        if (document.cookie.includes('kairos-auth')) {
+          cookieSet = true;
+          break;
+        }
+      }
+
+      if (!cookieSet) {
+        console.warn('Cookie not set after login, but proceeding anyway');
+      }
+
       // Redirect to dashboard
       window.location.href = '/dashboard';
     } catch (err) {

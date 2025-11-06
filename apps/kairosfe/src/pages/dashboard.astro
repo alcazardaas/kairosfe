@@ -1,10 +1,13 @@
 ---
 import AppLayout from '@/layouts/AppLayout.astro';
 import DashboardContent from '@/components/data/DashboardContent';
+import AuthGuard from '@/components/auth/AuthGuard';
 
 export const prerender = false;
 ---
 
 <AppLayout title="Dashboard - Kairos">
-  <DashboardContent client:load />
+  <AuthGuard client:load>
+    <DashboardContent client:load />
+  </AuthGuard>
 </AppLayout>
