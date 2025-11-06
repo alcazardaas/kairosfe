@@ -104,6 +104,46 @@ pnpm test:e2e     # Run E2E tests
 ### Authentication
 - See middleware.ts and api/client.ts for auth implementation
 
+**⚠️ CRITICAL: Protected Pages Must Disable Prerendering**
+
+ALL protected .astro pages MUST include `export const prerender = false;` in their frontmatter.
+
+Without this, Astro will prerender the page as static HTML at build time, which prevents middleware from accessing cookies and headers. This causes authentication to fail even when the user is properly authenticated.
+
+```astro
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import AuthGuard from '@/components/auth/AuthGuard';
+
+export const prerender = false;  // ← REQUIRED FOR AUTH TO WORK
+---
+
+<AppLayout title="Protected Page">
+  <AuthGuard client:load>
+    <!-- Page content -->
+  </AuthGuard>
+</AppLayout>
+```
+
+**Symptoms of missing `prerender = false`:**
+- User is authenticated but gets redirected to login when accessing the page
+- Terminal shows: `[WARN] Astro.request.headers is unavailable in "static" output mode`
+- Middleware logs show: `hasAuthToken: false, referer: null`
+- Browser Network tab shows cookie being sent, but server doesn't receive it
+
+**Pages that MUST have `prerender = false`:**
+- /dashboard
+- /timesheet
+- /profile
+- /team-management
+- /team-timesheets
+- /team-calendar
+- /team-reports
+- /team-member-performance
+- /leave-requests
+- /team-leave
+- /settings
+
 ### Pages
 
 1. **Login** (`/login`)

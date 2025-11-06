@@ -34,20 +34,30 @@ export const onRequest = defineMiddleware((context, next) => {
   }
 
   // Check for auth token in cookies
-  // The cookie contains just the token, not the full auth state
   const authToken = cookies.get('kairos-auth-token');
+  const referer = context.request.headers.get('referer');
+
+  console.log('[Middleware]', {
+    pathname,
+    hasAuthToken: !!authToken,
+    authTokenValue: authToken?.value ? 'exists' : 'missing',
+    referer,
+    isClientSideNav: referer && new URL(referer).origin === url.origin
+  });
 
   if (!authToken || !authToken.value) {
     // Check if this is a client-side navigation (has a referrer from same origin)
     // If so, let the client-side AuthGuard handle the redirect
-    const referer = context.request.headers.get('referer');
     if (referer && new URL(referer).origin === url.origin) {
+      console.log('[Middleware] Client-side navigation, allowing through');
       return next();
     }
 
     // Server-side redirect for direct access without auth
+    console.log('[Middleware] No auth token, redirecting to login');
     return redirect('/login');
   }
 
+  console.log('[Middleware] Auth token found, allowing access');
   return next();
 });

@@ -198,6 +198,34 @@ Astro middleware checks auth
 If unauthorized -> redirect to /login
 Provide requireAuth() helper for protected pages
 
+CRITICAL: ALL PROTECTED PAGES MUST INCLUDE:
+  export const prerender = false;
+
+This is required in the frontmatter of EVERY protected .astro page.
+Without it, the page will be statically prerendered and middleware
+cannot access cookies/headers, causing auth checks to fail even when
+the user is authenticated.
+
+Example protected page structure:
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import AuthGuard from '@/components/auth/AuthGuard';
+
+export const prerender = false;  // ← REQUIRED FOR AUTH TO WORK
+---
+
+<AppLayout title="Protected Page">
+  <AuthGuard client:load>
+    <!-- Page content -->
+  </AuthGuard>
+</AppLayout>
+
+If you forget this line, symptoms include:
+- User is authenticated but gets redirected to login
+- Console warning: "Astro.request.headers is unavailable in static output mode"
+- Middleware logs show: hasAuthToken: false, referer: null
+- Browser Network tab shows cookie being sent but server doesn't see it
+
 ------------------------------------------------------------
 
 NAVIGATION
