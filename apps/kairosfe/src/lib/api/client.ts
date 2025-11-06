@@ -320,6 +320,7 @@ class ApiClient {
               operationId,
               endpoint,
               errors: result.error.errors,
+              actualResponse: data,
             });
 
             // Send schema mismatch to Sentry
