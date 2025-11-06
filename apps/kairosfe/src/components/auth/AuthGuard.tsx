@@ -6,18 +6,22 @@ interface AuthGuardProps {
 }
 
 export default function AuthGuard({ children }: AuthGuardProps) {
-  const { isAuthenticated, isHydrating, hydrate } = useAuthStore();
   const [isReady, setIsReady] = useState(false);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isHydrating = useAuthStore((state) => state.isHydrating);
 
   useEffect(() => {
     const initAuth = async () => {
-      // Try to hydrate session from stored token
-      await hydrate();
+      const { isAuthenticated: currentAuth, hydrate } = useAuthStore.getState();
+
+      // Only hydrate if not already authenticated
+      if (!currentAuth) {
+        await hydrate();
+      }
       setIsReady(true);
     };
 
     initAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run only once on mount
 
   useEffect(() => {
