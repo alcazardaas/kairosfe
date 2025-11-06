@@ -101,9 +101,9 @@ export const WeekViewDataSchema = z.object({
 
 export type WeekViewData = z.infer<typeof WeekViewDataSchema>;
 
-// Week View Response (wrapped in data envelope)
-// Backend wraps response in { data: ... } despite OpenAPI spec showing unwrapped
-export const WeekViewResponseSchema = createDataResponseSchema(WeekViewDataSchema);
+// Week View Response (direct response, not wrapped in data envelope)
+// Backend returns data directly as per OpenAPI spec
+export const WeekViewResponseSchema = WeekViewDataSchema;
 
 export type WeekViewResponse = z.infer<typeof WeekViewResponseSchema>;
 
