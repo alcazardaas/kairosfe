@@ -20,7 +20,22 @@ export function setAuthCookie(token: string): void {
   const isProduction = window.location.protocol === 'https:';
   const secureFlag = isProduction ? '; Secure' : '';
 
-  document.cookie = `${COOKIE_NAME}=${token}; path=/; expires=${expires.toUTCString()}; SameSite=Strict${secureFlag}`;
+  const cookieString = `${COOKIE_NAME}=${token}; path=/; expires=${expires.toUTCString()}; SameSite=Strict${secureFlag}`;
+  document.cookie = cookieString;
+
+  console.log('[AuthCookie] Set auth cookie:', {
+    cookieName: COOKIE_NAME,
+    tokenLength: token.length,
+    expires: expires.toUTCString(),
+    isProduction,
+    cookieString: cookieString.substring(0, 100) + '...'
+  });
+
+  // Verify it was set
+  setTimeout(() => {
+    const wasSet = document.cookie.includes(`${COOKIE_NAME}=`);
+    console.log('[AuthCookie] Cookie verification:', { wasSet, allCookies: document.cookie });
+  }, 100);
 }
 
 /**
