@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '@/lib/store';
 import { apiClient } from '@/lib/api/client';
+import { setAuthCookie } from '@/lib/auth/authCookie';
 
 export default function LoginFormNew() {
   const [showPassword, setShowPassword] = useState(false);
@@ -25,26 +26,14 @@ export default function LoginFormNew() {
       // The API returns { data: { token, refreshToken, user, tenant, ... } }
       const data = (response as any).data;
 
-      // Save tokens first
+      // Save tokens to Zustand (persists to localStorage automatically)
       setTokens(data.token, data.refreshToken);
 
-      // Then call hydrate to get full user data from /auth/me
+      // Set a simple auth cookie for SSR middleware (just the token)
+      setAuthCookie(data.token);
+
+      // Hydrate full user data from /auth/me
       await hydrate();
-
-      // Wait for Zustand persist to write to storage and cookies
-      // Poll until we can verify the cookie is set
-      let cookieSet = false;
-      for (let i = 0; i < 10; i++) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-        if (document.cookie.includes('kairos-auth')) {
-          cookieSet = true;
-          break;
-        }
-      }
-
-      if (!cookieSet) {
-        console.warn('Cookie not set after login, but proceeding anyway');
-      }
 
       // Redirect to dashboard
       window.location.href = '/dashboard';

@@ -13,7 +13,6 @@ import type {
   ProjectBreakdownDto,
   ValidationResult,
 } from '../api/schemas';
-import { cookieStorage } from './cookieStorage';
 
 interface AuthState {
   user: User | null;
@@ -89,6 +88,11 @@ export const useAuthStore = create<AuthState>()(
         if (typeof window !== 'undefined') {
           import('../auth/tokenRefresh').then(({ cleanupTokenRefresh }) => {
             cleanupTokenRefresh();
+          });
+
+          // Remove the auth cookie
+          import('../auth/authCookie').then(({ removeAuthCookie }) => {
+            removeAuthCookie();
           });
         }
 
@@ -235,7 +239,6 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'kairos-auth',
-      storage: cookieStorage,
     }
   )
 );
