@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import posthog from 'posthog-js';
-import * Sentry from '@sentry/browser';
+import * as Sentry from '@sentry/browser';
 import { reportsService } from '@/lib/api/services/reports';
 import { employeesService } from '@/lib/api/services/employees';
 import { projectsService } from '@/lib/api/services/projects';
