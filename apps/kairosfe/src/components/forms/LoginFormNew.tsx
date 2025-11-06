@@ -9,7 +9,6 @@ export default function LoginFormNew() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const setTokens = useAuthStore((state) => state.setTokens);
-  const hydrate = useAuthStore((state) => state.hydrate);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,10 +31,7 @@ export default function LoginFormNew() {
       // Set a simple auth cookie for SSR middleware (just the token)
       setAuthCookie(data.token);
 
-      // Hydrate full user data from /auth/me
-      await hydrate();
-
-      // Redirect to dashboard
+      // Redirect to dashboard - AuthGuard will handle hydration
       window.location.href = '/dashboard';
     } catch (err) {
       console.error('Login failed:', err);
