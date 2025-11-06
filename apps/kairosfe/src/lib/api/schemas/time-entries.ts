@@ -60,30 +60,44 @@ export const DailyTotalDtoSchema = z.object({
 
 export type DailyTotalDto = z.infer<typeof DailyTotalDtoSchema>;
 
+// Week Time Entry DTO (enriched entry for week view)
+export const WeekTimeEntrySchema = z.object({
+  id: z.string(),
+  projectId: z.string().uuid(),
+  projectName: z.string(),
+  projectCode: z.string(),
+  taskId: z.unknown().nullable(), // Backend returns generic object or null
+  taskName: z.unknown().nullable(), // Backend returns generic object or null
+  dayOfWeek: z.number().min(0).max(6),
+  date: z.string(),
+  hours: z.number(),
+  note: z.unknown().nullable(), // Backend returns generic object or null
+});
+
+export type WeekTimeEntry = z.infer<typeof WeekTimeEntrySchema>;
+
 // Project Breakdown DTO (for week view)
 export const ProjectBreakdownDtoSchema = z.object({
   projectId: z.string().uuid(),
   projectName: z.string(),
+  projectCode: z.string(),
   totalHours: z.number(),
 });
 
 export type ProjectBreakdownDto = z.infer<typeof ProjectBreakdownDtoSchema>;
 
 // Week View Response (optimized endpoint for Epic 1 Story 1)
+// Updated to match actual backend OpenAPI spec
 export const WeekViewResponseSchema = z.object({
-  timesheet: z.object({
-    id: z.string().uuid(),
-    userId: z.string().uuid(),
-    weekStartDate: z.string(),
-    status: z.enum(['draft', 'pending', 'approved', 'rejected']),
-    submittedAt: z.string().nullable(),
-    reviewedAt: z.string().nullable(),
-    reviewNote: z.string().nullable(),
-  }).nullable(), // Timesheet can be null when no timesheet exists for the week
-  entries: z.array(TimeEntryDtoSchema),
-  dailyTotals: z.array(DailyTotalDtoSchema),
+  weekStartDate: z.string(),
+  weekEndDate: z.string(),
+  userId: z.string().uuid(),
+  entries: z.array(WeekTimeEntrySchema),
+  dailyTotals: z.array(z.number()), // Array of 7 numbers (one per day)
   weeklyTotal: z.number(),
+  byProject: z.record(z.unknown()), // Generic object mapping projectId to data
   projectBreakdown: z.array(ProjectBreakdownDtoSchema),
+  timesheet: z.record(z.unknown()).nullable().optional(), // Generic timesheet object or null
 });
 
 export type WeekViewResponse = z.infer<typeof WeekViewResponseSchema>;

@@ -5,10 +5,9 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import type { DailyTotalDto } from '../../lib/api/schemas';
 
 interface WeekTotalsFooterProps {
-  dailyTotals: DailyTotalDto[];
+  dailyTotals: number[]; // Array of 7 numbers (one per day, Sun-Sat)
   weeklyTotal: number;
   targetHours?: number;
 }
@@ -22,8 +21,8 @@ export default function WeekTotalsFooter({
 }: WeekTotalsFooterProps) {
   const { t } = useTranslation();
 
-  // Create a map for quick lookup
-  const totalsMap = new Map(dailyTotals.map((dt) => [dt.dayOfWeek, dt.totalHours]));
+  // Ensure we have exactly 7 days, filling with 0s if needed
+  const normalizedTotals = Array.from({ length: 7 }, (_, i) => dailyTotals[i] ?? 0);
 
   // Check if weekly total meets or exceeds target
   const meetsTarget = weeklyTotal >= targetHours;
@@ -37,7 +36,7 @@ export default function WeekTotalsFooter({
           {t('timesheet.totals.daily')}
         </div>
         {DAYS.map((day, index) => {
-          const total = totalsMap.get(index) || 0;
+          const total = normalizedTotals[index];
           return (
             <div
               key={index}
