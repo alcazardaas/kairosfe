@@ -10,7 +10,6 @@ import type {
   TimeEntry
 } from '@kairos/shared';
 import type {
-  DailyTotalDto,
   ProjectBreakdownDto,
   ValidationResult,
 } from '../api/schemas';
@@ -270,7 +269,7 @@ interface TimesheetState {
   // Data
   currentTimesheet: Timesheet | null;
   timeEntries: TimeEntry[];
-  dailyTotals: DailyTotalDto[];
+  dailyTotals: number[]; // Array of 7 numbers (one per day, Sun-Sat)
   weeklyTotal: number;
   projectBreakdown: ProjectBreakdownDto[];
   validationResult: ValidationResult | null;
@@ -286,7 +285,7 @@ interface TimesheetState {
   addTimeEntry: (entry: TimeEntry) => void;
   updateTimeEntry: (id: string, entry: Partial<TimeEntry>) => void;
   removeTimeEntry: (id: string) => void;
-  setDailyTotals: (totals: DailyTotalDto[]) => void;
+  setDailyTotals: (totals: number[]) => void;
   setWeeklyTotal: (total: number) => void;
   setProjectBreakdown: (breakdown: ProjectBreakdownDto[]) => void;
   setValidationResult: (result: ValidationResult | null) => void;
