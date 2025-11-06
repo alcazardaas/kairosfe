@@ -8,7 +8,7 @@ import type { CalendarResponse } from '../schemas';
 import { CalendarResponseSchema } from '../schemas';
 
 interface CalendarQueryParams {
-  user_id?: string;
+  userId?: string;
   from: string;
   to: string;
   include?: string;
@@ -21,8 +21,8 @@ interface CalendarQueryParams {
  */
 export async function getCalendar(params: CalendarQueryParams): Promise<CalendarResponse> {
   const searchParams = new URLSearchParams();
-  if (params.user_id) {
-    searchParams.append('user_id', params.user_id);
+  if (params.userId) {
+    searchParams.append('userId', params.userId);
   }
   searchParams.append('from', params.from);
   searchParams.append('to', params.to);

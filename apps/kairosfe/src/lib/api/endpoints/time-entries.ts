@@ -131,47 +131,12 @@ export async function getProjectHours(projectId: string): Promise<ProjectHoursDt
  * Epic 1, Story 1: View Weekly Timesheet
  */
 export async function getWeekView(userId: string, weekStartDate: string): Promise<WeekViewResponse> {
-  // Make request without schema validation (we'll transform then validate)
-  const backendResponse = await apiClient.request<any>(`/time-entries/week/${userId}/${weekStartDate}`, {
+  return apiClient.request<WeekViewResponse>(`/time-entries/week/${userId}/${weekStartDate}`, {
     method: 'GET',
     requiresAuth: true,
     operationId: 'TimeEntriesController_getWeekView',
+    schema: WeekViewResponseSchema,
   });
-
-  // Transform backend response format to frontend format
-  const transformedResponse: WeekViewResponse = {
-    // Handle null timesheet when no timesheet exists for the week
-    timesheet: backendResponse.timesheet ? {
-      id: backendResponse.timesheet.id,
-      userId: backendResponse.user_id || userId,
-      weekStartDate: backendResponse.week_start_date || weekStartDate,
-      status: backendResponse.timesheet.status,
-      submittedAt: backendResponse.timesheet.submitted_at || null,
-      reviewedAt: backendResponse.timesheet.reviewed_at || null,
-      reviewNote: backendResponse.timesheet.review_note || null,
-    } : null,
-    entries: backendResponse.entries || [],
-    // Transform dailyTotals from number array to object array
-    dailyTotals: (backendResponse.daily_totals || []).map((hours: number, index: number) => ({
-      dayOfWeek: index,
-      totalHours: hours,
-    })),
-    weeklyTotal: backendResponse.weekly_total || 0,
-    // Use projectBreakdown array from backend (new format)
-    projectBreakdown: (backendResponse.projectBreakdown || []).map((item: any) => ({
-      projectId: item.projectId,
-      projectName: item.projectName,
-      totalHours: item.totalHours,
-    })),
-  };
-
-  // Validate the transformed response
-  const validationResult = WeekViewResponseSchema.safeParse(transformedResponse);
-  if (!validationResult.success) {
-    console.error('Transformed response validation failed:', validationResult.error);
-  }
-
-  return transformedResponse;
 }
 
 /**

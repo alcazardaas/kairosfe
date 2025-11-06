@@ -57,11 +57,11 @@ export const UserListResponseSchema = z.object({
 export const GetUsersQueryParamsSchema = z.object({
   page: z.number().int().min(1).optional(),
   limit: z.number().int().min(1).max(100).optional(),
-  sort: z.string().regex(/^(name|email|created_at|role|status):(asc|desc)$/).optional(),
+  sort: z.string().regex(/^(name|email|createdAt|role|status):(asc|desc)$/).optional(),
   q: z.string().optional(), // search by name or email
   role: UserRoleSchema.optional(),
   status: EmployeeStatusSchema.optional(),
-  manager_id: z.string().uuid().optional(),
+  managerId: z.string().uuid().optional(),
 });
 
 // Create User Schemas

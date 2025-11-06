@@ -8,12 +8,13 @@ import { createDataResponseSchema, createPaginatedResponseSchema } from './commo
 // Holiday DTO
 export const HolidayDtoSchema = z.object({
   id: z.string().uuid(),
-  tenant_id: z.string().uuid(),
+  tenantId: z.string().uuid().nullable(),
+  countryCode: z.string(),
   name: z.string(),
   date: z.string(),
-  is_recurring: z.boolean(),
-  created_at: z.string().datetime().optional(),
-  updated_at: z.string().datetime().optional(),
+  type: z.enum(['public', 'company', 'regional']),
+  isRecurring: z.boolean(),
+  description: z.string().nullable(),
 });
 
 export type HolidayDto = z.infer<typeof HolidayDtoSchema>;

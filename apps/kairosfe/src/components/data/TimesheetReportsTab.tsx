@@ -97,8 +97,8 @@ export default function TimesheetReportsTab() {
       const projectMap = new Map<string, { hours: number; weeks: Set<string> }>();
 
       entries.forEach((entry) => {
-        const projectId = entry.project_id;
-        const weekKey = entry.week_start_date;
+        const projectId = entry.projectId;
+        const weekKey = entry.weekStartDate;
 
         // Skip entries without required data
         if (!projectId || !weekKey || typeof entry.hours !== 'number') {

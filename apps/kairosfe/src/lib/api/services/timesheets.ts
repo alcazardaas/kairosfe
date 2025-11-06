@@ -40,14 +40,14 @@ export const timesheetsService = {
   async getAll(params?: GetTimesheetsParams): Promise<TimesheetListResponse> {
     const queryParams: Record<string, string> = {};
 
-    if (params?.userId) queryParams.user_id = params.userId;
-    if (params?.weekStart) queryParams.week_start = params.weekStart;
+    if (params?.userId) queryParams.userId = params.userId;
+    if (params?.weekStart) queryParams.weekStart = params.weekStart;
     if (params?.status) queryParams.status = params.status;
     if (params?.team) queryParams.team = params.team;
     if (params?.from) queryParams.from = params.from;
     if (params?.to) queryParams.to = params.to;
     if (params?.page) queryParams.page = params.page.toString();
-    if (params?.pageSize) queryParams.page_size = params.pageSize.toString();
+    if (params?.pageSize) queryParams.limit = params.pageSize.toString();
 
     return findAllTimesheets(queryParams);
   },
@@ -77,8 +77,8 @@ export const timesheetsService = {
    */
   async create(weekStartDate: string, userId: string): Promise<TimesheetDto> {
     const response = await createTimesheetEndpoint({
-      week_start_date: weekStartDate,
-      user_id: userId,
+      weekStartDate: weekStartDate,
+      userId: userId,
     });
     return response.data;
   },
@@ -127,7 +127,7 @@ export const timesheetsService = {
    * @param reviewNote - Optional rejection reason
    */
   async reject(id: string, reviewNote?: string): Promise<TimesheetDto> {
-    const response = await rejectTimesheetEndpoint(id, reviewNote ? { review_note: reviewNote } : undefined);
+    const response = await rejectTimesheetEndpoint(id, reviewNote ? { reviewNote: reviewNote } : undefined);
     return response.data;
   },
 };
