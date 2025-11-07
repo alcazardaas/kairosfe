@@ -245,7 +245,7 @@ export default function BenefitTypesManagementContent() {
         </div>
         <button
           onClick={openCreateModal}
-          className="inline-flex items-center rounded-md bg-primary-light px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-light/90 focus:outline-none focus:ring-2 focus:ring-primary-light focus:ring-offset-2 dark:bg-primary-dark dark:hover:bg-primary-dark/90"
+          className="inline-flex items-center rounded-md bg-primary-light px-4 py-2 text-sm font-semibold shadow-sm hover:bg-primary-light/90 focus:outline-none focus:ring-2 focus:ring-primary-light focus:ring-offset-2 dark:bg-primary-dark dark:hover:bg-primary-dark/90"
         >
           <span className="material-symbols-outlined mr-2 text-sm">add</span>
           Create Benefit Type
@@ -502,7 +502,7 @@ export default function BenefitTypesManagementContent() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="inline-flex items-center rounded-md bg-primary-light px-4 py-2 text-sm font-semibold text-white hover:bg-primary-light/90 disabled:opacity-50 dark:bg-primary-dark dark:hover:bg-primary-dark/90"
+                  className="inline-flex items-center rounded-md bg-primary-light px-4 py-2 text-sm font-semibold hover:bg-primary-light/90 disabled:opacity-50 dark:bg-primary-dark dark:hover:bg-primary-dark/90"
                 >
                   {saving ? (
                     <>
@@ -625,7 +625,7 @@ export default function BenefitTypesManagementContent() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="inline-flex items-center rounded-md bg-primary-light px-4 py-2 text-sm font-semibold text-white hover:bg-primary-light/90 disabled:opacity-50 dark:bg-primary-dark dark:hover:bg-primary-dark/90"
+                  className="inline-flex items-center rounded-md bg-primary-light px-4 py-2 text-sm font-semibold hover:bg-primary-light/90 disabled:opacity-50 dark:bg-primary-dark dark:hover:bg-primary-dark/90"
                 >
                   {saving ? (
                     <>
