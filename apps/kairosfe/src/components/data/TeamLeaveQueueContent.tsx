@@ -226,12 +226,12 @@ export default function TeamLeaveQueueContent() {
                               {new Date(request.startDate).toLocaleDateString()}
                             </div>
                             <div className="text-xs text-gray-500 dark:text-gray-400">
-                              to {new Date(request.endDate).toLocaleDateString()}
+                              {t('common.to')} {new Date(request.endDate).toLocaleDateString()}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                              {businessDays} {businessDays === 1 ? 'day' : 'days'}
+                              {businessDays} {t(`common.unit.${businessDays === 1 ? 'day' : 'days'}`)}
                             </div>
                           </td>
                           <td className="px-6 py-4">

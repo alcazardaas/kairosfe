@@ -210,12 +210,12 @@ export default function BenefitTypesManagementContent() {
 
   // Get unit display name
   const getUnitDisplay = (unit: Unit): string => {
-    return unit === 'days' ? 'Days' : 'Hours';
+    return t(`common.unit.${unit}`);
   };
 
   // Get unit icon
   const getUnitIcon = (unit: Unit): string => {
-    return unit === 'days' ? 'event' : 'schedule';
+    return t(`common.icon.${unit}`) as string;
   };
 
   if (loading) {
@@ -280,8 +280,8 @@ export default function BenefitTypesManagementContent() {
             className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
           >
             <option value="all">All Units</option>
-            <option value="days">Days</option>
-            <option value="hours">Hours</option>
+            <option value="days">{t('common.unit.days')}</option>
+            <option value="hours">{t('common.unit.hours')}</option>
           </select>
         </div>
       </div>
@@ -460,8 +460,8 @@ export default function BenefitTypesManagementContent() {
                   {...register('unit')}
                   className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                 >
-                  <option value="days">Days</option>
-                  <option value="hours">Hours</option>
+                  <option value="days">{t('common.unit.days')}</option>
+                  <option value="hours">{t('common.unit.hours')}</option>
                 </select>
                 {errors.unit && (
                   <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.unit.message}</p>
@@ -583,8 +583,8 @@ export default function BenefitTypesManagementContent() {
                   {...register('unit')}
                   className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-primary-light focus:outline-none focus:ring-1 focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                 >
-                  <option value="days">Days</option>
-                  <option value="hours">Hours</option>
+                  <option value="days">{t('common.unit.days')}</option>
+                  <option value="hours">{t('common.unit.hours')}</option>
                 </select>
                 {errors.unit && (
                   <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.unit.message}</p>

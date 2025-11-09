@@ -344,6 +344,7 @@
     "andMore": "and {{count}} more..."
   },
   "common": {
+    "all": "All",
     "loading": "Loading...",
     "saving": "Saving...",
     "submitting": "Submitting...",
@@ -371,7 +372,22 @@
     "deselectAll": "Deselect All",
     "typeToSearch": "Type to search...",
     "page": "Page",
-    "of": "of"
+    "of": "of",
+    "to": "to",
+    "from": "from",
+    "at": "at",
+    "by": "by",
+    "in": "in",
+    "unit": {
+      "day": "day",
+      "days": "days",
+      "hour": "hour",
+      "hours": "hours"
+    },
+    "icon": {
+      "days": "event",
+      "hours": "schedule"
+    }
   },
   "dataState": {
     "noData": "No data available",
@@ -615,8 +631,5 @@
     "rejected": "Rejected",
     "projectReportComingSoon": "Project report coming soon",
     "selectFilters": "Select date range and filters to generate report"
-  },
-  "common": {
-    "all": "All"
   }
 }
