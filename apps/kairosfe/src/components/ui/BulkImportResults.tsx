@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ImportResult } from '@/lib/api/services/employees';
 import '@/lib/i18n';

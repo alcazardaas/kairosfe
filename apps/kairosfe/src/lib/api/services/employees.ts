@@ -5,9 +5,8 @@
  */
 
 import { getUsers, createUser, updateUser, deleteUser, importUsers, downloadImportTemplate } from '../endpoints/users';
-import type { ImportResult, ImportRowError, UserSummary } from '../endpoints/users';
+import type { ImportResult } from '../endpoints/users';
 import type {
-  Employee,
   UserListResponse,
   GetUsersParams,
   EmployeeStatus,
@@ -22,7 +21,7 @@ import type {
 
 // Re-export types for backwards compatibility
 export type { Employee, EmployeeStatus, UserRole } from '@kairos/shared';
-export type { ImportResult, ImportRowError, UserSummary } from '../endpoints/users';
+export type { ImportResult } from '../endpoints/users';
 
 export interface GetEmployeesParams {
   page?: number;
@@ -120,7 +119,7 @@ export const employeesService = {
       email: params.email,
       name: params.name,
       role: params.role,
-      sendInvite: params.sendInvite ?? true,
+      sendInvite: params.sendInvite !== undefined ? params.sendInvite : true,
     };
 
     // Add profile if any profile fields are provided
@@ -138,6 +137,11 @@ export const employeesService = {
         location: params.location ?? null,
         phone: params.phone ?? null,
       };
+    }
+
+    // Ensure sendInvite is always a boolean
+    if (request.sendInvite === undefined) {
+      request.sendInvite = false;
     }
 
     return createUser(request);

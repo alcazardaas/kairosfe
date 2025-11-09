@@ -3,7 +3,7 @@
  * Comprehensive reporting dashboard for managers and admins
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import posthog from 'posthog-js';
 import * as Sentry from '@sentry/browser';
@@ -54,8 +54,16 @@ export default function TeamReportsContent() {
         ]);
 
         setEmployees(employeesRes.data || []);
-        setProjects(projectsRes.data || []);
-      } catch (err: any) {
+        // Map API response to match Project interface
+        const mappedProjects: Project[] = (projectsRes.data || []).map(p => ({
+          id: p.id,
+          name: p.name,
+          code: p.code || '',
+          description: p.description || undefined,
+          isActive: p.active
+        }));
+        setProjects(mappedProjects);
+      } catch (err: unknown) {
         console.error('Failed to load metadata:', err);
         Sentry.captureException(err);
       }
@@ -102,9 +110,9 @@ export default function TeamReportsContent() {
         user_filter_count: selectedUserIds.length,
         project_filter_count: selectedProjectIds.length,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load report:', err);
-      setError(err.message || 'Failed to load report data');
+      setError(err instanceof Error ? err.message : 'Failed to load report data');
       Sentry.captureException(err);
     } finally {
       setLoading(false);
@@ -136,7 +144,7 @@ export default function TeamReportsContent() {
         from: fromDate,
         to: toDate,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to export:', err);
       Sentry.captureException(err);
     }
@@ -493,7 +501,7 @@ export default function TeamReportsContent() {
                           </tr>
                         </thead>
                         <tbody>
-                          {reportData.projectAllocations.map((project: any) => (
+                          {reportData.projectAllocations.map((project: { projectId: string; projectName: string; totalHours: number; userCount: number; avgHoursPerUser: number }) => (
                             <tr
                               key={project.projectId}
                               className="border-b border-border-light last:border-b-0 dark:border-border-dark"
@@ -546,7 +554,7 @@ export default function TeamReportsContent() {
                           </tr>
                         </thead>
                         <tbody>
-                          {reportData.userStats.map((user: any) => (
+                          {reportData.userStats.map((user: { userId: string; userName: string; totalHours: number; avgWeeklyHours: number; projectCount: number }) => (
                             <tr
                               key={user.userId}
                               className="border-b border-border-light last:border-b-0 dark:border-border-dark"
@@ -640,7 +648,7 @@ export default function TeamReportsContent() {
                           </tr>
                         </thead>
                         <tbody>
-                          {reportData.leaveStats.map((leave: any) => (
+                          {reportData.leaveStats.map((leave: { userId: string; userName: string; totalDays: number; pendingDays: number; approvedDays: number; rejectedDays: number }) => (
                             <tr
                               key={leave.userId}
                               className="border-b border-border-light last:border-b-0 dark:border-border-dark"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -111,7 +111,7 @@ export default function BenefitTypesManagementContent() {
       key: benefitType.key,
       name: benefitType.name,
       unit: benefitType.unit,
-      requires_approval: benefitType.requires_approval,
+      requires_approval: benefitType.requiresApproval,
     });
     setIsEditModalOpen(true);
   };
@@ -351,12 +351,12 @@ export default function BenefitTypesManagementContent() {
                     <td className="whitespace-nowrap px-6 py-4">
                       <span
                         className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ${
-                          benefitType.requires_approval
+                          benefitType.requiresApproval
                             ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
                             : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                         }`}
                       >
-                        {benefitType.requires_approval ? (
+                        {benefitType.requiresApproval ? (
                           <>
                             <span className="material-symbols-outlined mr-1 text-xs">
                               gavel

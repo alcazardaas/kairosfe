@@ -49,7 +49,7 @@ export async function getUsers(params?: GetUsersQueryParams): Promise<UserListRe
   if (params?.q) queryParams.append('q', params.q);
   if (params?.role) queryParams.append('role', params.role);
   if (params?.status) queryParams.append('status', params.status);
-  if (params?.manager_id) queryParams.append('manager_id', params.manager_id);
+  if (params?.managerId) queryParams.append('manager_id', params.managerId);
 
   const endpoint = `/users${queryParams.toString() ? `?${queryParams}` : ''}`;
 

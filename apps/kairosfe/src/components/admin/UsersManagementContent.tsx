@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -47,7 +47,6 @@ export default function UsersManagementContent() {
     handleSubmit,
     formState: { errors },
     reset,
-    watch,
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
     defaultValues: {
@@ -192,9 +191,10 @@ export default function UsersManagementContent() {
           sendInvite: data.sendInvite,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to create user:', error);
-      toast.error(error?.message || t('employees.errors.createFailed'));
+      const errorMessage = error instanceof Error ? error.message : t('employees.errors.createFailed');
+      toast.error(errorMessage);
 
       if (typeof window !== 'undefined' && (window as any).Sentry) {
         (window as any).Sentry.captureException(error, {
@@ -214,11 +214,11 @@ export default function UsersManagementContent() {
       await employeesService.update(selectedUser.id, {
         name: data.name,
         role: data.role,
-        jobTitle: data.jobTitle || null,
-        startDate: data.startDate || null,
-        managerId: data.managerId || null,
-        location: data.location || null,
-        phone: data.phone || null,
+        jobTitle: data.jobTitle || undefined,
+        startDate: data.startDate || undefined,
+        managerId: data.managerId || undefined,
+        location: data.location || undefined,
+        phone: data.phone || undefined,
       });
 
       toast.success(t('employees.success.updated'));
@@ -232,9 +232,10 @@ export default function UsersManagementContent() {
           userId: selectedUser.id,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to update user:', error);
-      toast.error(error?.message || t('employees.errors.updateFailed'));
+      const errorMessage = error instanceof Error ? error.message : t('employees.errors.updateFailed');
+      toast.error(errorMessage);
 
       if (typeof window !== 'undefined' && (window as any).Sentry) {
         (window as any).Sentry.captureException(error, {
@@ -264,9 +265,10 @@ export default function UsersManagementContent() {
           userId: selectedUser.id,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to deactivate user:', error);
-      toast.error(error?.message || t('employees.errors.deleteFailed'));
+      const errorMessage = error instanceof Error ? error.message : t('employees.errors.deleteFailed');
+      toast.error(errorMessage);
 
       if (typeof window !== 'undefined' && (window as any).Sentry) {
         (window as any).Sentry.captureException(error, {
@@ -292,9 +294,10 @@ export default function UsersManagementContent() {
           userId: user.id,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to reactivate user:', error);
-      toast.error(error?.message || 'Failed to reactivate user');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to reactivate user';
+      toast.error(errorMessage);
 
       if (typeof window !== 'undefined' && (window as any).Sentry) {
         (window as any).Sentry.captureException(error, {

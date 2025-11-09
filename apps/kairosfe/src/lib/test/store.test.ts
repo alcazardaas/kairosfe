@@ -17,8 +17,9 @@ describe('Auth Store', () => {
     const mockUser = { id: '1', email: 'test@test.com', name: 'Test', role: 'employee' as const };
     const mockToken = 'test-token';
     const mockRefreshToken = 'test-refresh-token';
+    const mockExpiresIn = 3600;
 
-    useAuthStore.getState().login(mockUser, mockToken, mockRefreshToken);
+    useAuthStore.getState().login(mockUser, mockToken, mockRefreshToken, mockExpiresIn);
 
     const state = useAuthStore.getState();
     expect(state.user).toEqual(mockUser);
@@ -29,7 +30,7 @@ describe('Auth Store', () => {
 
   it('should logout user', () => {
     const mockUser = { id: '1', email: 'test@test.com', name: 'Test', role: 'employee' as const };
-    useAuthStore.getState().login(mockUser, 'token', 'refresh-token');
+    useAuthStore.getState().login(mockUser, 'token', 'refresh-token', 3600);
     useAuthStore.getState().logout();
 
     const state = useAuthStore.getState();

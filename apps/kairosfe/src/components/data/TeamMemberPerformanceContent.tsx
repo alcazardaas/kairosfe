@@ -3,15 +3,13 @@
  * Individual team member analytics and performance metrics
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import posthog from 'posthog-js';
 import * as Sentry from '@sentry/browser';
 import { reportsService } from '@/lib/api/services/reports';
 import { employeesService } from '@/lib/api/services/employees';
-import { projectsService } from '@/lib/api/services/projects';
-import { leaveRequestsService } from '@/lib/api/services/leave-requests';
-import type { Employee, Project } from '@kairos/shared';
+import type { Employee } from '@kairos/shared';
 
 interface MemberPerformance {
   userId: string;
@@ -39,7 +37,6 @@ export default function TeamMemberPerformanceContent() {
 
   // Data
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
   const [performance, setPerformance] = useState<MemberPerformance | null>(null);
   const [teamAverage, setTeamAverage] = useState<{ avgWeeklyHours: number; utilizationRate: number } | null>(null);
 
@@ -58,26 +55,24 @@ export default function TeamMemberPerformanceContent() {
     }
   }, []);
 
-  // Load employees and projects
+  // Load employees
   useEffect(() => {
     const loadMetadata = async () => {
       try {
-        const [employeesRes, projectsRes] = await Promise.all([
-          employeesService.getActive(),
-          projectsService.getAll(),
-        ]);
+        const employeesRes = await employeesService.getActive();
 
         const activeEmployees = employeesRes.data || [];
         setEmployees(activeEmployees);
-        setProjects(projectsRes.data || []);
 
         // Select first employee by default
         if (activeEmployees.length > 0 && !selectedUserId) {
           setSelectedUserId(activeEmployees[0].id);
         }
-      } catch (err: any) {
-        console.error('Failed to load metadata:', err);
-        Sentry.captureException(err);
+      } catch (err) {
+        if (err instanceof Error) {
+          console.error('Failed to load metadata:', err);
+          Sentry.captureException(err);
+        }
       }
     };
 
@@ -118,7 +113,7 @@ export default function TeamMemberPerformanceContent() {
       ]);
 
       // Calculate member performance
-      const userStats = timesheetData.userStats.find((u: any) => u.userId === selectedUserId);
+      const userStats = timesheetData.userStats.find((u: { userId: string }) => u.userId === selectedUserId);
       if (!userStats) {
         setError('No data found for selected team member');
         setPerformance(null);
@@ -132,8 +127,8 @@ export default function TeamMemberPerformanceContent() {
 
       // Calculate project breakdown
       const projectBreakdown = timesheetData.projectAllocations
-        .filter((p: any) => p.projectId)
-        .map((p: any) => ({
+        .filter((p: { projectId: string; projectName: string; totalHours: number }) => p.projectId)
+        .map((p: { projectId: string; projectName: string; totalHours: number }) => ({
           projectName: p.projectName,
           hours: p.totalHours,
           percentage: (p.totalHours / timesheetData.totalHours) * 100,
@@ -145,7 +140,7 @@ export default function TeamMemberPerformanceContent() {
       const utilizationRate = (userStats.totalHours / expectedHours) * 100;
 
       // Get leave days
-      const leaveDays = leaveData.leaveStats.find((l: any) => l.userId === selectedUserId)?.totalDays || 0;
+      const leaveDays = leaveData.leaveStats.find((l: { userId: string; totalDays: number }) => l.userId === selectedUserId)?.totalDays || 0;
 
       setPerformance({
         userId: selectedUserId,
@@ -174,16 +169,16 @@ export default function TeamMemberPerformanceContent() {
           to: toDate,
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load performance data:', err);
-      setError(err.message || 'Failed to load performance data');
+      setError(err instanceof Error ? err.message : 'Failed to load performance data');
       Sentry.captureException(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const calculateWeeklyTrend = (from: string, to: string, userId: string): { week: string; hours: number }[] => {
+  const calculateWeeklyTrend = (_from: string, _to: string, _userId: string): { week: string; hours: number }[] => {
     // This is a simplified version - in production, you'd fetch actual weekly data
     // For now, return empty array as placeholder
     return [];

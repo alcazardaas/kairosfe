@@ -16,7 +16,6 @@ import {
 } from '../endpoints/timesheets';
 import type {
   TimesheetListResponse,
-  TimesheetResponse,
   TimesheetDto,
   ValidationResult,
 } from '../schemas';
@@ -131,3 +130,12 @@ export const timesheetsService = {
     return response.data;
   },
 };
+
+// Export named functions for component imports
+export const getTimesheets = timesheetsService.getAll;
+export const createTimesheet = timesheetsService.create;
+export const submitTimesheet = timesheetsService.submit;
+export const approveTimesheet = timesheetsService.approve;
+export const rejectTimesheet = timesheetsService.reject;
+export const validateTimesheetFn = timesheetsService.validate;
+export const recallTimesheetFn = timesheetsService.recall;

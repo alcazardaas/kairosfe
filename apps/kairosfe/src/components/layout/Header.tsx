@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuthStore, useUIStore } from '@/lib/store';
 import { apiClient } from '@/lib/api/client';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,7 @@ export default function Header() {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
+    return undefined;
   }, [isDropdownOpen]);
 
   const handleLogout = async () => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -78,14 +78,21 @@ export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmpl
       reset();
       onSuccess();
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to create employee:', err);
 
       // Handle specific error codes
-      if (err.statusCode === 409 || err.message?.includes('already exists')) {
+      if (typeof err === 'object' && err !== null && 'statusCode' in err) {
+        const apiError = err as { statusCode: number; message?: string };
+        if (apiError.statusCode === 409 || apiError.message?.includes('already exists')) {
+          setError(t('employees.errors.emailExists'));
+        } else if (apiError.statusCode === 403) {
+          setError(t('employees.errors.createFailed') + ' - Permission denied');
+        } else {
+          setError(t('employees.errors.createFailed'));
+        }
+      } else if (err instanceof Error && err.message?.includes('already exists')) {
         setError(t('employees.errors.emailExists'));
-      } else if (err.statusCode === 403) {
-        setError(t('employees.errors.createFailed') + ' - Permission denied');
       } else {
         setError(t('employees.errors.createFailed'));
       }

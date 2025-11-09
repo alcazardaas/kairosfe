@@ -195,9 +195,16 @@ export default function TimesheetWeekTab() {
       setSelectedDay(null);
       setEditingEntry(null);
       await loadWeekView();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to save time entry:', err);
-      if (err.status === 409 || err.message?.includes('already exists')) {
+      if (typeof err === 'object' && err !== null && 'status' in err) {
+        const apiError = err as { status: number; message?: string };
+        if (apiError.status === 409 || apiError.message?.includes('already exists')) {
+          toast.error(t('timesheet.duplicateEntry'));
+        } else {
+          toast.error(t('timesheet.errorSavingEntry'));
+        }
+      } else if (err instanceof Error && err.message?.includes('already exists')) {
         toast.error(t('timesheet.duplicateEntry'));
       } else {
         toast.error(t('timesheet.errorSavingEntry'));

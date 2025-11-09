@@ -1,15 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore, useTimesheetStore } from '@/lib/store';
-import {
-  getTimesheets,
-  createTimesheet,
-  getTimeEntries,
-  createTimeEntry,
-  updateTimeEntry,
-  deleteTimeEntry,
-  submitTimesheet,
-} from '@/lib/api/services/timesheets';
+import { timesheetsService } from '@/lib/api/services/timesheets';
+import { timeEntriesService } from '@/lib/api/services/time-entries';
 import { getWeekDates, formatDate, getDayName, isToday } from '@/lib/utils/date';
 import WeekPicker from '@/components/ui/WeekPicker';
 import TimeEntryForm from '@/components/forms/TimeEntryForm';
@@ -50,18 +43,18 @@ export default function TimesheetTable() {
         const weekStartStr = formatDate(selectedWeekStart);
 
         // Get timesheet for the week
-        const timesheets = await getTimesheets({
+        const response = await timesheetsService.getAll({
           userId: user.id,
           weekStart: weekStartStr,
         });
 
-        if (timesheets.length > 0) {
-          const timesheet = timesheets[0];
+        if (response.data.length > 0) {
+          const timesheet = response.data[0];
           setCurrentTimesheet(timesheet);
 
           // Load time entries for this timesheet
-          const entries = await getTimeEntries({ timesheetId: timesheet.id });
-          setTimeEntries(entries);
+          const entriesResponse = await timeEntriesService.getAll({ timesheetId: timesheet.id });
+          setTimeEntries(entriesResponse.data);
         } else {
           setCurrentTimesheet(null);
           setTimeEntries([]);
@@ -81,7 +74,7 @@ export default function TimesheetTable() {
 
     try {
       const weekStartStr = formatDate(selectedWeekStart);
-      const newTimesheet = await createTimesheet({ weekStart: weekStartStr });
+      const newTimesheet = await timesheetsService.create({ weekStartDate: weekStartStr, userId: user.id });
       setCurrentTimesheet(newTimesheet);
     } catch (error) {
       console.error('Failed to create timesheet:', error);
@@ -104,13 +97,13 @@ export default function TimesheetTable() {
     if (!confirm(t('timesheet.confirmDelete'))) return;
 
     try {
-      await deleteTimeEntry(entry.id);
+      await timeEntriesService.delete(entry.id);
       removeTimeEntry(entry.id);
 
       // Reload timesheet to update total
       if (currentTimesheet) {
-        const updated = await getTimesheets({ userId: user!.id });
-        const timesheet = updated.find((ts) => ts.id === currentTimesheet.id);
+        const response = await timesheetsService.getAll({ userId: user!.id });
+        const timesheet = response.data.find((ts) => ts.id === currentTimesheet.id);
         if (timesheet) setCurrentTimesheet(timesheet);
       }
     } catch (error) {
@@ -118,35 +111,36 @@ export default function TimesheetTable() {
     }
   };
 
-  const handleFormSubmit = async (data: any) => {
+  const handleFormSubmit = async (data: { projectId: string; taskId?: string | null; hours: number; notes?: string }) => {
     if (!currentTimesheet) return;
 
     try {
       if (editingEntry) {
         // Update existing entry
-        const updated = await updateTimeEntry(editingEntry.id, {
+        const updated = await timeEntriesService.update(editingEntry.id, {
           projectId: data.projectId,
-          taskId: data.taskId,
+          taskId: data.taskId || null,
           hours: data.hours,
-          notes: data.notes,
+          note: data.notes,
+          dayOfWeek: new Date(selectedDate).getDay(),
         });
         updateEntryInStore(editingEntry.id, updated);
       } else {
         // Create new entry
-        const newEntry = await createTimeEntry({
+        const newEntry = await timeEntriesService.create({
           timesheetId: currentTimesheet.id,
           projectId: data.projectId,
-          taskId: data.taskId,
-          date: selectedDate,
+          taskId: data.taskId || null,
+          dayOfWeek: new Date(selectedDate).getDay(),
           hours: data.hours,
-          notes: data.notes,
+          note: data.notes,
         });
         addTimeEntry(newEntry);
       }
 
       // Reload timesheet to update total
-      const updated = await getTimesheets({ userId: user!.id });
-      const timesheet = updated.find((ts) => ts.id === currentTimesheet.id);
+      const response = await timesheetsService.getAll({ userId: user!.id });
+      const timesheet = response.data.find((ts) => ts.id === currentTimesheet.id);
       if (timesheet) setCurrentTimesheet(timesheet);
 
       setShowEntryForm(false);
@@ -190,7 +184,7 @@ export default function TimesheetTable() {
 
     try {
       setSubmitting(true);
-      const updated = await submitTimesheet(currentTimesheet.id);
+      const updated = await timesheetsService.submit(currentTimesheet.id);
       setCurrentTimesheet(updated);
 
       // Track event
@@ -198,7 +192,7 @@ export default function TimesheetTable() {
         (window as any).posthog.capture('timesheet_submitted', {
           timesheetId: currentTimesheet.id,
           totalHours: currentTimesheet.totalHours,
-          weekStart: currentTimesheet.weekStart,
+          weekStart: (currentTimesheet as any).weekStartDate || (currentTimesheet as any).weekStart,
         });
       }
     } catch (error) {
@@ -217,11 +211,11 @@ export default function TimesheetTable() {
     return dayEntries.reduce((sum, e) => sum + e.hours, 0);
   });
 
-  // Group entries by date
-  const entriesByDate = weekDates.map((date) => {
-    const dateStr = formatDate(date);
-    return timeEntries.filter((e) => e.date === dateStr);
-  });
+  // Group entries by date (currently unused but may be needed later)
+  // const entriesByDate = weekDates.map((date) => {
+  //   const dateStr = formatDate(date);
+  //   return timeEntries.filter((e) => e.date === dateStr);
+  // });
 
   const canEdit = !currentTimesheet || currentTimesheet.status === 'draft';
 

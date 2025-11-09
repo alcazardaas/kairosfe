@@ -45,7 +45,7 @@ const DAYS = [
 
 const WEEKDAYS = [1, 2, 3, 4, 5]; // Mon-Fri
 
-export default function BulkFillModal({ onSubmit, onCancel, weekStartDate }: BulkFillModalProps) {
+export default function BulkFillModal({ onSubmit, onCancel, weekStartDate: _weekStartDate }: BulkFillModalProps) {
   const { t } = useTranslation();
   const user = useAuthStore((state) => state.user);
 
@@ -139,6 +139,7 @@ export default function BulkFillModal({ onSubmit, onCancel, weekStartDate }: Bul
                 control={control}
                 render={({ field }) => (
                   <AsyncCombobox
+                    label={t('timesheet.form.project')}
                     value={field.value}
                     onChange={field.onChange}
                     onSearch={searchProjects}
@@ -159,6 +160,7 @@ export default function BulkFillModal({ onSubmit, onCancel, weekStartDate }: Bul
                 control={control}
                 render={({ field }) => (
                   <AsyncCombobox
+                    label={t('timesheet.form.task')}
                     value={field.value || ''}
                     onChange={field.onChange}
                     onSearch={searchTasks}

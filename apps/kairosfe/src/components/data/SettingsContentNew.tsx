@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useUIStore } from '../../lib/store';
 import { showToast } from '../../lib/utils/toast';
 

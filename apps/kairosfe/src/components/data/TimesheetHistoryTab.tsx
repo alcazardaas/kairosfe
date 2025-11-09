@@ -86,7 +86,7 @@ export default function TimesheetHistoryTab() {
     if (timesheet.totalHours !== undefined) {
       return timesheet.totalHours;
     }
-    return (timesheet.time_entries?.length || 0) * 8; // Placeholder calculation
+    return (timesheet.timeEntries?.length || 0) * 8; // Placeholder calculation
   };
 
   return (
@@ -182,7 +182,7 @@ export default function TimesheetHistoryTab() {
             : timesheets.length === 0 ? 'empty'
             : 'success'
           }
-          error={error}
+          error={error || undefined}
           emptyMessage={t('timesheet.history.noTimesheets')}
         >
           <div className="overflow-x-auto">

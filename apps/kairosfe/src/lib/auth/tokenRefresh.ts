@@ -10,7 +10,7 @@ import { apiClient } from '../api/client';
 const REFRESH_BUFFER_MS = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 class TokenRefreshManager {
-  private refreshTimerId: NodeJS.Timeout | null = null;
+  private refreshTimerId: ReturnType<typeof setTimeout> | null = null;
   private tokenExpiresAt: number | null = null;
   private isRefreshing = false;
 
@@ -77,7 +77,7 @@ class TokenRefreshManager {
     this.isRefreshing = true;
 
     try {
-      const { refreshToken, token } = useAuthStore.getState();
+      const { refreshToken } = useAuthStore.getState();
 
       if (!refreshToken) {
         console.warn('[TokenRefresh] No refresh token available, cannot refresh');

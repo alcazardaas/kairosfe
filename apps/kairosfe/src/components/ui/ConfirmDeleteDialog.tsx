@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { employeesService } from '@/lib/api/services/employees';
 import { showToast } from '@/lib/utils/toast';
@@ -35,14 +35,19 @@ export default function ConfirmDeleteDialog({
       showToast.success(t('employees.success.deleted'));
       onSuccess();
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to deactivate employee:', err);
 
       // Handle specific error codes
-      if (err.statusCode === 403) {
-        setError(t('employees.errors.deleteFailed') + ' - Permission denied');
-      } else if (err.statusCode === 404) {
-        setError(t('employees.errors.notFound'));
+      if (typeof err === 'object' && err !== null && 'statusCode' in err) {
+        const apiError = err as { statusCode: number };
+        if (apiError.statusCode === 403) {
+          setError(t('employees.errors.deleteFailed') + ' - Permission denied');
+        } else if (apiError.statusCode === 404) {
+          setError(t('employees.errors.notFound'));
+        } else {
+          setError(t('employees.errors.deleteFailed'));
+        }
       } else {
         setError(t('employees.errors.deleteFailed'));
       }
