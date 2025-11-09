@@ -1,25 +1,19 @@
 import React, { useState } from 'react';
+import { useUIStore } from '../../lib/store';
+import { showToast } from '../../lib/utils/toast';
 
 export default function SettingsContentNew() {
   const [activeTab, setActiveTab] = useState('organization');
   const [orgName, setOrgName] = useState('Kairos Inc.');
   const [orgPhone, setOrgPhone] = useState('+1 (555) 123-4567');
   const [orgAddress, setOrgAddress] = useState('123 Innovation Drive, Tech City, 94105');
-  const [language, setLanguage] = useState('en');
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  // Use Zustand store for theme and locale
+  // Note: Theme and locale syncing is handled globally by ThemeSync component in BaseLayout
+  const { theme, locale, setTheme, setLocale } = useUIStore();
 
   const handleSave = () => {
-    alert('Settings saved successfully!');
-  };
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    showToast.success('Settings saved successfully!');
   };
 
   return (
@@ -199,8 +193,8 @@ export default function SettingsContentNew() {
                         <p className="text-gray-900 dark:text-white text-base font-medium leading-normal pb-2">Language</p>
                         <select
                           className="form-select w-full rounded-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 h-14 p-[15px] text-base font-normal leading-normal"
-                          value={language}
-                          onChange={(e) => setLanguage(e.target.value)}
+                          value={locale}
+                          onChange={(e) => setLocale(e.target.value)}
                         >
                           <option value="en">English (United States)</option>
                           <option value="es">Español (España)</option>
@@ -213,10 +207,7 @@ export default function SettingsContentNew() {
                         <p className="text-gray-900 dark:text-white text-base font-medium leading-normal pb-2">Theme</p>
                         <div className="flex items-center gap-4 rounded-lg border border-gray-200 dark:border-gray-700 p-2">
                           <button
-                            onClick={() => {
-                              setTheme('light');
-                              document.documentElement.classList.remove('dark');
-                            }}
+                            onClick={() => setTheme('light')}
                             className={`flex-1 flex items-center justify-center gap-2 p-2 rounded-md ${
                               theme === 'light'
                                 ? 'bg-primary text-white'
@@ -227,10 +218,7 @@ export default function SettingsContentNew() {
                             <span>Light</span>
                           </button>
                           <button
-                            onClick={() => {
-                              setTheme('dark');
-                              document.documentElement.classList.add('dark');
-                            }}
+                            onClick={() => setTheme('dark')}
                             className={`flex-1 flex items-center justify-center gap-2 p-2 rounded-md ${
                               theme === 'dark'
                                 ? 'bg-primary text-white'

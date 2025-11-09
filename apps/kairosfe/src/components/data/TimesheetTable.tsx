@@ -14,6 +14,7 @@ import { getWeekDates, formatDate, getDayName, isToday } from '@/lib/utils/date'
 import WeekPicker from '@/components/ui/WeekPicker';
 import TimeEntryForm from '@/components/forms/TimeEntryForm';
 import type { TimeEntry } from '@kairos/shared';
+import { showToast } from '@/lib/utils/toast';
 import '@/lib/i18n';
 
 export default function TimesheetTable() {
@@ -167,7 +168,7 @@ export default function TimesheetTable() {
         const dayTotal = dayEntries.reduce((sum, e) => sum + e.hours, 0);
 
         if (dayTotal > policy.maxHoursPerDay) {
-          alert(
+          showToast.error(
             t('timesheet.validationMaxHoursPerDay', {
               max: policy.maxHoursPerDay,
               date: date.toLocaleDateString(),
@@ -178,7 +179,7 @@ export default function TimesheetTable() {
       }
 
       if (currentTimesheet.totalHours > policy.maxHoursPerWeek) {
-        alert(
+        showToast.error(
           t('timesheet.validationMaxHoursPerWeek', { max: policy.maxHoursPerWeek })
         );
         return;

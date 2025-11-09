@@ -8,6 +8,7 @@ import {
 } from '@/lib/api/services/timesheets';
 import TimesheetDetailModal from './TimesheetDetailModal';
 import type { Timesheet } from '@kairos/shared';
+import { showToast } from '@/lib/utils/toast';
 import '@/lib/i18n';
 
 export default function TimesheetQueueTable() {
@@ -75,7 +76,7 @@ export default function TimesheetQueueTable() {
   const handleRejectSubmit = async () => {
     if (!rejectingId) return;
     if (!rejectionReason.trim()) {
-      alert(t('timesheet.rejectionReasonRequired'));
+      showToast.error(t('timesheet.rejectionReasonRequired'));
       return;
     }
 

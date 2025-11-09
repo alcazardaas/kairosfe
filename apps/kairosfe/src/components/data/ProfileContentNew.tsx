@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { profileService, type UserProfile } from '@/lib/api/services/profile';
+import { showToast } from '@/lib/utils/toast';
+import { useUIStore } from '@/lib/store';
 
 export default function ProfileContentNew() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -8,6 +10,9 @@ export default function ProfileContentNew() {
   const [saving, setSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [activeTab, setActiveTab] = useState('personal');
+
+  // Get theme from Zustand store
+  const { theme, setTheme } = useUIStore();
 
   useEffect(() => {
     loadProfile();
@@ -51,10 +56,10 @@ export default function ProfileContentNew() {
       const updated = await profileService.update(profile);
       setProfile(updated);
       setIsDirty(false);
-      alert('Profile updated successfully!');
+      showToast.success('Profile updated successfully!');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update profile');
-      alert('Failed to update profile. Using mock data for demonstration.');
+      showToast.error('Failed to update profile. Using mock data for demonstration.');
     } finally {
       setSaving(false);
     }
@@ -67,7 +72,8 @@ export default function ProfileContentNew() {
   };
 
   const toggleTheme = () => {
-    document.documentElement.classList.toggle('dark');
+    // Use Zustand store instead of direct DOM manipulation
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   if (loading) {

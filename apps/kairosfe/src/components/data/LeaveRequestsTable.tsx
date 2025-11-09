@@ -8,6 +8,7 @@ import {
   rejectLeaveRequest,
 } from '@/lib/api/services/leave-requests';
 import type { LeaveRequest } from '@kairos/shared';
+import { showToast } from '@/lib/utils/toast';
 import '@/lib/i18n';
 
 interface LeaveRequestsTableProps {
@@ -104,7 +105,7 @@ export default function LeaveRequestsTable({ mode = 'employee' }: LeaveRequestsT
   const handleRejectSubmit = async () => {
     if (!rejectingId) return;
     if (!rejectionReason.trim()) {
-      alert(t('leaveRequest.rejectionReasonRequired'));
+      showToast.error(t('leaveRequest.rejectionReasonRequired'));
       return;
     }
 

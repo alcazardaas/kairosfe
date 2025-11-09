@@ -9,6 +9,7 @@ import {
 } from '@/lib/api/services/leave-requests';
 import AuthGuard from '@/components/auth/AuthGuard';
 import type { LeaveRequest } from '@kairos/shared';
+import { showToast } from '@/lib/utils/toast';
 import '@/lib/i18n';
 
 export default function TeamLeaveQueueContent() {
@@ -69,7 +70,7 @@ export default function TeamLeaveQueueContent() {
   const handleRejectSubmit = async () => {
     if (!rejectingId) return;
     if (!rejectionReason.trim()) {
-      alert(t('leaveRequest.rejectionReasonRequired'));
+      showToast.error(t('leaveRequest.rejectionReasonRequired'));
       return;
     }
 

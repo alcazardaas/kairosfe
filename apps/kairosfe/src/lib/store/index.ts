@@ -258,6 +258,35 @@ export const useUIStore = create<UIState>()(
     }),
     {
       name: 'kairos-ui',
+      // Explicitly configure storage for better SSR compatibility
+      storage: {
+        getItem: (name) => {
+          if (typeof window === 'undefined') return null;
+          try {
+            const str = localStorage.getItem(name);
+            return str ? JSON.parse(str) : null;
+          } catch (e) {
+            console.error('Failed to read from localStorage:', e);
+            return null;
+          }
+        },
+        setItem: (name, value) => {
+          if (typeof window === 'undefined') return;
+          try {
+            localStorage.setItem(name, JSON.stringify(value));
+          } catch (e) {
+            console.error('Failed to write to localStorage:', e);
+          }
+        },
+        removeItem: (name) => {
+          if (typeof window === 'undefined') return;
+          try {
+            localStorage.removeItem(name);
+          } catch (e) {
+            console.error('Failed to remove from localStorage:', e);
+          }
+        },
+      },
     }
   )
 );
