@@ -4,7 +4,8 @@
  * Uses the users API endpoints
  */
 
-import { getUsers, createUser, updateUser, deleteUser } from '../endpoints/users';
+import { getUsers, createUser, updateUser, deleteUser, importUsers, downloadImportTemplate } from '../endpoints/users';
+import type { ImportResult, ImportRowError, UserSummary } from '../endpoints/users';
 import type {
   Employee,
   UserListResponse,
@@ -21,6 +22,7 @@ import type {
 
 // Re-export types for backwards compatibility
 export type { Employee, EmployeeStatus, UserRole } from '@kairos/shared';
+export type { ImportResult, ImportRowError, UserSummary } from '../endpoints/users';
 
 export interface GetEmployeesParams {
   page?: number;
@@ -239,5 +241,24 @@ export const employeesService = {
         id: user.id,
         name: user.name || user.email,
       }));
+  },
+
+  /**
+   * Bulk import users from CSV or Excel file
+   * @param file - CSV or Excel file (max 10MB)
+   * @param dryRun - If true, validate only without creating users
+   * @returns Promise<ImportResult> - Import result with success/error details
+   */
+  async bulkImport(file: File, dryRun: boolean = false): Promise<ImportResult> {
+    return importUsers(file, dryRun);
+  },
+
+  /**
+   * Download import template file
+   * @param format - Template format ('csv' or 'xlsx')
+   * @returns Promise<Blob> - Template file
+   */
+  async downloadTemplate(format: 'csv' | 'xlsx' = 'csv'): Promise<Blob> {
+    return downloadImportTemplate(format);
   },
 };

@@ -4,6 +4,7 @@ import { useAuthStore } from '@/lib/store';
 import { canAddEmployee, canEditEmployee, canDeactivateEmployee } from '@/lib/utils/permissions';
 import type { Employee, EmployeeStatus, UserRole } from '@kairos/shared';
 import AddEmployeeModal from '@/components/forms/AddEmployeeModal';
+import BulkImportModal from '@/components/forms/BulkImportModal';
 import EditEmployeeModal from '@/components/forms/EditEmployeeModal';
 import ConfirmDeleteDialog from '@/components/ui/ConfirmDeleteDialog';
 
@@ -24,10 +25,12 @@ export default function TeamManagementContentNew() {
 
   // Modal state
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showBulkImportModal, setShowBulkImportModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null);
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
 
   // Permission checks
   const userCanAddEmployee = canAddEmployee(role);
@@ -276,12 +279,60 @@ export default function TeamManagementContentNew() {
             </p>
           </div>
           {userCanAddEmployee && (
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="hidden sm:flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
-            >
-              <span className="truncate">Add New Employee</span>
-            </button>
+            <div className="hidden sm:block relative">
+              <button
+                onClick={() => setAddMenuOpen(!addMenuOpen)}
+                className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
+              >
+                <span className="truncate">Add Employee</span>
+                <span className="material-symbols-outlined text-lg">
+                  {addMenuOpen ? 'expand_less' : 'expand_more'}
+                </span>
+              </button>
+
+              {/* Dropdown Menu */}
+              {addMenuOpen && (
+                <>
+                  {/* Backdrop to close menu */}
+                  <div className="fixed inset-0 z-10" onClick={() => setAddMenuOpen(false)} />
+
+                  {/* Menu */}
+                  <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20">
+                    <button
+                      onClick={() => {
+                        setShowAddModal(true);
+                        setAddMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 rounded-t-lg transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-base">person_add</span>
+                      <div>
+                        <div className="font-medium">Add Single Employee</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          Add one employee at a time
+                        </div>
+                      </div>
+                    </button>
+                    <div className="border-t border-gray-200 dark:border-gray-700"></div>
+                    <button
+                      onClick={() => {
+                        setShowBulkImportModal(true);
+                        setAddMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 rounded-b-lg transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-base">upload_file</span>
+                      <div>
+                        <div className="font-medium">Bulk Import</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          Import from CSV or Excel
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           )}
         </div>
 
@@ -513,6 +564,12 @@ export default function TeamManagementContentNew() {
         <AddEmployeeModal
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
+          onSuccess={handleEmployeeAdded}
+        />
+
+        <BulkImportModal
+          isOpen={showBulkImportModal}
+          onClose={() => setShowBulkImportModal(false)}
           onSuccess={handleEmployeeAdded}
         />
 
