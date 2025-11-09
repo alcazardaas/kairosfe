@@ -15,13 +15,13 @@ import type { HolidayListResponse, HolidayResponse } from '../schemas/holidays';
 export interface CreateHolidayDto {
   name: string;
   date: string; // ISO date string (YYYY-MM-DD)
-  is_recurring: boolean;
+  isRecurring: boolean;
 }
 
 export interface UpdateHolidayDto {
   name?: string;
   date?: string; // ISO date string (YYYY-MM-DD)
-  is_recurring?: boolean;
+  isRecurring?: boolean;
 }
 
 export const holidaysService = {

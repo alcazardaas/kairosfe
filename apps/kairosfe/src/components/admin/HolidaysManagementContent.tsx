@@ -12,7 +12,7 @@ import type { HolidayDto } from '@/lib/api/schemas/holidays';
 const holidaySchema = z.object({
   name: z.string().min(1, 'Holiday name is required'),
   date: z.string().min(1, 'Date is required'),
-  is_recurring: z.boolean(),
+  isRecurring: z.boolean(),
 });
 
 type HolidayFormData = z.infer<typeof holidaySchema>;
@@ -101,9 +101,9 @@ export default function HolidaysManagementContent() {
 
     // Apply recurring filter
     if (filterRecurring === 'recurring') {
-      filtered = filtered.filter((h) => h.is_recurring);
+      filtered = filtered.filter((h) => h.isRecurring);
     } else if (filterRecurring === 'one-time') {
-      filtered = filtered.filter((h) => !h.is_recurring);
+      filtered = filtered.filter((h) => !h.isRecurring);
     }
 
     // Sort by date
@@ -117,7 +117,7 @@ export default function HolidaysManagementContent() {
     reset({
       name: '',
       date: today,
-      is_recurring: false,
+      isRecurring: false,
     });
     setIsCreateModalOpen(true);
   };
@@ -129,7 +129,7 @@ export default function HolidaysManagementContent() {
     reset({
       name: holiday.name,
       date: formattedDate,
-      is_recurring: holiday.is_recurring,
+      isRecurring: holiday.isRecurring,
     });
     setIsEditModalOpen(true);
   };
@@ -140,7 +140,7 @@ export default function HolidaysManagementContent() {
       const createData: CreateHolidayDto = {
         name: data.name,
         date: data.date,
-        is_recurring: data.is_recurring,
+        isRecurring: data.isRecurring,
       };
 
       await holidaysService.create(createData);
@@ -173,7 +173,7 @@ export default function HolidaysManagementContent() {
       const updateData: UpdateHolidayDto = {
         name: data.name,
         date: data.date,
-        is_recurring: data.is_recurring,
+        isRecurring: data.isRecurring,
       };
 
       await holidaysService.update(selectedHoliday.id, updateData);
@@ -418,12 +418,12 @@ export default function HolidaysManagementContent() {
                       <td className="whitespace-nowrap px-6 py-4">
                         <span
                           className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ${
-                            holiday.is_recurring
+                            holiday.isRecurring
                               ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
                               : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400'
                           }`}
                         >
-                          {holiday.is_recurring ? (
+                          {holiday.isRecurring ? (
                             <>
                               <span className="material-symbols-outlined mr-1 text-xs">
                                 repeat
@@ -514,7 +514,7 @@ export default function HolidaysManagementContent() {
                 <input
                   type="checkbox"
                   id="create-recurring"
-                  {...register('is_recurring')}
+                  {...register('isRecurring')}
                   className="h-4 w-4 rounded border-gray-300 text-primary-light focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800"
                 />
                 <label htmlFor="create-recurring" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
@@ -613,7 +613,7 @@ export default function HolidaysManagementContent() {
                 <input
                   type="checkbox"
                   id="edit-recurring"
-                  {...register('is_recurring')}
+                  {...register('isRecurring')}
                   className="h-4 w-4 rounded border-gray-300 text-primary-light focus:ring-primary-light dark:border-gray-600 dark:bg-gray-800"
                 />
                 <label htmlFor="edit-recurring" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">

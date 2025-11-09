@@ -676,9 +676,11 @@ export default function TeamCalendarContent() {
                               >
                                 {leave.status}
                               </span>
-                              <span className={`text-xs ${textColor}`}>
-                                {leave.total_days} {leave.unit === 'hours' ? 'hours' : 'days'}
-                              </span>
+                              {leave.amount && leave.unit && (
+                                <span className={`text-xs ${textColor}`}>
+                                  {leave.amount} {t(`common.unit.${leave.unit}`)}
+                                </span>
+                              )}
                             </div>
                           </div>
                         );

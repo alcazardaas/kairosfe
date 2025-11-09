@@ -57,9 +57,13 @@ export interface LeaveRequest {
   userId: string;
   userName?: string;
   userEmail?: string;
+  benefitTypeId?: string;
+  benefitTypeName?: string; // Display name for the benefit type
   type: LeaveType;
   startDate: string;
   endDate: string;
+  amount?: number; // Duration of leave (replaces total_days)
+  unit?: 'days' | 'hours'; // Unit of measurement
   status: LeaveRequestStatus;
   reason?: string;
   rejectionReason?: string;
@@ -177,17 +181,17 @@ export interface UserProjectStats {
   projects: ProjectStats[]; // Sorted by totalHours descending
 }
 
-// Calendar Types (matching backend response - snake_case)
+// Calendar Types (matching backend API response - camelCase)
 export type HolidayType = 'public' | 'company' | 'regional';
 
 export interface Holiday {
   id: string;
-  tenant_id: string | null;
-  country_code: string; // 2-letter ISO code
+  tenantId: string | null;
+  countryCode: string; // 2-letter ISO code
   name: string;
   date: string; // YYYY-MM-DD
   type: HolidayType;
-  is_recurring: boolean;
+  isRecurring: boolean;
   description?: string | null;
 }
 
@@ -204,8 +208,8 @@ export interface HolidaysParams {
   page?: number;
   limit?: number;
   sort?: string; // format: "field:asc|desc"
-  tenant_id?: string;
-  country_code?: string;
+  tenantId?: string;
+  countryCode?: string;
   type?: HolidayType;
   startDate?: string; // YYYY-MM-DD
   endDate?: string; // YYYY-MM-DD

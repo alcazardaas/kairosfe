@@ -8,7 +8,7 @@ import { timesheetsService } from './timesheets';
 import { employeesService } from './employees';
 import { projectsService } from './projects';
 import { leaveRequestsService } from './leave-requests';
-import type { TimeEntryDto, TimesheetDto, Employee, Project, LeaveRequestDto } from '@kairos/shared';
+import type { TimeEntryDto, TimesheetDto, Employee, Project } from '@kairos/shared';
 
 export interface TimesheetReportFilters {
   from: string; // YYYY-MM-DD
