@@ -164,3 +164,88 @@ export async function deleteUser(id: string): Promise<void> {
     operationId: 'UsersController_delete',
   });
 }
+
+/**
+ * Bulk Import Types
+ */
+export interface ImportRowError {
+  row: number;
+  email: string;
+  errors: string[];
+}
+
+export interface UserSummary {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'manager' | 'employee';
+  status: 'invited' | 'active' | 'disabled';
+  note?: string;
+}
+
+export interface ImportResult {
+  success: boolean;
+  dryRun: boolean;
+  totalRows: number;
+  validRows: number;
+  errorCount: number;
+  createdCount?: number;
+  existingCount?: number;
+  message?: string;
+  errors?: ImportRowError[];
+  createdUsers?: UserSummary[];
+  existingUsers?: UserSummary[];
+}
+
+/**
+ * UsersController_importUsers
+ * POST /users/import
+ * Bulk import users from CSV or Excel file
+ *
+ * Access: Admin only
+ *
+ * @param file - CSV or Excel file (max 10MB)
+ * @param dryRun - If true, validate only without creating users
+ * @returns Promise<ImportResult> - Import result with success/error details
+ *
+ * @example
+ * // Validate file (dry-run)
+ * const result = await importUsers(file, true);
+ *
+ * @example
+ * // Import users
+ * const result = await importUsers(file, false);
+ *
+ * @throws {400} Invalid file type, empty file, or validation errors
+ * @throws {401} Invalid or expired session token
+ * @throws {403} Forbidden - requires admin role
+ * @throws {413} File size exceeds 10MB limit
+ */
+export async function importUsers(file: File, dryRun: boolean = false): Promise<ImportResult> {
+  const endpoint = `/users/import?dryRun=${dryRun}`;
+  return apiClient.upload<ImportResult>(endpoint, file, true);
+}
+
+/**
+ * UsersController_downloadTemplate
+ * GET /users/import/template
+ * Download import template file
+ *
+ * Access: Admin only
+ *
+ * @param format - Template format ('csv' or 'xlsx')
+ * @returns Promise<Blob> - Template file
+ *
+ * @example
+ * // Download CSV template
+ * const blob = await downloadImportTemplate('csv');
+ * const url = window.URL.createObjectURL(blob);
+ * const link = document.createElement('a');
+ * link.href = url;
+ * link.download = 'user-import-template.csv';
+ * link.click();
+ */
+export async function downloadImportTemplate(format: 'csv' | 'xlsx' = 'csv'): Promise<Blob> {
+  const endpoint = `/users/import/template?format=${format}`;
+  return apiClient.downloadFile(endpoint, true);
+}

@@ -412,6 +412,48 @@ class ApiClient {
     });
   }
 
+  async upload<T>(endpoint: string, file: File, requiresAuth = false): Promise<T> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const headers: HeadersInit = {};
+    if (requiresAuth) {
+      const token = useAuthStore.getState().token;
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+    // Don't set Content-Type for FormData - browser will set it with boundary
+
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: formData,
+      headers,
+      requiresAuth,
+    });
+  }
+
+  async downloadFile(endpoint: string, requiresAuth = false): Promise<Blob> {
+    const headers: HeadersInit = {};
+    if (requiresAuth) {
+      const token = useAuthStore.getState().token;
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'GET',
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Download failed: ${response.statusText}`);
+    }
+
+    return response.blob();
+  }
+
   // Auth-specific methods
   async login(email: string, password: string): Promise<AuthResponse> {
     return this.post<AuthResponse>('/auth/login', { email, password });
