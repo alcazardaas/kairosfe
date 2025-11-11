@@ -214,6 +214,44 @@ Custom Tailwind config located at `apps/kairosfe/tailwind.config.mjs`:
 - Automatic token refresh on 401 errors
 - Error handling with Sentry integration
 
+#### API Naming Conventions
+
+**⚠️ CRITICAL: Backend API uses camelCase for ALL responses**
+
+The Kairos backend API returns all responses in **camelCase** format, not snake_case. The database internally uses snake_case, but all API responses are automatically transformed to camelCase at the service layer.
+
+**Example API Response:**
+```json
+{
+  "id": "123",
+  "userId": "456",
+  "projectId": "789",
+  "weekStartDate": "2025-01-13",
+  "dayOfWeek": 1,
+  "createdAt": "2025-01-11T10:00:00.000Z",
+  "submittedAt": null
+}
+```
+
+**Common Properties (Always camelCase):**
+- `userId`, `tenantId`, `projectId`, `taskId`, `benefitTypeId`
+- `weekStartDate`, `startDate`, `endDate`, `expiresAt`
+- `dayOfWeek` (0-6, where 0=Sunday)
+- `createdAt`, `updatedAt`, `submittedAt`, `reviewedAt`
+- `submittedByUserId`, `reviewedByUserId`
+- `totalDays`, `usedDays`, `availableDays`, `totalHours`
+- `reviewNote`, `approvalNote`
+
+**Important Rules:**
+- ✅ TypeScript types MUST use camelCase to match API responses
+- ✅ No transformation layers needed - use API responses directly
+- ✅ Query parameters accept both formats (camelCase recommended)
+- ❌ DO NOT create mappers to convert snake_case to camelCase
+
+For complete API documentation, see:
+- [Backend-Frontend API Alignment Guide](./apps/kairosfe/docs/BACKEND_FRONTEND_API_ALIGNMENT.md)
+- [Project Conventions (CLAUDE.md)](./CLAUDE.md) - See "API CONVENTIONS & NAMING" section
+
 ### Testing
 
 **Unit Tests** (Vitest):

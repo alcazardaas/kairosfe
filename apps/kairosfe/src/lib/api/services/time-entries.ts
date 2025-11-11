@@ -5,9 +5,9 @@
 
 import {
   findAllTimeEntries,
-  createTimeEntry,
-  updateTimeEntry,
-  deleteTimeEntry,
+  createTimeEntry as createTimeEntryEndpoint,
+  updateTimeEntry as updateTimeEntryEndpoint,
+  deleteTimeEntry as deleteTimeEntryEndpoint,
   getWeeklyHours,
   getProjectHours,
   getWeekView,
@@ -59,11 +59,12 @@ export const timeEntriesService = {
   async getAll(params?: GetTimeEntriesParams): Promise<TimeEntryListResponse> {
     const queryParams = new URLSearchParams();
 
-    if (params?.userId) queryParams.append('user_id', params.userId);
-    if (params?.weekStartDate) queryParams.append('week_start_date', params.weekStartDate);
-    if (params?.weekEndDate) queryParams.append('week_end_date', params.weekEndDate);
-    if (params?.projectId) queryParams.append('project_id', params.projectId);
-    if (params?.dayOfWeek !== undefined) queryParams.append('day_of_week', params.dayOfWeek.toString());
+    // Use camelCase for query parameters (backend accepts both but camelCase is preferred)
+    if (params?.userId) queryParams.append('userId', params.userId);
+    if (params?.weekStartDate) queryParams.append('weekStartDate', params.weekStartDate);
+    if (params?.weekEndDate) queryParams.append('weekEndDate', params.weekEndDate);
+    if (params?.projectId) queryParams.append('projectId', params.projectId);
+    if (params?.dayOfWeek !== undefined) queryParams.append('dayOfWeek', params.dayOfWeek.toString());
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.sort) queryParams.append('sort', params.sort);
@@ -74,16 +75,16 @@ export const timeEntriesService = {
   /**
    * Create a new time entry
    * @param data - Time entry data
-   * Note: tenant_id is derived from JWT on backend
+   * Note: tenantId is derived from JWT on backend
    */
   async create(data: CreateTimeEntryParams): Promise<TimeEntryResponse> {
-    return createTimeEntry({
-      // tenant_id removed - backend derives from JWT
-      user_id: data.userId,
-      project_id: data.projectId,
-      task_id: data.taskId,
-      week_start_date: data.weekStartDate,
-      day_of_week: data.dayOfWeek,
+    return createTimeEntryEndpoint({
+      // tenantId removed - backend derives from JWT
+      userId: data.userId,
+      projectId: data.projectId,
+      taskId: data.taskId,
+      weekStartDate: data.weekStartDate,
+      dayOfWeek: data.dayOfWeek,
       hours: data.hours,
       note: data.note,
     });
@@ -95,7 +96,7 @@ export const timeEntriesService = {
    * @param data - Updated fields
    */
   async update(id: string, data: UpdateTimeEntryParams): Promise<TimeEntryResponse> {
-    return updateTimeEntry(id, data);
+    return updateTimeEntryEndpoint(id, data);
   },
 
   /**
@@ -103,7 +104,7 @@ export const timeEntriesService = {
    * @param id - Time entry ID
    */
   async delete(id: string): Promise<void> {
-    return deleteTimeEntry(id);
+    return deleteTimeEntryEndpoint(id);
   },
 
   /**
@@ -156,3 +157,9 @@ export const timeEntriesService = {
     return copyWeek(request);
   },
 };
+
+// Export named functions for component imports
+export const getTimeEntries = timeEntriesService.getAll;
+export const createTimeEntry = timeEntriesService.create;
+export const updateTimeEntry = timeEntriesService.update;
+export const deleteTimeEntry = timeEntriesService.delete;

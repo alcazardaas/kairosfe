@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { employeesService } from '@/lib/api/services/employees';
 import { useAuthStore } from '@/lib/store';
 import { canAddEmployee, canEditEmployee, canDeactivateEmployee } from '@/lib/utils/permissions';

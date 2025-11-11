@@ -22,7 +22,7 @@ interface AsyncComboboxProps {
 export default function AsyncCombobox({
   label,
   placeholder = 'Search...',
-  value,
+  value: _value,
   onChange,
   onSearch,
   error,

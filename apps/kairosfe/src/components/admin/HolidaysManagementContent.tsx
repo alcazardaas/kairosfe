@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,7 +18,7 @@ const holidaySchema = z.object({
 type HolidayFormData = z.infer<typeof holidaySchema>;
 
 export default function HolidaysManagementContent() {
-  const { t } = useTranslation();
+  useTranslation();
   const [loading, setLoading] = useState(true);
   const [holidays, setHolidays] = useState<HolidayDto[]>([]);
   const [filteredHolidays, setFilteredHolidays] = useState<HolidayDto[]>([]);
@@ -224,25 +224,6 @@ export default function HolidaysManagementContent() {
     }
   };
 
-  // Format date for display
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  // Format date for short display (MMM DD)
-  const formatShortDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    });
-  };
 
   if (loading) {
     return (

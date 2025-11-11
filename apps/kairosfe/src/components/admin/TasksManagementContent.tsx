@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -21,7 +21,7 @@ type TaskFormData = z.infer<typeof taskSchema>;
 interface Project {
   id: string;
   name: string;
-  code: string;
+  code: string | null;
   active: boolean;
 }
 
@@ -33,7 +33,7 @@ interface TaskWithHierarchy extends TaskDto {
 }
 
 export default function TasksManagementContent() {
-  const { t } = useTranslation();
+  useTranslation();
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<TaskDto[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -201,8 +201,8 @@ export default function TasksManagementContent() {
       setSaving(true);
       const createData: CreateTaskDto = {
         name: data.name,
-        projectId: data.projectId,
-        parentTaskId: data.parentTaskId || null,
+        project_id: data.projectId,
+        parent_task_id: data.parentTaskId || null,
       };
 
       await tasksService.create(createData);
@@ -234,8 +234,8 @@ export default function TasksManagementContent() {
       setSaving(true);
       const updateData: UpdateTaskDto = {
         name: data.name,
-        projectId: data.projectId,
-        parentTaskId: data.parentTaskId || null,
+        project_id: data.projectId,
+        parent_task_id: data.parentTaskId || null,
       };
 
       await tasksService.update(selectedTask.id, updateData);

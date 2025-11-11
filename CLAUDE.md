@@ -187,6 +187,52 @@ Application uses real backend API only (no mocking)
 
 ------------------------------------------------------------
 
+API CONVENTIONS & NAMING
+
+------------------------------------------------------------
+
+CRITICAL: The backend API uses camelCase for ALL responses.
+
+✅ Backend Architecture:
+- Database layer: snake_case (internal only, never exposed)
+- API responses: camelCase (all 71 endpoints)
+- Transformation: Automatic at service layer via transformKeysToCamel()
+- Query parameters: Both camelCase and snake_case accepted (camelCase recommended)
+
+Example API Response (all fields are camelCase):
+{
+  "id": "123",
+  "userId": "456",          // NOT user_id
+  "projectId": "789",       // NOT project_id
+  "weekStartDate": "2025-01-13",  // NOT week_start_date
+  "dayOfWeek": 1,           // NOT day_of_week
+  "createdAt": "2025-01-11T10:00:00Z",  // NOT created_at
+  "submittedAt": null       // NOT submitted_at
+}
+
+Frontend TypeScript types MUST use camelCase to match API responses.
+DO NOT create transformation layers or mappers - use API responses directly.
+
+Common camelCase properties across all entities:
+- userId, tenantId, projectId, taskId, benefitTypeId
+- weekStartDate, startDate, endDate, expiresAt
+- dayOfWeek (0-6, where 0=Sunday)
+- createdAt, updatedAt, submittedAt, reviewedAt, approvedAt, rejectedAt
+- submittedByUserId, reviewedByUserId, approvedByUserId
+- totalDays, usedDays, availableDays, totalHours, budgetHours
+- clientName, jobTitle, managerUserId, parentTaskId
+- reviewNote, approvalNote
+- isRecurring, isActive, requiresApproval, allowNegativeBalance
+
+Date/Time formats:
+- Dates: ISO 8601 strings (e.g., "2025-01-13")
+- Timestamps: ISO 8601 strings with timezone (e.g., "2025-01-11T10:00:00.000Z")
+- All date/time fields are strings, not Date objects
+
+Complete API documentation: apps/kairosfe/docs/BACKEND_FRONTEND_API_ALIGNMENT.md
+
+------------------------------------------------------------
+
 AUTHENTICATION
 
 ------------------------------------------------------------

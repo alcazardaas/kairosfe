@@ -5,9 +5,8 @@
  */
 
 import { getUsers, createUser, updateUser, deleteUser, importUsers, downloadImportTemplate } from '../endpoints/users';
-import type { ImportResult, ImportRowError, UserSummary } from '../endpoints/users';
+import type { ImportResult } from '../endpoints/users';
 import type {
-  Employee,
   UserListResponse,
   GetUsersParams,
   EmployeeStatus,
@@ -22,7 +21,7 @@ import type {
 
 // Re-export types for backwards compatibility
 export type { Employee, EmployeeStatus, UserRole } from '@kairos/shared';
-export type { ImportResult, ImportRowError, UserSummary } from '../endpoints/users';
+export type { ImportResult } from '../endpoints/users';
 
 export interface GetEmployeesParams {
   page?: number;
@@ -116,11 +115,14 @@ export const employeesService = {
    */
   async create(params: CreateEmployeeParams): Promise<CreateUserResponse> {
     // Map service params to API request format
+    // Ensure sendInvite is always a boolean (defaults to true)
+    const sendInviteValue = params.sendInvite !== undefined ? params.sendInvite : true;
+
     const request: CreateUserRequest = {
       email: params.email,
       name: params.name,
       role: params.role,
-      sendInvite: params.sendInvite ?? true,
+      sendInvite: sendInviteValue,
     };
 
     // Add profile if any profile fields are provided
@@ -140,7 +142,8 @@ export const employeesService = {
       };
     }
 
-    return createUser(request);
+    // Ensure sendInvite is always boolean before calling endpoint
+    return createUser({ ...request, sendInvite: request.sendInvite ?? true });
   },
 
   /**

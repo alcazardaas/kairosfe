@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { employeesService } from '@/lib/api/services/employees';
 import type { ImportResult } from '@/lib/api/services/employees';
@@ -34,7 +34,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: BulkImpo
       window.URL.revokeObjectURL(url);
 
       showToast.success(t('employees.bulkImport.templateDownloaded'));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to download template:', err);
       showToast.error(t('employees.bulkImport.templateDownloadFailed'));
     }
@@ -60,9 +60,9 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: BulkImpo
           t('employees.bulkImport.validationFailed', { count: importResult.errorCount })
         );
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Validation failed:', err);
-      const errorMessage = err.message || t('employees.bulkImport.validationError');
+      const errorMessage = err instanceof Error ? err.message : t('employees.bulkImport.validationError');
       setError(errorMessage);
       showToast.error(errorMessage);
     } finally {
@@ -98,16 +98,21 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: BulkImpo
           t('employees.bulkImport.importFailed', { count: importResult.errorCount })
         );
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Import failed:', err);
 
       // Handle specific error codes
       let errorMessage = t('employees.bulkImport.importError');
-      if (err.statusCode === 403) {
-        errorMessage = t('employees.errors.createFailed') + ' - ' + t('apiErrors.forbidden');
-      } else if (err.statusCode === 413) {
-        errorMessage = t('employees.bulkImport.fileTooLarge', { maxSize: 10 });
-      } else if (err.message) {
+      if (typeof err === 'object' && err !== null && 'statusCode' in err) {
+        const apiError = err as { statusCode: number; message?: string };
+        if (apiError.statusCode === 403) {
+          errorMessage = t('employees.errors.createFailed') + ' - ' + t('apiErrors.forbidden');
+        } else if (apiError.statusCode === 413) {
+          errorMessage = t('employees.bulkImport.fileTooLarge', { maxSize: 10 });
+        } else if (apiError.message) {
+          errorMessage = apiError.message;
+        }
+      } else if (err instanceof Error && err.message) {
         errorMessage = err.message;
       }
 

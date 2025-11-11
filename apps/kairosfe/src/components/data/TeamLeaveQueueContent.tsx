@@ -236,7 +236,7 @@ export default function TeamLeaveQueueContent() {
                           </td>
                           <td className="px-6 py-4">
                             <div className="text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate">
-                              {request.reason || '-'}
+                              {request.approvalNote || '-'}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">

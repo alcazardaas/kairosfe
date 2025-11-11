@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/lib/store';
 import { timeEntriesService } from '@/lib/api/services/time-entries';
 import { timesheetsService } from '@/lib/api/services/timesheets';
-import type { ProjectBreakdownDto } from '@/lib/api/schemas';
 import DataState from '@/components/ui/DataState';
 import '@/lib/i18n';
 
@@ -250,7 +249,7 @@ export default function TimesheetReportsTab() {
           : error ? 'error'
           : 'success'
         }
-        error={error}
+        error={error || undefined}
         emptyMessage=""
       >
         {/* Summary Cards */}

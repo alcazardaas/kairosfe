@@ -54,23 +54,18 @@ export type LeaveRequestStatus = 'pending' | 'approved' | 'rejected' | 'cancelle
 
 export interface LeaveRequest {
   id: string;
+  tenantId: string;
   userId: string;
   userName?: string;
   userEmail?: string;
-  benefitTypeId?: string;
+  benefitTypeId: string;
   benefitTypeName?: string; // Display name for the benefit type
-  type: LeaveType;
+  type?: LeaveType; // Optional, may not be returned by API
   startDate: string;
   endDate: string;
-  amount?: number; // Duration of leave (replaces total_days)
-  unit?: 'days' | 'hours'; // Unit of measurement
+  totalDays: number; // matches backend API
   status: LeaveRequestStatus;
-  reason?: string;
-  rejectionReason?: string;
-  approvedBy?: string;
-  approvedAt?: string;
-  rejectedBy?: string;
-  rejectedAt?: string;
+  approvalNote: string | null; // matches backend API
   createdAt: string;
   updatedAt: string;
 }
@@ -111,34 +106,41 @@ export type TimesheetStatus = 'draft' | 'pending' | 'approved' | 'rejected';
 
 export interface Timesheet {
   id: string;
+  tenantId?: string;
   userId: string;
-  weekStart: string; // ISO date string (Monday)
-  weekEnd: string; // ISO date string (Sunday)
+  weekStartDate: string; // ISO date string (Monday) - matches backend API
   status: TimesheetStatus;
-  totalHours: number;
-  submittedAt?: string;
-  approvedAt?: string;
-  approvedBy?: string;
-  rejectedAt?: string;
-  rejectedBy?: string;
-  rejectionReason?: string;
+  totalHours?: number;
+  submittedAt: string | null;
+  submittedByUserId: string | null;
+  reviewedAt: string | null;
+  reviewedByUserId: string | null;
+  reviewNote: string | null;
   createdAt: string;
   updatedAt: string;
+  timeEntries?: string[]; // Array of time entry IDs
+  // Additional fields from backend API response
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export interface TimeEntry {
   id: string;
-  timesheetId: string;
+  tenantId: string;
   userId: string;
   projectId: string;
   projectName?: string;
-  taskId: string;
+  taskId: string | null;
   taskName?: string;
-  date: string; // ISO date string
+  weekStartDate: string; // ISO date string - matches backend API
+  dayOfWeek: number; // 0-6 (0 = Sunday) - matches backend API
   hours: number;
-  notes?: string;
+  note: string | null; // matches backend API (note, not notes)
   createdAt: string;
-  updatedAt: string;
+  // updatedAt is not returned by backend API for time entries
 }
 
 export interface Project {
@@ -186,13 +188,15 @@ export type HolidayType = 'public' | 'company' | 'regional';
 
 export interface Holiday {
   id: string;
-  tenantId: string | null;
+  tenantId: string;
   countryCode: string; // 2-letter ISO code
   name: string;
   date: string; // YYYY-MM-DD
-  type: HolidayType;
+  type?: HolidayType; // Optional, may not be returned by API
   isRecurring: boolean;
   description?: string | null;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface HolidaysResponse {

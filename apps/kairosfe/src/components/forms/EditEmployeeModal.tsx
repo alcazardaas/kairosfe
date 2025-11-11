@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -86,16 +86,21 @@ export default function EditEmployeeModal({
       showToast.success(t('employees.success.updated'));
       onSuccess();
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to update employee:', err);
 
       // Handle specific error codes
-      if (err.statusCode === 403 && err.message?.includes('own role')) {
-        setError(t('employees.errors.ownRoleChange'));
-      } else if (err.statusCode === 400 && err.message?.includes('hierarchy')) {
-        setError(t('employees.errors.invalidHierarchy'));
-      } else if (err.statusCode === 404) {
-        setError(t('employees.errors.notFound'));
+      if (typeof err === 'object' && err !== null && 'statusCode' in err) {
+        const apiError = err as { statusCode: number; message?: string };
+        if (apiError.statusCode === 403 && apiError.message?.includes('own role')) {
+          setError(t('employees.errors.ownRoleChange'));
+        } else if (apiError.statusCode === 400 && apiError.message?.includes('hierarchy')) {
+          setError(t('employees.errors.invalidHierarchy'));
+        } else if (apiError.statusCode === 404) {
+          setError(t('employees.errors.notFound'));
+        } else {
+          setError(t('employees.errors.updateFailed'));
+        }
       } else {
         setError(t('employees.errors.updateFailed'));
       }

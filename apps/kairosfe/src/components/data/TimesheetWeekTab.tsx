@@ -46,7 +46,7 @@ export default function TimesheetWeekTab() {
     weeklyTotal,
     projectBreakdown,
     validationResult,
-    selectedWeekStart,
+    // selectedWeekStart, // Unused for now
     isLoading,
     setCurrentTimesheet,
     setTimeEntries,
@@ -107,8 +107,8 @@ export default function TimesheetWeekTab() {
       const weekView = await timeEntriesService.getWeekView(user.id, weekStartDate);
 
       // Update store with all data (backend returns data directly)
-      setCurrentTimesheet(weekView.timesheet);
-      setTimeEntries(weekView.entries);
+      setCurrentTimesheet(weekView.timesheet as any); // API returns generic object, needs proper typing
+      setTimeEntries(weekView.entries as any[]); // API returns enriched entries with projectName/Code
       setDailyTotals(weekView.dailyTotals);
       setWeeklyTotal(weekView.weeklyTotal);
       setProjectBreakdown(weekView.projectBreakdown);
@@ -195,9 +195,16 @@ export default function TimesheetWeekTab() {
       setSelectedDay(null);
       setEditingEntry(null);
       await loadWeekView();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to save time entry:', err);
-      if (err.status === 409 || err.message?.includes('already exists')) {
+      if (typeof err === 'object' && err !== null && 'status' in err) {
+        const apiError = err as { status: number; message?: string };
+        if (apiError.status === 409 || apiError.message?.includes('already exists')) {
+          toast.error(t('timesheet.duplicateEntry'));
+        } else {
+          toast.error(t('timesheet.errorSavingEntry'));
+        }
+      } else if (err instanceof Error && err.message?.includes('already exists')) {
         toast.error(t('timesheet.duplicateEntry'));
       } else {
         toast.error(t('timesheet.errorSavingEntry'));
@@ -466,9 +473,8 @@ export default function TimesheetWeekTab() {
         <div className="lg:col-span-2">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
             <DataState
-              loading={isLoading}
-              error={error}
-              empty={timeEntries.length === 0}
+              mode={isLoading ? 'loading' : (error ? 'error' : (timeEntries.length === 0 ? 'empty' : 'success'))}
+              error={error || undefined}
               emptyMessage={t('timesheet.noEntries')}
             >
               <div className="overflow-x-auto">
@@ -608,7 +614,7 @@ export default function TimesheetWeekTab() {
       {/* Modals */}
       {showForm && selectedDay !== null && (
         <TimeEntryForm
-          onSubmit={handleFormSubmit}
+          onSubmit={handleFormSubmit as any}
           onCancel={() => {
             setShowForm(false);
             setSelectedDay(null);
@@ -628,7 +634,7 @@ export default function TimesheetWeekTab() {
 
       {showBulkFill && (
         <BulkFillModal
-          onSubmit={handleBulkFillSubmit}
+          onSubmit={handleBulkFillSubmit as any}
           onCancel={() => setShowBulkFill(false)}
           weekStartDate={weekStartDate}
         />

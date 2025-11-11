@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -7,7 +7,7 @@ import { usersService } from '@/lib/api/services/users';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import '@/lib/i18n';
-import type { ProjectResponse, ProjectDto } from '@/lib/api/schemas/projects';
+import type { ProjectDto } from '@/lib/api/schemas/projects';
 
 // Validation schema for project form - using camelCase to match backend
 const projectSchema = z.object({
@@ -106,7 +106,7 @@ export default function ProjectsManagementContent() {
       filtered = filtered.filter(
         (p) =>
           p.name.toLowerCase().includes(query) ||
-          p.code.toLowerCase().includes(query) ||
+          (p.code && p.code.toLowerCase().includes(query)) ||
           p.description?.toLowerCase().includes(query)
       );
     }
@@ -140,7 +140,7 @@ export default function ProjectsManagementContent() {
     reset({
       name: project.name,
       description: project.description || '',
-      code: project.code,
+      code: project.code || '',
       active: project.active,
       startDate: project.startDate || '',
       endDate: project.endDate || '',
@@ -160,8 +160,18 @@ export default function ProjectsManagementContent() {
   const loadProjectMembers = async (projectId: string) => {
     try {
       setLoadingMembers(true);
-      const response = await projectsService.getMembers(projectId);
-      setMembers(response.data || []);
+      const [membersResponse, usersResponse] = await Promise.all([
+        projectsService.getMembers(projectId),
+        usersService.getAll()
+      ]);
+
+      // Map response to include userName by looking up from users
+      const usersMap = new Map((usersResponse.data || []).map(u => [u.id, u.name || u.email]));
+      const membersWithNames = (membersResponse.data || []).map(m => ({
+        ...m,
+        userName: usersMap.get(m.userId) || 'Unknown User'
+      }));
+      setMembers(membersWithNames);
     } catch (error) {
       console.error('Failed to load project members:', error);
       toast.error('Failed to load project members');
@@ -173,7 +183,13 @@ export default function ProjectsManagementContent() {
   const loadAvailableUsers = async () => {
     try {
       const response = await usersService.getAll();
-      setAvailableUsers(response.data || []);
+      // Map Employee to User interface
+      const users: User[] = (response.data || []).map(emp => ({
+        id: emp.id,
+        name: emp.name || 'Unknown',
+        email: emp.email
+      }));
+      setAvailableUsers(users);
     } catch (error) {
       console.error('Failed to load users:', error);
       toast.error('Failed to load users');
@@ -282,7 +298,8 @@ export default function ProjectsManagementContent() {
     if (!selectedProject || !selectedUserId) return;
 
     try {
-      await projectsService.addMember(selectedProject.id, selectedUserId, memberRole || undefined);
+      const role = memberRole.trim() ? memberRole as ('member' | 'lead' | 'observer') : undefined;
+      await projectsService.addMember(selectedProject.id, selectedUserId, role);
       toast.success('Member added successfully');
       setSelectedUserId('');
       setMemberRole('');

@@ -3,7 +3,7 @@
  * Displays team availability, timesheets, leave, and holidays in a calendar view
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import posthog from 'posthog-js';
 import * as Sentry from '@sentry/browser';
@@ -69,7 +69,7 @@ export default function TeamCalendarContent() {
       try {
         const response = await employeesService.getAll();
         setEmployees(response.data || []);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to load employees:', err);
         Sentry.captureException(err);
       }
@@ -98,9 +98,9 @@ export default function TeamCalendarContent() {
           to: dateRange.to,
           user_filter_count: selectedUserIds.length,
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to load calendar data:', err);
-        setError(err.message || 'Failed to load calendar data');
+        setError(err instanceof Error ? err.message : 'Failed to load calendar data');
         Sentry.captureException(err);
       } finally {
         setLoading(false);
@@ -278,7 +278,7 @@ export default function TeamCalendarContent() {
         holidays_count: calendarData.holidays.length,
         leaves_count: calendarData.leaves.length,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to export CSV:', err);
       Sentry.captureException(err);
     } finally {
@@ -676,9 +676,9 @@ export default function TeamCalendarContent() {
                               >
                                 {leave.status}
                               </span>
-                              {leave.amount && leave.unit && (
+                              {leave.totalDays && (
                                 <span className={`text-xs ${textColor}`}>
-                                  {leave.amount} {t(`common.unit.${leave.unit}`)}
+                                  {leave.totalDays} {t('common.unit.days')}
                                 </span>
                               )}
                             </div>

@@ -68,7 +68,7 @@ export default function TimesheetDetailModal({
   const weekDates = getWeekDates(new Date(timesheet.weekStartDate));
 
   // Calculate daily totals
-  const dailyTotals = weekDates.map((date, idx) => {
+  const dailyTotals = weekDates.map((_date, idx) => {
     const dayOfWeek = idx; // 0=Sunday, 6=Saturday
     const dayEntries = entries.filter((e) => e.dayOfWeek === dayOfWeek);
     return dayEntries.reduce((sum, e) => sum + e.hours, 0);
@@ -156,7 +156,7 @@ export default function TimesheetDetailModal({
                       </div>
                     )}
                   </td>
-                  {weekDates.map((date, idx) => {
+                  {weekDates.map((_date, idx) => {
                     const isEntryDay = entry.dayOfWeek === idx;
                     return (
                       <td

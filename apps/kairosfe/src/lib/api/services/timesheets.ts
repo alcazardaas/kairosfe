@@ -16,7 +16,6 @@ import {
 } from '../endpoints/timesheets';
 import type {
   TimesheetListResponse,
-  TimesheetResponse,
   TimesheetDto,
   ValidationResult,
 } from '../schemas';
@@ -41,7 +40,7 @@ export const timesheetsService = {
     const queryParams: Record<string, string> = {};
 
     if (params?.userId) queryParams.userId = params.userId;
-    if (params?.weekStart) queryParams.weekStart = params.weekStart;
+    if (params?.weekStart) queryParams.weekStartDate = params.weekStart; // Use camelCase weekStartDate
     if (params?.status) queryParams.status = params.status;
     if (params?.team) queryParams.team = params.team;
     if (params?.from) queryParams.from = params.from;
@@ -131,3 +130,12 @@ export const timesheetsService = {
     return response.data;
   },
 };
+
+// Export named functions for component imports
+export const getTimesheets = timesheetsService.getAll;
+export const createTimesheet = timesheetsService.create;
+export const submitTimesheet = timesheetsService.submit;
+export const approveTimesheet = timesheetsService.approve;
+export const rejectTimesheet = timesheetsService.reject;
+export const validateTimesheetFn = timesheetsService.validate;
+export const recallTimesheetFn = timesheetsService.recall;

@@ -96,7 +96,7 @@ export const projectsService = {
    * Search projects by query
    */
   async search(query: string, limit: number = 10) {
-    return searchProjectsEndpoint(query, limit);
+    return searchProjectsEndpoint({ q: query, limit: limit.toString() });
   },
 
   /**
