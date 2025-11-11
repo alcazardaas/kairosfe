@@ -338,8 +338,7 @@ Without Licensor's prior written consent, You may NOT:
      (c) Owned or controlled by any such party
 
 14.2 You agree to comply with all applicable export control laws and
-     regulations, including those of the European Union, United States, and
-     Portugal.
+     regulations, including those of the European Union and United States.
 
 14.3 You may not export, re-export, or transfer the Software in violation of
      such laws.
@@ -355,15 +354,15 @@ Without Licensor's prior written consent, You may NOT:
 15. GOVERNING LAW, JURISDICTION & DISPUTE RESOLUTION
 --------------------------------------------------------------------------------
 
-15.1 This License is governed by and construed in accordance with the laws of
-     Portugal, excluding its conflict of law principles and excluding the
+15.1 This License is governed by and construed in accordance with the laws, 
+     excluding its conflict of law principles and excluding the
      United Nations Convention on Contracts for the International Sale of
      Goods (CISG).
 
 15.2 Any dispute, controversy, or claim arising out of or relating to this
      License, including its existence, validity, interpretation, performance,
      breach, or termination, shall be subject to the exclusive jurisdiction
-     of the courts of Lisbon, Portugal.
+     of the courts.
 
 15.3 You irrevocably submit to the jurisdiction of such courts and waive any
      objection to venue or inconvenient forum.
@@ -563,9 +562,6 @@ binding license terms above.
 
 9. COMPLIANCE AUDITS: We reserve the right to audit your use of the software
    annually to verify compliance; violations trigger fees and injunctive relief.
-
-10. PORTUGAL JURISDICTION: All disputes are governed by Portuguese law and
-    resolved exclusively in the courts of Lisbon, Portugal.
 
 ================================================================================
 END OF LICENSE
