@@ -40,7 +40,7 @@ export const timesheetsService = {
     const queryParams: Record<string, string> = {};
 
     if (params?.userId) queryParams.userId = params.userId;
-    if (params?.weekStart) queryParams.weekStart = params.weekStart;
+    if (params?.weekStart) queryParams.weekStartDate = params.weekStart; // Use camelCase weekStartDate
     if (params?.status) queryParams.status = params.status;
     if (params?.team) queryParams.team = params.team;
     if (params?.from) queryParams.from = params.from;

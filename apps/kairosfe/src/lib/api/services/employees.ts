@@ -115,11 +115,14 @@ export const employeesService = {
    */
   async create(params: CreateEmployeeParams): Promise<CreateUserResponse> {
     // Map service params to API request format
+    // Ensure sendInvite is always a boolean (defaults to true)
+    const sendInviteValue = params.sendInvite !== undefined ? params.sendInvite : true;
+
     const request: CreateUserRequest = {
       email: params.email,
       name: params.name,
       role: params.role,
-      sendInvite: params.sendInvite !== undefined ? params.sendInvite : true,
+      sendInvite: sendInviteValue,
     };
 
     // Add profile if any profile fields are provided
@@ -139,12 +142,8 @@ export const employeesService = {
       };
     }
 
-    // Ensure sendInvite is always a boolean
-    if (request.sendInvite === undefined) {
-      request.sendInvite = false;
-    }
-
-    return createUser(request);
+    // Ensure sendInvite is always boolean before calling endpoint
+    return createUser({ ...request, sendInvite: request.sendInvite ?? true });
   },
 
   /**

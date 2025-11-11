@@ -241,11 +241,11 @@ export default function LeaveRequestsTable({ mode = 'employee' }: LeaveRequestsT
                 </td>
                 <td className="px-6 py-4">
                   <div className="text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate">
-                    {request.reason || '-'}
+                    {request.totalDays} {t('common.unit.days')}
                   </div>
-                  {request.rejectionReason && (
+                  {request.approvalNote && request.status === 'rejected' && (
                     <div className="text-xs text-red-600 dark:text-red-400 mt-1">
-                      {t('leaveRequest.rejected')}: {request.rejectionReason}
+                      {t('leaveRequest.rejected')}: {request.approvalNote}
                     </div>
                   )}
                 </td>

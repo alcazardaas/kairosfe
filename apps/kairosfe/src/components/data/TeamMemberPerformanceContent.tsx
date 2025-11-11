@@ -140,7 +140,7 @@ export default function TeamMemberPerformanceContent() {
       const utilizationRate = (userStats.totalHours / expectedHours) * 100;
 
       // Get leave days
-      const leaveDays = leaveData.leaveStats.find((l: { userId: string; totalDays: number }) => l.userId === selectedUserId)?.totalDays || 0;
+      const leaveDays = (leaveData.leaveStats as any[]).find((l: { userId: string; totalDays: number }) => l.userId === selectedUserId)?.totalDays || 0;
 
       setPerformance({
         userId: selectedUserId,

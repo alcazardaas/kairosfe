@@ -52,8 +52,11 @@ export default function TimesheetTable() {
           const timesheet = response.data[0];
           setCurrentTimesheet(timesheet);
 
-          // Load time entries for this timesheet
-          const entriesResponse = await timeEntriesService.getAll({ timesheetId: timesheet.id });
+          // Load time entries for this week
+          const entriesResponse = await timeEntriesService.getAll({
+            userId: user.id,
+            weekStartDate: weekStartStr
+          });
           setTimeEntries(entriesResponse.data);
         } else {
           setCurrentTimesheet(null);
@@ -74,7 +77,7 @@ export default function TimesheetTable() {
 
     try {
       const weekStartStr = formatDate(selectedWeekStart);
-      const newTimesheet = await timesheetsService.create({ weekStartDate: weekStartStr, userId: user.id });
+      const newTimesheet = await timesheetsService.create(weekStartStr, user.id);
       setCurrentTimesheet(newTimesheet);
     } catch (error) {
       console.error('Failed to create timesheet:', error);
@@ -88,7 +91,10 @@ export default function TimesheetTable() {
   };
 
   const handleEditEntry = (entry: TimeEntry) => {
-    setSelectedDate(entry.date);
+    // Calculate date from weekStartDate and dayOfWeek
+    const weekStart = new Date(entry.weekStartDate);
+    const entryDate = new Date(weekStart.getTime() + entry.dayOfWeek * 24 * 60 * 60 * 1000);
+    setSelectedDate(entryDate.toISOString().split('T')[0]);
     setEditingEntry(entry);
     setShowEntryForm(true);
   };
@@ -112,30 +118,29 @@ export default function TimesheetTable() {
   };
 
   const handleFormSubmit = async (data: { projectId: string; taskId?: string | null; hours: number; notes?: string }) => {
-    if (!currentTimesheet) return;
+    if (!currentTimesheet || !user) return;
 
     try {
       if (editingEntry) {
-        // Update existing entry
+        // Update existing entry (only hours and note can be updated)
         const updated = await timeEntriesService.update(editingEntry.id, {
-          projectId: data.projectId,
-          taskId: data.taskId || null,
           hours: data.hours,
-          note: data.notes,
-          dayOfWeek: new Date(selectedDate).getDay(),
+          note: data.notes || undefined,
         });
-        updateEntryInStore(editingEntry.id, updated);
+        updateEntryInStore(editingEntry.id, updated.data);
       } else {
         // Create new entry
+        const weekStartStr = formatDate(selectedWeekStart);
         const newEntry = await timeEntriesService.create({
-          timesheetId: currentTimesheet.id,
+          userId: user.id,
           projectId: data.projectId,
           taskId: data.taskId || null,
+          weekStartDate: weekStartStr,
           dayOfWeek: new Date(selectedDate).getDay(),
           hours: data.hours,
-          note: data.notes,
+          note: data.notes || undefined,
         });
-        addTimeEntry(newEntry);
+        addTimeEntry(newEntry.data);
       }
 
       // Reload timesheet to update total
@@ -158,7 +163,10 @@ export default function TimesheetTable() {
       const weekDates = getWeekDates(selectedWeekStart);
       for (const date of weekDates) {
         const dateStr = formatDate(date);
-        const dayEntries = timeEntries.filter((e) => e.date === dateStr);
+        const dayEntries = timeEntries.filter((e) => {
+          const entryDate = new Date(new Date(e.weekStartDate).getTime() + e.dayOfWeek * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+          return entryDate === dateStr;
+        });
         const dayTotal = dayEntries.reduce((sum, e) => sum + e.hours, 0);
 
         if (dayTotal > policy.maxHoursPerDay) {
@@ -172,7 +180,7 @@ export default function TimesheetTable() {
         }
       }
 
-      if (currentTimesheet.totalHours > policy.maxHoursPerWeek) {
+      if (currentTimesheet.totalHours && currentTimesheet.totalHours > policy.maxHoursPerWeek) {
         showToast.error(
           t('timesheet.validationMaxHoursPerWeek', { max: policy.maxHoursPerWeek })
         );
@@ -191,7 +199,7 @@ export default function TimesheetTable() {
       if (typeof window !== 'undefined' && (window as any).posthog) {
         (window as any).posthog.capture('timesheet_submitted', {
           timesheetId: currentTimesheet.id,
-          totalHours: currentTimesheet.totalHours,
+          totalHours: currentTimesheet.totalHours || 0,
           weekStart: (currentTimesheet as any).weekStartDate || (currentTimesheet as any).weekStart,
         });
       }
@@ -207,7 +215,10 @@ export default function TimesheetTable() {
   // Calculate daily totals
   const dailyTotals = weekDates.map((date) => {
     const dateStr = formatDate(date);
-    const dayEntries = timeEntries.filter((e) => e.date === dateStr);
+    const dayEntries = timeEntries.filter((e) => {
+      const entryDate = new Date(new Date(e.weekStartDate).getTime() + e.dayOfWeek * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      return entryDate === dateStr;
+    });
     return dayEntries.reduce((sum, e) => sum + e.hours, 0);
   });
 
@@ -320,15 +331,17 @@ export default function TimesheetTable() {
                     <div className="text-xs text-gray-600 dark:text-gray-400">
                       {entry.taskName}
                     </div>
-                    {entry.notes && (
+                    {entry.note && (
                       <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                        {entry.notes}
+                        {entry.note}
                       </div>
                     )}
                   </td>
                   {weekDates.map((date) => {
                     const dateStr = formatDate(date);
-                    const isEntryDate = entry.date === dateStr;
+                    // Calculate entry date from weekStartDate + dayOfWeek
+                    const entryDateCalc = new Date(new Date(entry.weekStartDate).getTime() + entry.dayOfWeek * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                    const isEntryDate = entryDateCalc === dateStr;
                     return (
                       <td
                         key={dateStr}
@@ -422,12 +435,12 @@ export default function TimesheetTable() {
                 <td
                   colSpan={7}
                   className={`px-4 py-3 text-center font-bold text-lg ${
-                    policy && currentTimesheet.totalHours > policy.maxHoursPerWeek
+                    policy && currentTimesheet.totalHours && currentTimesheet.totalHours > policy.maxHoursPerWeek
                       ? 'text-red-600 dark:text-red-400'
                       : 'text-gray-900 dark:text-gray-100'
                   }`}
                 >
-                  {currentTimesheet.totalHours}h
+                  {currentTimesheet.totalHours || 0}h
                   {policy && (
                     <span className="text-sm font-normal text-gray-600 dark:text-gray-400 ml-2">
                       / {policy.maxHoursPerWeek}h {t('timesheet.max')}
@@ -449,8 +462,15 @@ export default function TimesheetTable() {
               {editingEntry ? t('timesheet.editEntry') : t('timesheet.addEntry')}
             </h3>
             <TimeEntryForm
-              entry={editingEntry}
-              date={selectedDate}
+              initialData={editingEntry ? {
+                projectId: editingEntry.projectId,
+                taskId: editingEntry.taskId,
+                hours: editingEntry.hours,
+                note: editingEntry.note || undefined
+              } : undefined}
+              dayOfWeek={new Date(selectedDate).getDay()}
+              weekStartDate={formatDate(selectedWeekStart)}
+              isEditing={!!editingEntry}
               onSubmit={handleFormSubmit}
               onCancel={() => {
                 setShowEntryForm(false);

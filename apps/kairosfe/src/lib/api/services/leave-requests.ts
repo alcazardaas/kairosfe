@@ -16,41 +16,39 @@ export interface UpdateLeaveRequestData {
 }
 
 // Map API LeaveRequestDto to frontend LeaveRequest
+// Matches actual API response per BACKEND_FRONTEND_API_ALIGNMENT.md
 interface LeaveRequestDto {
   id: string;
   tenantId: string;
   userId: string;
-  userName: string | null;
-  userEmail: string;
+  userName?: string | null;
+  userEmail?: string;
   benefitTypeId: string;
   startDate: string;
   endDate: string;
-  amount: number;
+  totalDays: number; // API returns totalDays, not amount
   status: 'pending' | 'approved' | 'rejected' | 'cancelled';
-  approverUserId: string | null;
-  approvedAt: string | null;
-  note: string | null;
+  approvalNote: string | null; // API returns approvalNote
   createdAt: string;
+  updatedAt: string;
 }
 
 function mapDtoToLeaveRequest(dto: LeaveRequestDto): LeaveRequest {
   return {
     id: dto.id,
+    tenantId: dto.tenantId,
     userId: dto.userId,
     userName: dto.userName || undefined,
     userEmail: dto.userEmail || undefined,
+    benefitTypeId: dto.benefitTypeId,
     type: 'vacation', // Default - should be mapped from benefitTypeId in real implementation
     startDate: dto.startDate,
     endDate: dto.endDate,
+    totalDays: dto.totalDays,
     status: dto.status,
-    reason: dto.note || undefined,
-    rejectionReason: undefined, // Not provided by API yet
-    approvedBy: dto.approverUserId || undefined,
-    approvedAt: dto.approvedAt || undefined,
-    rejectedBy: undefined, // Not provided by API yet
-    rejectedAt: undefined, // Not provided by API yet
+    approvalNote: dto.approvalNote,
     createdAt: dto.createdAt,
-    updatedAt: dto.createdAt, // Using createdAt as updatedAt since API doesn't provide it
+    updatedAt: dto.updatedAt,
   };
 }
 

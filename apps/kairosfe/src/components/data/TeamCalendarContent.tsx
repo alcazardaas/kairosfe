@@ -676,9 +676,9 @@ export default function TeamCalendarContent() {
                               >
                                 {leave.status}
                               </span>
-                              {leave.amount && leave.unit && (
+                              {leave.totalDays && (
                                 <span className={`text-xs ${textColor}`}>
-                                  {leave.amount} {t(`common.unit.${leave.unit}`)}
+                                  {leave.totalDays} {t('common.unit.days')}
                                 </span>
                               )}
                             </div>

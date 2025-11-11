@@ -136,7 +136,7 @@ export default function LeaveRequestsContent() {
                   <p>
                     {request.startDate} - {request.endDate}
                   </p>
-                  {request.reason && <p className="muted">{request.reason}</p>}
+                  <p className="muted">{request.totalDays} {t('common.unit.days')}</p>
                 </div>
                 <span className={`status-badge status-${request.status}`}>
                   {t(`leaveRequests.${request.status}`)}

@@ -36,7 +36,7 @@ export default function TimesheetQueueTable() {
       // In a real app, this would filter by manager's team
       // For now, we'll get all pending timesheets
       const allTimesheets = await getTimesheets({ status: 'pending' });
-      setTimesheets(allTimesheets);
+      setTimesheets(allTimesheets.data); // Extract data array from response
     } catch (error) {
       console.error('Failed to load pending timesheets:', error);
     } finally {
@@ -173,13 +173,13 @@ export default function TimesheetQueueTable() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900 dark:text-gray-100">
-                    {new Date(timesheet.weekStart).toLocaleDateString()} -{' '}
-                    {new Date(timesheet.weekEnd).toLocaleDateString()}
+                    {new Date(timesheet.weekStartDate).toLocaleDateString()} -{' '}
+                    {new Date(new Date(timesheet.weekStartDate).getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString()}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    {timesheet.totalHours}h
+                    {timesheet.totalHours || 0}h
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
