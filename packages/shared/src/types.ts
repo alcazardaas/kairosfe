@@ -49,6 +49,39 @@ export interface RefreshTokenResponse {
   expiresIn: number;
 }
 
+// Signup types
+export interface SignupRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  companyName: string;
+  timezone?: string;
+  acceptedTerms: boolean;
+}
+
+export interface SignupResponse {
+  data: {
+    token: string;
+    refreshToken: string;
+    expiresAt: string;
+    user: {
+      id: string;
+      email: string;
+      name: string;
+    };
+    tenant: {
+      id: string;
+      name: string;
+      slug: string;
+    };
+    membership: {
+      role: 'admin';
+      status: 'active';
+    };
+  };
+}
+
 export type LeaveType = 'vacation' | 'sick' | 'personal' | 'bereavement' | 'parental' | 'other';
 export type LeaveRequestStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
 

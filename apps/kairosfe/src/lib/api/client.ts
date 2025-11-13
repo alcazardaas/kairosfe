@@ -1,4 +1,4 @@
-import type { AuthResponse, RefreshTokenResponse } from '@kairos/shared';
+import type { AuthResponse, RefreshTokenResponse, SignupRequest, SignupResponse } from '@kairos/shared';
 import { useAuthStore } from '../store';
 import type { z } from 'zod';
 import { ErrorResponseSchema } from './schemas';
@@ -457,6 +457,21 @@ class ApiClient {
   // Auth-specific methods
   async login(email: string, password: string): Promise<AuthResponse> {
     return this.post<AuthResponse>('/auth/login', { email, password });
+  }
+
+  async signup(data: SignupRequest): Promise<SignupResponse> {
+    // Normalize data according to API spec
+    const payload = {
+      email: data.email.toLowerCase().trim(),
+      password: data.password,
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
+      companyName: data.companyName.trim(),
+      timezone: data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      acceptedTerms: data.acceptedTerms,
+    };
+
+    return this.post<SignupResponse>('/auth/signup', payload);
   }
 
   async logout(): Promise<void> {
